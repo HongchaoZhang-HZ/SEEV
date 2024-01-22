@@ -1,4 +1,4 @@
-from utils import *
+from .utils import *
 
 class NeuralNetwork(nn.Module):
     def __init__(self, architecture):
