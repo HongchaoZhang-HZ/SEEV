@@ -10,5 +10,7 @@
         "./Phase1_Scalability",
         "-p",
         "test*.py"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.autoImportCompletions": true
 }
