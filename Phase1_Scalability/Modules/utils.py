@@ -31,7 +31,6 @@ def visualize_samples(samples):
     plt.title('Generated Samples')
     plt.show()
    
-
-# Generate the samples
+# Example: Generate the samples and visualize them
 # samples = generate_samples([(-1,1),(-1,1)], 100)
 # visualize_samples(samples)
