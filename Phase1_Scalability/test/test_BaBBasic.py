@@ -4,7 +4,7 @@ sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 import unittest
 from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
-from Scripts.BaBBasic import NStatus, NeuronStatus, NetworkStatus
+from Phase1_Scalability.Scripts.Status import NeuronStatus, NetworkStatus
 
 class TestNeuronStatus(unittest.TestCase):
     def test_init(self):
