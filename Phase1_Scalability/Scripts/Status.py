@@ -50,7 +50,7 @@ class NetworkStatus:
     def set_layer_status_from_value(self, layer_idx, input_value) -> list:
         layer_status = list([])
         for neuron_idx, neuron_input in enumerate(input_value):
-            neuron_status = NeuronStatus(layer_idx, neuron_idx, -2)
+            neuron_status = NeuronStatus(int(layer_idx/2), int(neuron_idx), -2)
             neuron_status.set_status_from_value(neuron_input)
             neuron_status.display()
             layer_status.append(neuron_status)
@@ -70,7 +70,7 @@ class NetworkStatus:
             if layer_idx % 2 == 0: # starting from 0
                 self.neuron_inputs[int(layer_idx/2)] = x.tolist()
                 layer_status = self.set_layer_status_from_value(layer_idx, x)
-                self.network_status[int(layer_idx/2)] = layer_status  # type: ignore # Assign the first NeuronStatus object
+                self.network_status[int(layer_idx/2)] = layer_status  
                 self.network_status_values[int(layer_idx/2)] = [nstatus.status for nstatus in layer_status]
         print('Propagation completed.')
         self.display_network_status_value()
