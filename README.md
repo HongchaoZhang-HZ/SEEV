@@ -2,6 +2,19 @@
 
 
 # Summary of Phase 1 Development
+|                filepath                |                    function                     | passed | SUBTOTAL |
+| -------------------------------------- | ----------------------------------------------- | -----: | -------: |
+| Phase1_Scalability/test/test_NNet.py   | TestNeuralNetwork.test_forward                  |      1 |        1 |
+| Phase1_Scalability/test/test_NNet.py   | TestNeuralNetwork.test_init                     |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNeuronStatus.test_get_id                    |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNeuronStatus.test_init                      |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNeuronStatus.test_set_status                |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNetworkStatus.test_get_netstatus_from_input |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNetworkStatus.test_init                     |      1 |        1 |
+| Phase1_Scalability/test/test_Status.py | TestNetworkStatus.test_set_layer_status         |      1 |        1 |
+| Phase1_Scalability/test/test_utils.py  | TestUtils.test_generate_HD_samples              |      1 |        1 |
+| Phase1_Scalability/test/test_utils.py  | TestUtils.test_generate_samples                 |      1 |        1 |
+| TOTAL                                  |                                                 |     10 |       10 |
 
 ## Status (Neural Network Status Tracker)
 
