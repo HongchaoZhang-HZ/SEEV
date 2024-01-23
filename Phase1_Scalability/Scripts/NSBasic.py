@@ -1,8 +1,6 @@
 import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
-from Modules.NNet import NeuralNetwork as NNet
-from Status import NeuronStatus, NetworkStatus
 
 class NSBasic:
     def __init__(self):
@@ -42,3 +40,24 @@ class NSBasic:
     @set_U.setter
     def set_U(self, set_U):
         self.set_U = set_U
+        
+class NS(NSBasic):
+    def __init__(self):
+        super().__init__()
+        self.SOI = {}
+    
+    @property
+    def SOI(self):
+        return self.SOI
+    
+    @SOI.setter
+    def SOI(self, SOI):
+        self.SOI = SOI
+        
+    def init_SOI(self):
+        pass
+    
+    def update_SOI(self):
+        pass
+    
+    
