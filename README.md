@@ -27,7 +27,3 @@ This script is designed for monitoring and analyzing the internal states of a ne
 
 ### Dependencies
 - Relies on custom modules (`Modules.utils` and `Modules.NNet`) and PyTorch.
-
-### Note
-- Current version lacks direct logging to file functionality.
-- Aimed at developers and researchers for neural network analysis.
