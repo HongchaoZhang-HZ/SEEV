@@ -41,10 +41,10 @@ class TestNetworkStatus(unittest.TestCase):
         # Verify the layer status is set correctly
         self.assertEqual(layer_status_value, layer_status)
         
-    def test_forwad_propogaion(self):
+    def test_get_netstatus_from_input(self):
         input_size = self.network.layers[0].in_features
         input = torch.rand(input_size)
-        self.NStatus.forward_propagation(input)
+        self.NStatus.get_netstatus_from_input(input)
 
         # Check network status
         net_stat_values = self.NStatus.network_status_values

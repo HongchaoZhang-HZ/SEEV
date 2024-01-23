@@ -62,7 +62,7 @@ class NetworkStatus:
     def display_layer_status(self, layer_status):
         print("Layer Status: ", [nstatus.status for nstatus in layer_status])
 
-    def forward_propagation(self, input_value) -> None:
+    def get_netstatus_from_input(self, input_value) -> None:
         x = input_value
         for layer_idx, layer in enumerate(self.network.layers):
             x = layer(x)
