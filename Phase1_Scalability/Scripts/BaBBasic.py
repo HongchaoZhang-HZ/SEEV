@@ -6,7 +6,16 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 
 class QBasic(NS):
-    
+    '''Class to store the basic functions for Q tuple
+    Variables:
+    _NStatus: NetworkStatus, network status
+    _net_size: list, size of the network
+    _mask: dict, mask for the network
+    Features:
+    net_size: returns the size of the network
+    update_Q_from_NS: updates the Q from NS
+    update_mask: updates the mask from the Q
+    '''
     def __init__(self, network):
         super().__init__()
         self.init_NS(network)
