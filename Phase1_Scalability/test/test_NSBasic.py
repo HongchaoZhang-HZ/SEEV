@@ -61,6 +61,8 @@ class TestNSBasic(unittest.TestCase):
         neuron_status = NeuronStatus(0, 0, -2)
         self.NSB.add_to_set('U', neuron_status)
         self.assertEqual(self.NSB.set_U[0][0].display(), NeuronStatus(0, 0, -2).display())
+        self.NSB.add_to_set('P', neuron_status)
+        self.assertEqual(self.NSB.set_U[0][0].display(), NeuronStatus(0, 0, 1).display())
     
     def test_remove_from_set(self):
         neuron_status = NeuronStatus(0, 0, -2)
@@ -75,6 +77,14 @@ class TestNSBasic(unittest.TestCase):
         neuron_status = NeuronStatus(0, 0, -1)
         self.NSB.update_set('U', neuron_status)
         self.assertEqual(self.NSB.set_U[0][0].display(), NeuronStatus(0, 0, -1).display())
+    
+    def test_move(self):
+        neuron_status = NeuronStatus(0, 0, -2)
+        self.NSB.add_to_set('U', neuron_status)
+        self.assertEqual(self.NSB.set_U[0][0].display(), NeuronStatus(0, 0, -2).display())
+        self.NSB.move('U', 'P', neuron_status)
+        self.assertEqual(self.NSB.set_U, {0: {}})
+        self.assertEqual(self.NSB.set_P[0][0].display(), NeuronStatus(0, 0, 1).display())
                                               
 class TestNS(unittest.TestCase):
     def setUp(self) -> None:

@@ -93,15 +93,21 @@ class NSBasic:
         if not self.is_in_set(set_type, NeuronS):
             if set_type == 'P':
                 stype = self.set_P
+                value = 1
             elif set_type == 'N':
                 stype = self.set_N
+                value = -1
             elif set_type == 'Z':
                 stype = self.set_Z
+                value = 0
             elif set_type == 'U':
                 stype = self.set_U
+                value = -2
             if NeuronS.layer in stype.keys():
+                NeuronS.set_status(value)
                 stype[NeuronS.layer][NeuronS.neuron] = NeuronS
             else:
+                NeuronS.set_status(value)
                 stype[NeuronS.layer] = {NeuronS.neuron: NeuronS}
     
     def remove_from_set(self,
@@ -124,6 +130,13 @@ class NSBasic:
         if self.is_in_set(set_type, NeuronS):
             self.remove_from_set(set_type, NeuronS)
         self.add_to_set(set_type, NeuronS)
+        
+    def move(self, 
+             from_set:str, 
+             to_set:str, 
+             NeuronS:NeuronStatus) -> None:
+        self.remove_from_set(from_set, NeuronS)
+        self.add_to_set(to_set, NeuronS)
         
     def display(self, set_type:str) -> None:
         if set_type == 'P':
