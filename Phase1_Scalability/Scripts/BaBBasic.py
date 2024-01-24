@@ -6,6 +6,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 
 class QBasic(NS):
+    
     def __init__(self, network):
         super().__init__()
         self.init_NS(network)

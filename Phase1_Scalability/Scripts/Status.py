@@ -45,7 +45,7 @@ class NeuronStatus:
         
         
 class NetworkStatus:
-    ''' Class to store the status of a network
+    ''' Class to store the status a given network
     Inputs:
     network: NNet, neural network
     Features:

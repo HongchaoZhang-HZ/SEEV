@@ -5,6 +5,22 @@ from Modules.utils import *
 from Scripts.Status import NeuronStatus, NetworkStatus
 
 class NSBasic:
+    '''Class to store the basic functions for the network status
+    Variables:
+    set_P: the set of neuron who preactivation input is positive
+    set_N: the set of neuron who preactivation input is negative
+    set_Z: the set of neuron who preactivation input is zero
+    set_U: the set of neuron who preactivation input is unknown
+    Features:
+    neuron_layer_is_in_set: checks if the neuron is in the set
+    neuron_idx_is_in_layer: checks if the neuron index is in the layer
+    is_in_set: checks if the neuron is in the set
+    add_to_set: adds the neuron to the set
+    remove_from_set: removes the neuron from the set
+    update_set: updates the set
+    move: moves the neuron from one set to another
+    display: prints the set
+    '''
     def __init__(self):
         self._set_P = {}
         self._set_N = {}
@@ -143,6 +159,20 @@ class NSBasic:
                 stype[layer_idx][neuron_idx].display()
         
 class NS(NSBasic):
+    '''Class to store the network status for QBasic
+    Variables:
+    SOI: Set of Important Neurons
+    Pcon: Constraints for the positive neurons
+    Ncon: Constraints for the negative neurons
+    Zcon: Constraints for the zero neurons
+    Ucon: Constraints for the unknown neurons
+    Features:
+    get_network: gets the network to intialize the U set
+    get_NS_input: gets the network status from the input value
+    init_NS: initializes the network status
+    init_SOI: initializes the set of important neurons
+    update_SOI: updates the set of important neurons
+    '''
     def __init__(self):
         super().__init__()
         self._SOI = {}
