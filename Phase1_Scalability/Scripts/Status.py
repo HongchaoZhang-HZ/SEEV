@@ -4,6 +4,18 @@ from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
 
 class NeuronStatus:
+    '''Class to store the status of a neuron in a network
+    Inputs:
+    layer: int, layer index
+    neuron: int, neuron index
+    status: int, status of the neuron
+    Features:
+    get_id: returns the layer and neuron index
+    get_status: returns the status of the neuron
+    set_status: sets the status of the neuron
+    set_status_from_value: sets the status of the neuron based on the value
+    display: prints the layer, neuron and status of the neuron
+    '''
     def __init__(self, layer:int, neuron:int, status:int):
         self.layer = layer
         self.neuron = neuron
@@ -33,6 +45,17 @@ class NeuronStatus:
         
         
 class NetworkStatus:
+    ''' Class to store the status of a network
+    Inputs:
+    network: NNet, neural network
+    Features:
+    set_layer_status: sets the status of the layer
+    set_layer_status_from_value: sets the status of the layer from the value
+    get_neuron_inputs: returns the input to the neurons
+    display_layer_status: prints the status of the layer
+    get_netstatus_from_input: gets the network status from the input
+    display_network_status_value: prints the network status
+    '''
     def __init__(self, network):
         self.network = network
         self.neuron_inputs = {}
