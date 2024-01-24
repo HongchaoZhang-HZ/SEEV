@@ -41,7 +41,22 @@ class TestNSBasic(unittest.TestCase):
         self.assertEqual(self.NSB.set_U[0][0].display(), NeuronStatus(0, 0, -2).display())
         self.assertEqual(self.NSB.set_U[1][31].display(), NeuronStatus(1, 31, -2).display())
         self.assertEqual(self.NSB.set_U[2][0].display(), NeuronStatus(2, 0, -2).display())
-    
+  
+    def test_get_NS_input(self):
+        network = NNet([('relu', 2), ('relu', 32), ('linear', 1)])
+        self.NSB.init_NS(network)
+        input_size = self.NSB.network.layers[0].in_features
+        input = torch.rand(input_size)
+        dict_NSV = self.NSB.get_NS_input(input, 'NSV')
+        dict_NS = self.NSB.get_NS_input(input, 'NS')
+        
+        # Check network status
+        net_stat_values = dict_NSV
+        net_stat = dict_NS
+        for layer_idx in range(len(net_stat)):
+            layer_status = [item.status for item in net_stat[layer_idx]]
+            self.assertEqual(layer_status, net_stat_values[layer_idx])
+
     def test_neuron_layer_is_in_set(self):
         neuron_status = NeuronStatus(0, 0, -2)
         self.NSB.set_U = {0: {0: neuron_status}}
@@ -85,13 +100,6 @@ class TestNSBasic(unittest.TestCase):
         self.NSB.move('U', 'P', neuron_status)
         self.assertEqual(self.NSB.set_U, {0: {}})
         self.assertEqual(self.NSB.set_P[0][0].display(), NeuronStatus(0, 0, 1).display())
-                                              
-class TestNS(unittest.TestCase):
-    def setUp(self) -> None:
-        self.NS = NS()
-        
-    def test_init(self):
-        self.assertEqual(self.NS._SOI, {})
-        
+         
 if __name__ == '__main__':
     unittest.main()

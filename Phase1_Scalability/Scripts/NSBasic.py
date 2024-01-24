@@ -53,7 +53,25 @@ class NSBasic:
                     ns = NeuronStatus(int(layer_idx/2), int(neuron_idx), -2)
                     list_of_neurons[neuron_idx] = ns
                 self.set_U[int(layer_idx/2)] = list_of_neurons
-        
+    
+    def init_NS(self, network) -> None:
+        self._NStatus = NetworkStatus(network)
+        self.get_network(network)
+    
+    def get_NS_input(self, input_value:torch.tensor, type:str) -> dict:
+        '''Get the network status from the input value
+        input_value: torch.tensor
+        type: str (NI, NS, NSV)
+        NI: Neuron Inputs, NS: Network Status, NSV: Network Status Values
+        '''
+        self._NStatus.get_netstatus_from_input(input_value)
+        if type == 'NI':
+            return self._NStatus.neuron_inputs
+        elif type == 'NS':
+            return self._NStatus.network_status
+        elif type == 'NSV':
+            return self._NStatus.network_status_values
+    
     def neuron_layer_is_in_set(self, 
                                set:dict, 
                                NeuronS:NeuronStatus) -> bool:
@@ -156,6 +174,10 @@ class NS(NSBasic):
     def __init__(self):
         super().__init__()
         self._SOI = {}
+        self._Pcon = {}
+        self._Ncon = {}
+        self._Zcon = {}
+        self._Ucon = {}
     
     @property
     def SOI(self):
@@ -170,6 +192,38 @@ class NS(NSBasic):
     
     def update_SOI(self):
         pass
+    
+    @property
+    def Pcon(self):
+        return self._Pcon
+    
+    @Pcon.setter
+    def Pcon(self, Pcon):
+        self._Pcon = Pcon
+        
+    @property
+    def Ncon(self):
+        return self._Ncon
+    
+    @Ncon.setter
+    def Ncon(self, Ncon):
+        self._Ncon = Ncon
+        
+    @property
+    def Zcon(self):
+        return self._Zcon
+    
+    @Zcon.setter
+    def Zcon(self, Zcon):
+        self._Zcon = Zcon
+        
+    @property
+    def Ucon(self):
+        return self._Ucon
+    
+    @Ucon.setter
+    def Ucon(self, Ucon):
+        self._Ucon = Ucon
     
 if __name__ == '__main__':
     NS = NS()

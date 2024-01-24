@@ -5,6 +5,12 @@ from Modules.NNet import NeuralNetwork as NNet
 from Status import NeuronStatus, NetworkStatus
 from NSBasic import NSBasic, NS
 
+class QBasic(NS):
+    def __init__(self, network):
+        super().__init__()
+        self.init_NS(network)
+        
+
 class BaBBasic():
     def __init__(self, network):
         self.network = network
