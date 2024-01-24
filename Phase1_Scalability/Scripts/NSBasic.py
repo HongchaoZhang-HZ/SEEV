@@ -43,34 +43,6 @@ class NSBasic:
     def set_U(self, set_U) -> None:
         self._set_U = set_U
         
-    def get_network(self, network) -> None:
-        self.network = network
-        for layer_idx, layer in enumerate(self.network.layers):
-            list_of_neurons = {}
-            if layer_idx % 2 == 0:
-                num_neurons = layer.out_features
-                for neuron_idx in range(num_neurons):
-                    ns = NeuronStatus(int(layer_idx/2), int(neuron_idx), -2)
-                    list_of_neurons[neuron_idx] = ns
-                self.set_U[int(layer_idx/2)] = list_of_neurons
-    
-    def init_NS(self, network) -> None:
-        self._NStatus = NetworkStatus(network)
-        self.get_network(network)
-    
-    def get_NS_input(self, input_value:torch.tensor, type:str) -> dict:
-        '''Get the network status from the input value
-        input_value: torch.tensor
-        type: str (NI, NS, NSV)
-        NI: Neuron Inputs, NS: Network Status, NSV: Network Status Values
-        '''
-        self._NStatus.get_netstatus_from_input(input_value)
-        if type == 'NI':
-            return self._NStatus.neuron_inputs
-        elif type == 'NS':
-            return self._NStatus.network_status
-        elif type == 'NSV':
-            return self._NStatus.network_status_values
     
     def neuron_layer_is_in_set(self, 
                                set:dict, 
@@ -178,6 +150,35 @@ class NS(NSBasic):
         self._Ncon = {}
         self._Zcon = {}
         self._Ucon = {}
+    
+    def get_network(self, network) -> None:
+        self.network = network
+        for layer_idx, layer in enumerate(self.network.layers):
+            list_of_neurons = {}
+            if layer_idx % 2 == 0:
+                num_neurons = layer.out_features
+                for neuron_idx in range(num_neurons):
+                    ns = NeuronStatus(int(layer_idx/2), int(neuron_idx), -2)
+                    list_of_neurons[neuron_idx] = ns
+                self.set_U[int(layer_idx/2)] = list_of_neurons
+    
+    def get_NS_input(self, input_value:torch.tensor, type:str) -> dict:
+        '''Get the network status from the input value
+        input_value: torch.tensor
+        type: str (NI, NS, NSV)
+        NI: Neuron Inputs, NS: Network Status, NSV: Network Status Values
+        '''
+        self._NStatus.get_netstatus_from_input(input_value)
+        if type == 'NI':
+            return self._NStatus.neuron_inputs
+        elif type == 'NS':
+            return self._NStatus.network_status
+        elif type == 'NSV':
+            return self._NStatus.network_status_values
+    
+    def init_NS(self, network) -> None:
+        self._NStatus = NetworkStatus(network)
+        self.get_network(network)
     
     @property
     def SOI(self):

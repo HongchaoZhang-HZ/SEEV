@@ -17,10 +17,9 @@ class TestQBasic(unittest.TestCase):
         self.assertEqual(self.QBasic.set_P, {})
         self.assertEqual(self.QBasic.set_N, {})
         self.assertEqual(self.QBasic.set_Z, {})
-        # ValidNS = NS()
-        # ValidNS.get_network(self.QBasic.network)
-        # self.assertEqual(self.QBasic.set_U, ValidNS.display('U'))
-
+        for layer_idx in self.QBasic.set_U.keys():
+            for neuron_idx in self.QBasic.set_U[layer_idx]:
+                self.assertEqual(self.QBasic.set_U[layer_idx][neuron_idx].status, -2)
 
 
 if __name__ == '__main__':
