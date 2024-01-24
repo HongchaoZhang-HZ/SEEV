@@ -2,8 +2,8 @@
 # sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
-from Status import NeuronStatus, NetworkStatus
-from NSBasic import NSBasic, NS
+from Scripts.Status import NeuronStatus, NetworkStatus
+from Scripts.NSBasic import NSBasic, NS
 
 class QBasic(NS):
     def __init__(self, network):
