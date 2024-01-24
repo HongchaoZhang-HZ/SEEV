@@ -1,3 +1,4 @@
+import re
 import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
@@ -52,7 +53,78 @@ class NSBasic:
                     ns = NeuronStatus(int(layer_idx/2), int(neuron_idx), -2)
                     list_of_neurons[neuron_idx] = ns
                 self.set_U[int(layer_idx/2)] = list_of_neurons
+        
+    def neuron_layer_is_in_set(self, 
+                               set:dict, 
+                               NeuronS:NeuronStatus) -> bool:
+        if NeuronS.layer in set.keys():
+            return True
+        else:
+            return False
+        
+    def neuron_idx_is_in_layer(self, 
+                               layer:dict, 
+                               NeuronS:NeuronStatus) -> bool:
+        if NeuronS.neuron in layer.keys():
+            return True
+        else:
+            return False
     
+    def is_in_set(self, 
+                  set_type:str, 
+                  NeuronS:NeuronStatus) -> bool:
+        if set_type == 'P':
+            stype = self.set_P
+        elif set_type == 'N':
+            stype = self.set_N
+        elif set_type == 'Z':
+            stype = self.set_Z
+        elif set_type == 'U':
+            stype = self.set_U
+        NeuronID = NeuronS.get_id()
+        if NeuronID[0] in stype.keys() and NeuronID[1] in stype[NeuronID[0]].keys():
+            return True
+        else:
+            return False
+    
+    def add_to_set(self, 
+                   set_type:str, 
+                   NeuronS: NeuronStatus) -> None:
+        if not self.is_in_set(set_type, NeuronS):
+            if set_type == 'P':
+                stype = self.set_P
+            elif set_type == 'N':
+                stype = self.set_N
+            elif set_type == 'Z':
+                stype = self.set_Z
+            elif set_type == 'U':
+                stype = self.set_U
+            if NeuronS.layer in stype.keys():
+                stype[NeuronS.layer][NeuronS.neuron] = NeuronS
+            else:
+                stype[NeuronS.layer] = {NeuronS.neuron: NeuronS}
+    
+    def remove_from_set(self,
+                        set_type:str,
+                        NeuronS:NeuronStatus) -> None:
+        if self.is_in_set(set_type, NeuronS):
+            if set_type == 'P':
+                stype = self.set_P
+            elif set_type == 'N':
+                stype = self.set_N
+            elif set_type == 'Z':
+                stype = self.set_Z
+            elif set_type == 'U':
+                stype = self.set_U
+            del stype[NeuronS.layer][NeuronS.neuron]
+    
+    def update_set(self,
+                   set_type:str,
+                   NeuronS:NeuronStatus) -> None:
+        if self.is_in_set(set_type, NeuronS):
+            self.remove_from_set(set_type, NeuronS)
+        self.add_to_set(set_type, NeuronS)
+        
     def display(self, set_type:str) -> None:
         if set_type == 'P':
             stype = self.set_P
