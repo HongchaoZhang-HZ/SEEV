@@ -37,3 +37,29 @@ This script is designed for monitoring and analyzing the internal states of a ne
 
 ### Dependencies
 - Relies on custom modules (`Modules.utils` and `Modules.NNet`) and PyTorch.
+
+
+## Development Log: Neuron Status Management in Neural Networks
+This script implements a system for managing and tracking the status of neurons in neural networks, aiding in network analysis and debugging.
+
+### Key Features
+
+#### NSBasic Class
+- **Functionality**: Handles management of neuron status sets (Positive, Negative, Zero, Unknown).
+- **Features**: 
+  - Includes getters and setters for status set management.
+  - Provides methods for adding, removing, and updating neuron statuses.
+
+#### NS Class (Extension of NSBasic)
+- **Enhancement**: Adds additional functionalities, currently unspecified.
+- **Placeholders**: Includes `init_SOI()` and `update_SOI()` methods for future development.
+
+### Usage
+- The classes are designed to be integrated with neural network models for monitoring neuron statuses.
+- They offer functionalities to dynamically manage and track the status of individual neurons across network layers.
+- The script can be particularly useful for neural network debugging and detailed analysis of neuron behavior during model training and inference.
+
+### Dependencies
+- External modules: `Modules.utils`, `Modules.NNet`.
+- Custom classes: `NeuronStatus`, `NetworkStatus` from `Scripts.Status`.
+- The script is dependent on these modules for core functionalities like neural network architecture and utility functions.
