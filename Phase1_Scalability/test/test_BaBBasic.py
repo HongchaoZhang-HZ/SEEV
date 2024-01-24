@@ -25,7 +25,7 @@ class TestQBasic(unittest.TestCase):
         mask = self.QBasic.init_mask()
         for layer_idx in range(len(self.QBasic._net_size)):
             self.assertEqual(mask[layer_idx].shape[0], self.QBasic._net_size[layer_idx])
-            self.assertEqual(mask[layer_idx].dtype, torch.float32)
+            self.assertEqual(mask[layer_idx].dtype, torch.int8)
 
     def test_update_Q_frrom_NS(self):
         input_size = self.QBasic._NStatus.network.layers[0].in_features
@@ -42,6 +42,14 @@ class TestQBasic(unittest.TestCase):
             self.assertEqual(self.QBasic.set_Z[0][0], N_Status)
         else:
             self.assertEqual(self.QBasic.set_U[0][0], N_Status)
+    
+    def test_update_mask(self):
+        self.test_update_Q_frrom_NS()
+        self.QBasic.update_mask()
+        for layer_idx in range(len(self.QBasic._net_size)):
+            self.assertEqual(self.QBasic.mask[layer_idx].dtype, torch.int8)
+            self.assertEqual(self.QBasic.mask[layer_idx].tolist(), 
+                             self.QBasic._NStatus.network_status_values[layer_idx])
     
 if __name__ == '__main__':
     unittest.main()

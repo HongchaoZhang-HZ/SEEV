@@ -31,6 +31,7 @@ class QBasic(NS):
                     set_type = 'Z'
                 else:
                     set_type = 'U'
+                self.remove_from_set('U', self._NStatus.network_status[layer_idx][neuron_idx])
                 self.add_to_set(set_type, self._NStatus.network_status[layer_idx][neuron_idx])
         
     @property
@@ -47,7 +48,8 @@ class QBasic(NS):
     def init_mask(self) -> dict:
         mask = {}
         for layer_idx in range(len(self._net_size)):
-            mask[layer_idx] = -2*torch.ones(self._net_size[layer_idx]).to(self.network.device)
+            mask[layer_idx] = -2*torch.ones(self._net_size[layer_idx], 
+                                            dtype=torch.int8).to(self.network.device)
         return mask
     
     def update_mask(self) -> None:
