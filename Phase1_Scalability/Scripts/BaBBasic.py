@@ -75,28 +75,55 @@ class QBasic(NS):
         for layer_idx in self.set_U.keys():
             for neuron_idx in self.set_U[layer_idx].keys():
                 self._mask[layer_idx][neuron_idx] = -2
-
+                
+    def Activation(self, x:torch.tensor) -> dict:
+        '''Function to get the value of the function
+        x: torch.tensor
+        '''
+        self._NStatus.get_netstatus_from_input(x)
+        self.update_Q_from_NS()
+        self.update_mask()
+        return self._mask
+    
+    def V(self, x:torch.tensor) -> torch.tensor:
+        '''Function to get the derivative of NNet given Q
+        x: torch.tensor
+        '''
+        pass
+        
 class BaBBasic():
     def __init__(self, network):
         self.network = network
         self.NStatus = NetworkStatus(network)
-        self.NS = NS()
-    
-    @property
-    def NStatus(self):
-        return self.NStatus
-    
-    @property
-    def NS(self):
-        return self.NS
-    
-    @NStatus.setter
-    def NStatus(self, NStatus):
-        self.NStatus = NStatus
+        # Q tuple is node
+        self._Q = QBasic(network)
+        # ToDo: Bound of Q
+        self._X = {}
+        # ToDo: Derivative of Q
+        self._V = {}
         
-    @NS.setter
-    def NS(self, NS):
-        self.NS = NS
+    @property
+    def Q(self):
+        return self._Q
+    
+    @property
+    def X(self):
+        return self._X
+    
+    @X.setter
+    def X(self, Q):
+        pass
+    
+    @property
+    def V(self):
+        return self._V
+    
+    @V.setter
+    def V(self, Q):
+        pass
+    
+    
+    
 
 if __name__ == '__main__':
     Q = QBasic(NNet([('relu', 2), ('relu', 32), ('linear', 1)]))
