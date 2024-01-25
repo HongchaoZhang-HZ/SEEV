@@ -13,7 +13,8 @@
 | $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_utils.py}}$$ |   $$\textcolor{#23d18b}{\tt{2}}$$ | $$\textcolor{#23d18b}{\tt{2}}$$ |
 | $$\textcolor{#23d18b}{\tt{TOTAL}}$$      |  $$\textcolor{#23d18b}{\tt{29}}$$ | $$\textcolor{#23d18b}{\tt{29}}$$ |
 
-## Status (Neural Network Status Tracker)
+
+## Development Log: Status (Neural Network Status Tracker)
 
 This script is designed for monitoring and analyzing the internal states of a neural network. It focuses on tracking the status of individual neurons across different layers during data processing.
 
