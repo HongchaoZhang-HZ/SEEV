@@ -13,6 +13,13 @@
 | $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_utils.py}}$$ |   $$\textcolor{#23d18b}{\tt{2}}$$ | $$\textcolor{#23d18b}{\tt{2}}$$ |
 | $$\textcolor{#23d18b}{\tt{TOTAL}}$$      |  $$\textcolor{#23d18b}{\tt{29}}$$ | $$\textcolor{#23d18b}{\tt{29}}$$ |
 
+<!-- # Strucutre of the Project
+```plaintext
+NCBF
+├── Cases.py
+│   ── Different Cases
+├── NNet.py 
+``` -->
 
 ## Development Log: Status (Neural Network Status Tracker)
 
