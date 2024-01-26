@@ -29,10 +29,11 @@ class NeuronStatus:
     def get_status(self):
         return self.status
 
-    def set_status(self, new_status) -> None:
+    def set_status(self, new_status:int) -> None:
         self.status = new_status
         
-    def set_status_from_value(self, value) -> None:
+    def set_status_from_value(self, 
+                              value:torch.tensor) -> None:
         if value > self.tol:
             self.status = 1
         elif value < -self.tol:
@@ -56,7 +57,7 @@ class NetworkStatus:
     get_netstatus_from_input: gets the network status from the input
     display_network_status_value: prints the network status
     '''
-    def __init__(self, network):
+    def __init__(self, network: NNet):
         self.network = network
         self.neuron_inputs = {}
         self.network_status = {}
@@ -85,7 +86,8 @@ class NetworkStatus:
     def display_layer_status(self, layer_status):
         print("Layer Status: ", [nstatus.status for nstatus in layer_status])
 
-    def get_netstatus_from_input(self, input_value) -> None:
+    def get_netstatus_from_input(self, 
+                                 input_value:torch.tensor) -> None:
         x = input_value
         for layer_idx, layer in enumerate(self.network.layers):
             x = layer(x)

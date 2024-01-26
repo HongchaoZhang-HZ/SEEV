@@ -16,7 +16,7 @@ class QBasic(NS):
     update_Q_from_NS: updates the Q from NS
     update_mask: updates the mask from the Q
     '''
-    def __init__(self, network):
+    def __init__(self, network: NNet):
         super().__init__()
         self.init_NS(network)
         self._net_size = self.net_size()

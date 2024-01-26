@@ -8,7 +8,7 @@ from Scripts.NSBasic import NSBasic, NS
 from Scripts.BaBBasic import QBasic, BaBBasic
 
 class BaB_ReLU:
-    def __init__(self, network):
+    def __init__(self, network: NNet):
         self._NStatus = NSBasic()
         self._NStatus.init_NS(network)
         self._QBasic = QBasic(network)
