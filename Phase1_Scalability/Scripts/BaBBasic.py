@@ -97,9 +97,9 @@ class BaBBasic():
         self.NStatus = NetworkStatus(network)
         # Q tuple is node
         self._Q = QBasic(network)
-        # ToDo: Bound of Q
+        # TODO: Bound of Q
         self._X = {}
-        # ToDo: Derivative of Q
+        # TODO: Derivative of Q
         self._V = {}
         
     @property
