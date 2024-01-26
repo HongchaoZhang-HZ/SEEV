@@ -181,7 +181,7 @@ class NS(NSBasic):
         self._Zcon = {}
         self._Ucon = {}
     
-    def get_network(self, network) -> None:
+    def get_network(self, network:NNet) -> None:
         self.network = network
         for layer_idx, layer in enumerate(self.network.layers):
             list_of_neurons = {}
@@ -215,7 +215,7 @@ class NS(NSBasic):
         return self._SOI
     
     @SOI.setter
-    def SOI(self, SOI):
+    def SOI(self, SOI:dict):
         self._SOI = SOI
         
     def init_SOI(self):

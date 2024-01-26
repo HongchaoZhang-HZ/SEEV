@@ -49,7 +49,7 @@ class QBasic(NS):
         return self._mask
     
     @mask.setter
-    def mask(self, new_mask):
+    def mask(self, new_mask:dict):
         for layer_idx in range(len(self._net_size)):
             if new_mask[layer_idx].shape[0] != self._net_size[layer_idx]:
                 raise ValueError("Mask shape does not match the input shape of the layer")

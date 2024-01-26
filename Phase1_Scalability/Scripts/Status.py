@@ -63,7 +63,7 @@ class NetworkStatus:
         self.network_status = {}
         self.network_status_values = {}
 
-    def set_layer_status(self, layer_idx, layer_status):
+    def set_layer_status(self, layer_idx:int, layer_status:int):
         for neuron_idx, neuron_status in enumerate(layer_status):
             if self.network_status == {}:
                 self.network_status = [NeuronStatus(layer_idx, status_item, -2) for status_item in layer_status]
@@ -83,7 +83,7 @@ class NetworkStatus:
     def get_neuron_inputs(self) -> dict:
         return self.neuron_inputs
     
-    def display_layer_status(self, layer_status):
+    def display_layer_status(self, layer_status:list):
         print("Layer Status: ", [nstatus.status for nstatus in layer_status])
 
     def get_netstatus_from_input(self, 
