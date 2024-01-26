@@ -4,18 +4,9 @@ class NeuralNetwork(nn.Module):
     def __init__(self, architecture):
         '''
         Initializes a NeuralNetwork object.
-
         Parameters:
         architecture (list): A list of tuples representing the architecture of the neural network.
                                 Each tuple contains the activation function and the size of the layer.
-
-        Raises:
-        ValueError: If an unknown activation function is provided.
-        
-        # Example usage
-        architecture = [('relu', 64), ('relu', 32), ('linear', 1)]
-        model = NeuralNetwork(architecture)
-        print(model)
         '''
         super(NeuralNetwork, self).__init__()
         self.layers = nn.ModuleList()
