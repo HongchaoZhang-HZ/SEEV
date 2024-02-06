@@ -4,6 +4,14 @@ import numpy as np
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
+import dataclasses
+from typing import Optional, Tuple, Union
+import numpy as np
+
+import pydrake.symbolic as sym
+import pydrake.solvers as solvers
+
+
 def generate_samples(domain, num_samples):
     # Get the dimensions of the domain
     num_dimensions = len(domain)
