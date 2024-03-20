@@ -45,4 +45,6 @@ def RoA(S):
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
 def LinearExp(S):
+    # Input: S: Activation set of a ReLU NN
+    # Output: X: Linear expression of the output of the ReLU NN
     pass
