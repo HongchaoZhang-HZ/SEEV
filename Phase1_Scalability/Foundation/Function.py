@@ -48,3 +48,8 @@ def LinearExp(S):
     # Input: S: Activation set of a ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     pass
+
+def solver():
+    # Input: X: Linear expression of the output of the ReLU NN
+    # Output: X: Linear expression of the output of the ReLU NN
+    pass
