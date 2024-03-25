@@ -10,10 +10,10 @@ from Scripts.NSBasic import NSBasic, NS
 from Scripts.BaBBasic import QBasic, BaBBasic
 from BaB.BaB_ReLU import ReLU_Q
 
-class TestReLU_Q(unittest.TestCase):
-    def setUp(self) -> None:
-        network = NNet([('relu', 2), ('relu', 32), ('linear', 1)])
-        self.ReLU_Q = ReLU_Q(network)
+# class TestReLU_Q(unittest.TestCase):
+#     def setUp(self) -> None:
+#         network = NNet([('relu', 2), ('relu', 32), ('linear', 1)])
+#         self.ReLU_Q = ReLU_Q(network)
         
     # def test_init(self):
     #     self.assertEqual(self.ReLU_Q.set_P, {})
