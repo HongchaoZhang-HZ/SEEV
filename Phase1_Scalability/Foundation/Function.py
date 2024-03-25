@@ -1,5 +1,5 @@
-from Modules import *
-
+from pydrake.solvers import MathematicalProgram, Solve
+import numpy as np
 # Given a linear expression of a ReLU NN (Activation set $S$), 
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
 
@@ -49,7 +49,22 @@ def LinearExp(S):
     # Output: X: Linear expression of the output of the ReLU NN
     pass
 
-def solver():
+def solver_lp():
     # Input: X: Linear expression of the output of the ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
-    pass
+    # Create an empty MathematicalProgram named prog (with no decision variables,
+    # constraints or costs)
+    prog = MathematicalProgram()
+    # Add two decision variables x[0], x[1].
+    x = prog.NewContinuousVariables(2, "x")
+
+    # Add a symbolic linear expression as the cost.
+    cost1 = prog.AddLinearCost(x[0] + 3 * x[1] + 2)
+    # Print the newly added cost
+    print(cost1)
+    # The newly added cost is stored in prog.linear_costs().
+    print(prog.linear_costs()[0])
+    
+    
+if __name__ == "__main__":
+    solver_lp()
