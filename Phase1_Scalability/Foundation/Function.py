@@ -10,7 +10,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
 
 # Region of Activation (RoA) is the set of points that are activated by a ReLU NN
-def RoA(S, prog:MathematicalProgram, x):
+def RoA(S:dict, prog:MathematicalProgram, x):
     # Initialize the set of constraints
     X = []
     
@@ -61,7 +61,7 @@ def activated_weight_bias_ml(model,activated_set,num_neuron):
     return W_overl, r_overl, B_act, B_inact
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
-def LinearExp(S) -> (np.array, np.array):
+def LinearExp(S:dict) -> (np.array, np.array):
     # Input: S: Activation set of a ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     W = np.array([0])
@@ -73,10 +73,9 @@ def LinearExp(S) -> (np.array, np.array):
     num_layers = len(S)
     # TODO: get activation fucntion
     
-    # Iterate over the layers of the NN
-    for i in range(num_layers):
+    for keys, values in S.items():
         # Get the current layer
-        layer = S[i]
+        layer = S[keys]
         
         # Get the activation function and the number of neurons in the layer
         activation, num_neurons = layer
@@ -114,5 +113,6 @@ if __name__ == "__main__":
     input_size = model.layers[0].in_features
     random_input = torch.rand(input_size)
     x = random_input
-    # NStatus.forward_propagation(x)
+    NStatus.get_netstatus_from_input(x)
+    S = NStatus.network_status_values
     

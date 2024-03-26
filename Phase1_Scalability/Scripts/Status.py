@@ -113,4 +113,5 @@ if __name__ == '__main__':
     random_input = torch.rand(input_size)
     x = random_input
     # NStatus.forward_propagation(x)
+    NStatus.get_netstatus_from_input(x)
     
