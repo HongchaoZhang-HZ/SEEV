@@ -112,5 +112,5 @@ if __name__ == '__main__':
     input_size = model.layers[0].in_features
     random_input = torch.rand(input_size)
     x = random_input
-    NStatus.forward_propagation(x)
+    # NStatus.forward_propagation(x)
     
