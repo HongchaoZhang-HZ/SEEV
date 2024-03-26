@@ -4,7 +4,7 @@ import numpy as np
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
 
 # Region of Activation (RoA) is the set of points that are activated by a ReLU NN
-def RoA(S):
+def RoA(S, prog:MathematicalProgram, x):
     # Initialize the set of constraints
     X = []
     
@@ -41,7 +41,7 @@ def RoA(S):
                 X.append(constraint)
     
     # Return the set of constraints
-    return X
+    return prog
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
 def LinearExp(S):
