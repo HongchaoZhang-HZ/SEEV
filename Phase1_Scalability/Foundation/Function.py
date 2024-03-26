@@ -1,5 +1,11 @@
 from pydrake.solvers import MathematicalProgram, Solve
 import numpy as np
+import sys, os
+sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
+from Modules.utils import *
+from Modules.NNet import NeuralNetwork as NNet
+from Scripts.Status import NeuronStatus, NetworkStatus
+
 # Given a linear expression of a ReLU NN (Activation set $S$), 
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
 
@@ -8,8 +14,64 @@ def RoA(S, prog:MathematicalProgram, x):
     # Initialize the set of constraints
     X = []
     
+    W, r = LinearExp(S)
+    
+    # Return the set of constraints
+    return prog
+
+def activated_weight_bias_ml(model,activated_set,num_neuron):
+    W_list = []
+    r_list = []
+    para_list = list(model.state_dict())
+    i = 0
+    while i < (len(para_list)):
+        weight = model.state_dict()[para_list[i]]
+        i += 1
+        bias = model.state_dict()[para_list[i]]
+        i += 1
+        W_list.append(weight)
+        r_list.append(bias)
+    # compute the activated weight of the layer
+    for l in range(2):
+        # compute region/boundary weight
+
+
+        if l == 0:
+            W_l = torch.mul(activated_set[num_neuron*l:num_neuron*(l+1)], W_list[l])
+            r_l = torch.mul(activated_set[num_neuron*l:num_neuron*(l+1)], torch.reshape(r_list[l], [len(r_list[l]), 1]))
+            W_a = W_l
+            r_a = r_l
+            W_i = W_list[l] - W_l
+            r_i = -torch.reshape(r_list[l], [len(r_list[l]), 1]) + r_l
+        else:
+            W_pre = W_list[l] @ W_l
+            r_pre = W_list[l] @ r_l + r_list[l].reshape([len(r_list[l]), 1])
+            W_l = activated_set[num_neuron*l:num_neuron*(l+1)]*W_pre
+            r_l = activated_set[num_neuron*l:num_neuron*(l+1)]*r_pre
+            W_a = torch.vstack([W_a, W_l])
+            r_a = torch.vstack([r_a, r_l])
+            W_i = torch.vstack([W_i, W_pre - W_l])
+            r_i = torch.vstack([r_i, -torch.reshape(r_pre, [len(r_pre), 1]) + r_l])
+        B_act = [W_a, r_a]  # W_a x <= r_a
+        B_inact = [W_i, r_i]  # W_a x <= r_a
+    # W_overl = torch.matmul(W_list[-1], torch.matmul(W_list[-2], W_l))  # compute \overline{W}(S)
+    # r_overl = torch.matmul(W_list[-1], torch.matmul(W_list[-2], r_l) + r_list[-2].reshape([num_neuron,1])) + r_list[-1]  # compute \overline{r}(S)
+    W_overl = torch.matmul(W_list[-1], W_l)  # compute \overline{W}(S)
+    r_overl = torch.matmul(W_list[-1], r_l) + r_list[-1]  # compute \overline{r}(S)
+    return W_overl, r_overl, B_act, B_inact
+
+# Given a activation set $S$, return the linear expression of the output of the ReLU NN
+def LinearExp(S) -> (np.array, np.array):
+    # Input: S: Activation set of a ReLU NN
+    # Output: X: Linear expression of the output of the ReLU NN
+    W = np.array([0])
+    r = np.array([0])
+    
+    # TODO: Implement the function to get the linear expression of the output of the ReLU NN
+    
     # Get the number of layers in the NN
     num_layers = len(S)
+    # TODO: get activation fucntion
     
     # Iterate over the layers of the NN
     for i in range(num_layers):
@@ -19,35 +81,10 @@ def RoA(S, prog:MathematicalProgram, x):
         # Get the activation function and the number of neurons in the layer
         activation, num_neurons = layer
         
-        # If the activation function is ReLU
-        if activation == 'relu':
-            # Iterate over the neurons in the layer
-            for j in range(num_neurons):
-                # Initialize the constraint for the neuron
-                constraint = []
-                
-                # Iterate over the weights of the neuron
-                for k in range(len(S[i-1][1])):
-                    # Get the weight of the neuron
-                    weight = S[i-1][1][k][j]
-                    
-                    # Add the weight to the constraint
-                    constraint.append(weight)
-                
-                # Add the bias of the neuron to the constraint
-                constraint.append(S[i-1][1][-1][j])
-                
-                # Add the constraint to the set of constraints
-                X.append(constraint)
-    
-    # Return the set of constraints
-    return prog
-
-# Given a activation set $S$, return the linear expression of the output of the ReLU NN
-def LinearExp(S):
-    # Input: S: Activation set of a ReLU NN
-    # Output: X: Linear expression of the output of the ReLU NN
-    pass
+        W = np.append(W, np.array([np.zeros(num_neurons)]))
+        r = np.append(r, np.array([np.zeros(num_neurons)]))
+        
+    return (W, r)
 
 def solver_lp():
     # Input: X: Linear expression of the output of the ReLU NN
@@ -68,3 +105,14 @@ def solver_lp():
     
 if __name__ == "__main__":
     solver_lp()
+
+    architecture = [('relu', 2), ('relu', 32), ('linear', 1)]
+    model = NNet(architecture)
+    NStatus = NetworkStatus(model)
+
+    # Generate random input using torch.rand for the model
+    input_size = model.layers[0].in_features
+    random_input = torch.rand(input_size)
+    x = random_input
+    NStatus.forward_propagation(x)
+    
