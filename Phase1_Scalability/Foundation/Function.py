@@ -64,9 +64,17 @@ def activated_weight_bias_ml(model,activated_set,num_neuron):
 def LinearExp(S:dict) -> (np.array, np.array):
     # Input: S: Activation set of a ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
-    W = np.array([0])
-    r = np.array([0])
-    
+    W_list = []
+    r_list = []
+    para_list = list(model.state_dict())
+    i = 0
+    while i < (len(para_list)):
+        weight = model.state_dict()[para_list[i]]
+        i += 1
+        bias = model.state_dict()[para_list[i]]
+        i += 1
+        W_list.append(weight)
+        r_list.append(bias)
     # TODO: Implement the function to get the linear expression of the output of the ReLU NN
     
     # Get the number of layers in the NN
