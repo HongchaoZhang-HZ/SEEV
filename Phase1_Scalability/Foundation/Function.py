@@ -61,7 +61,7 @@ def activated_weight_bias_ml(model,activated_set,num_neuron):
     return W_overl, r_overl, B_act, B_inact
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
-def LinearExp(S:dict) -> (np.array, np.array):
+def LinearExp(S:dict) -> (dict, dict, dict, dict):
     # Input: S: Activation set of a ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     W_list = []
@@ -75,23 +75,38 @@ def LinearExp(S:dict) -> (np.array, np.array):
         i += 1
         W_list.append(weight)
         r_list.append(bias)
-    # TODO: Implement the function to get the linear expression of the output of the ReLU NN
-    
-    # Get the number of layers in the NN
-    num_layers = len(S)
-    # TODO: get activation fucntion
-    
-    for keys, values in S.items():
-        # Get the current layer
-        layer = S[keys]
         
-        # Get the activation function and the number of neurons in the layer
-        activation, num_neurons = layer
+    W_B = dict()
+    r_B = dict()
+    W_o = dict()
+    r_o = dict()
+    for keys, layer_info in S.items():
+        # Get the current activation layer
+        layer_act_list = torch.relu(torch.tensor(layer_info))
+        layer_act_output_array = np.array(layer_act_list)
+        layer_act_bound_array = np.array(layer_info)
         
-        W = np.append(W, np.array([np.zeros(num_neurons)]))
-        r = np.append(r, np.array([np.zeros(num_neurons)]))
+        # compute output equivalent weight and bias for each layer
+        W_o_layer = np.multiply(np.expand_dims(layer_act_output_array,-1), W_list[keys])
+        r_o_layer = np.multiply(layer_act_output_array, r_list[keys])
         
-    return (W, r)
+        # compute boundary weight and bias for each layer
+        W_B_layer = np.multiply(np.expand_dims(layer_act_bound_array,-1), W_list[keys])
+        r_B_layer = np.multiply(layer_act_output_array, r_list[keys])
+        # add boundary condition to W_B and r_B
+        if keys == 0:
+            W_B[keys] = W_B_layer
+            r_B[keys] = r_B_layer
+            W_o[keys] = W_o_layer
+            r_o[keys] = r_o_layer
+        else:
+            W_o[keys] = np.matmul(W_o_layer, W_o[keys-1])
+            r_o[keys] = np.matmul(W_o_layer, r_o[keys-1]) + r_o_layer
+            
+            W_B[keys] = np.matmul(W_B_layer, W_o[keys-1])
+            r_B[keys] = np.matmul(W_B_layer, r_o[keys-1]) + r_B_layer
+        
+    return W_B, r_B, W_o, r_o
 
 def solver_lp():
     # Input: X: Linear expression of the output of the ReLU NN
@@ -123,4 +138,5 @@ if __name__ == "__main__":
     x = random_input
     NStatus.get_netstatus_from_input(x)
     S = NStatus.network_status_values
-    
+    W_B, r_B, W_o, r_o = LinearExp(S)
+    print(W_B, r_B, W_o, r_o)
