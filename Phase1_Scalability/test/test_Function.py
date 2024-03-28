@@ -8,7 +8,7 @@ from Modules.NNet import NeuralNetwork as NNet
 from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 
-from Foundation.Function import RoA, LinearExp, solver_lp
+from Phase1_Scalability.Modules.Function import RoA, LinearExp, solver_lp
 from pydrake.solvers import MathematicalProgram, Solve
 
 class TestFunctions(unittest.TestCase):

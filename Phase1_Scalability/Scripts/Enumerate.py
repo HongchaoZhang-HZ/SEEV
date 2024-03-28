@@ -5,7 +5,7 @@ from Modules.NNet import NeuralNetwork as NNet
 from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 import PARA as p
-from Foundation.Function import RoA, LinearExp
+from Phase1_Scalability.Modules.Function import RoA, LinearExp
 
 class Enumerate:
     def __init__(self) -> None:

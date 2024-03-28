@@ -92,7 +92,8 @@ def solver_lp(model, S):
     # constraints or costs)
     prog = MathematicalProgram()
     # Add two decision variables x[0], x[1].
-    x = prog.NewContinuousVariables(2, "x")
+    dim = model.layer[0].in_features
+    x = prog.NewContinuousVariables(dim, "x")
     prog = RoA(prog, x, model, S)
     # Add linear constraints
     W_B, r_B, W_o, r_o = LinearExp(S)
