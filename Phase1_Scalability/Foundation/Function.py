@@ -10,7 +10,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
 
 # Region of Activation (RoA) is the set of points that are activated by a ReLU NN
-def RoA(prog:MathematicalProgram, x, 
+def RoA(prog:MathematicalProgram, x, model,
         S:dict=None, W_B:dict=None, r_B:dict=None) -> MathematicalProgram:
     # check if S is provided
     if S is None:
@@ -19,7 +19,7 @@ def RoA(prog:MathematicalProgram, x,
             raise ValueError("Activation set S or (W_B, r_B) are not provided")
     else:
         # if not, compute the linear expression of the output of the ReLU NN
-        W_B, r_B, _, _ = LinearExp(S)
+        W_B, r_B, _, _ = LinearExp(model, S)
         
     assert len(W_B) == len(r_B), "W_B and r_B must have the same amount of layers"
     # stack W_B and r_B constraints
@@ -38,7 +38,7 @@ def RoA(prog:MathematicalProgram, x,
     return prog
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
-def LinearExp(S:dict) -> (dict, dict, dict, dict):
+def LinearExp(model, S:dict) -> (dict, dict, dict, dict):
     # Input: S: Activation set of a ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     W_list = []
@@ -93,7 +93,7 @@ def solver_lp(model, S):
     prog = MathematicalProgram()
     # Add two decision variables x[0], x[1].
     x = prog.NewContinuousVariables(2, "x")
-    prog = RoA(prog, x, S)
+    prog = RoA(prog, x, model, S)
     # Add linear constraints
     W_B, r_B, W_o, r_o = LinearExp(S)
     print(W_B, r_B, W_o, r_o)
