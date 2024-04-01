@@ -20,13 +20,15 @@ def RoA(prog:MathematicalProgram, x, model,
     else:
         # if not, compute the linear expression of the output of the ReLU NN
         W_B, r_B, _, _ = LinearExp(model, S)
-        
+    final_layer_idx = len(W_B.keys())-1
     assert len(W_B) == len(r_B), "W_B and r_B must have the same amount of layers"
     # stack W_B and r_B constraints
     for keys, layer_info in W_B.items():
         if keys == 0:
             cons_W = layer_info
             cons_r = r_B[keys]
+        elif keys == final_layer_idx:
+            break
         else:
             cons_W = np.vstack([cons_W, layer_info])
             cons_r = np.hstack([cons_r, r_B[keys]])
@@ -104,7 +106,8 @@ def solver_lp(model, S):
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
-    prog.AddLinearConstraint(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]) == 0)
+    prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+    # prog.AddLinearConstraint(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]) == 0)
     # Add cost function
     # QC = prog.AddQuadraticCost(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]))
     
@@ -113,6 +116,8 @@ def solver_lp(model, S):
     print(f"Is solved successfully: {result.is_success()}")
     print(f"x optimal value: {result.GetSolution(x)}")
     print(f"optimal cost: {result.get_optimal_cost()}") 
+
+    return result
     
 if __name__ == "__main__":
 
