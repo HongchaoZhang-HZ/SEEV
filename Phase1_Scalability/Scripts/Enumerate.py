@@ -7,6 +7,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 import PARA as p
 from Modules.Function import *
+from auto_LiRPA import BoundedModule, BoundedTensor, PerturbationLpNorm
 
 # class Enumerate:
 #     def __init__(self) -> None:
@@ -86,7 +87,7 @@ def rdm_intialization(input_size, model, NStatus, S_init_Set, m = 10):
             S_init_Set.add(tuple(tuple(items) for keys, items in S.items()))
     return S_init_Set
 
-def test_with_model():
+def test_with_model(pre_set = True):
     # Define a simple model and S for testing
     architecture = [('relu', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
@@ -95,12 +96,15 @@ def test_with_model():
 
     # Generate random input using torch.rand for the model
     input_size = model.layers[0].in_features
-    S_init_Set = set()
-    while len(S_init_Set)==0:
-        S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 100)
-    S_Set = S_init_Set.pop()
-    S = {key: list(value) for key, value in enumerate(S_Set)}
-    # S_1 = {0: [1, -1], 1: [1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, -1], 2: [-1]}
+    if pre_set:
+        S = {0: [1, -1], 1: [1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, -1], 2: [-1]}
+    else:
+        S_init_Set = set()
+        while len(S_init_Set)==0:
+            S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 10)
+        S_Set = S_init_Set.pop()
+        S = {key: list(value) for key, value in enumerate(S_Set)}
+    
     prog = MathematicalProgram()
     # Add two decision variables x[0], x[1].
     dim = next(model.children())[0].in_features
@@ -113,11 +117,11 @@ def test_with_model():
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
-    output_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]).flatten(), np.array(r_o[index_o]), x)
+    output_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
     
     for i in range(len(W_B)):
         for j in range(len(W_B[i])):
-            eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(r_B[i][j]), x)
+            eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
             result = Solve(prog)
             print(f"Is solved successfully: {result.is_success()}")
             if result.is_success():
