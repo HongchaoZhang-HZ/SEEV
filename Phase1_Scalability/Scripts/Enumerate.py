@@ -1,6 +1,5 @@
 import sys, os
 
-from torch import R
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
@@ -56,6 +55,7 @@ def test():
             prog.RemoveConstraint(eq_cons)
 
 def gridify(state_space, shape, cell_length):
+    dn = [None] * len(shape)
     for i in range(len(shape)):
         dn[i] = torch.linspace(state_space[0][0] + cell_length / 2, state_space[0][1] - cell_length / 2, shape[0])
     data = torch.stack(torch.meshgrid(*dn),dim=-1).reshape(*shape, -1)
@@ -63,13 +63,15 @@ def gridify(state_space, shape, cell_length):
 
 def grid_intialization(input_size, model, NStatus, S_init_Set, m = 10):
     input_set = gridify(state_space=[[-2,2],[-2,2]], shape=[10, 10], cell_length=0.1)
-    for i in range(m):
-        NStatus.get_netstatus_from_input(input_set[i])
-        S = NStatus.network_status_values
-        res = solver_lp(model, S)
-        if res.is_success():
-            print(f"Random initialization {i} is successful")
-            S_init_Set.add(tuple(tuple(items) for keys, items in S.items()))
+    
+    for i in range(10):
+        for j in range(10):
+            NStatus.get_netstatus_from_input(input_set[i][j])
+            S = NStatus.network_status_values
+            res = solver_lp(model, S)
+            if res.is_success():
+                print(f"Random initialization {i} is successful")
+                S_init_Set.add(tuple(tuple(items) for keys, items in S.items()))
     return S_init_Set
 
 # TODO: FIX THIS this function does not provide a good initialization
@@ -95,9 +97,10 @@ def test_with_model():
     input_size = model.layers[0].in_features
     S_init_Set = set()
     while len(S_init_Set)==0:
-        S_init_Set = rdm_intialization(input_size, model, NStatus, S_init_Set, m = 100)
-    S = S_init_Set.pop()
-    
+        S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 100)
+    S_Set = S_init_Set.pop()
+    S = {key: list(value) for key, value in enumerate(S_Set)}
+    # S_1 = {0: [1, -1], 1: [1, 1, -1, 1, -1, -1, -1, 1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, -1], 2: [-1]}
     prog = MathematicalProgram()
     # Add two decision variables x[0], x[1].
     dim = next(model.children())[0].in_features
