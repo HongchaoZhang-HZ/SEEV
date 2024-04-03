@@ -58,7 +58,7 @@ class NetworkStatus:
     display_network_status_value: prints the network status
     '''
     def __init__(self, network: NNet):
-        self.network = network
+        self.network = network.to('cpu')
         self.neuron_inputs = {}
         self.network_status = {}
         self.network_status_values = {}
