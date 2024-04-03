@@ -91,7 +91,7 @@ def test_with_model(pre_set = True):
     # Define a simple model and S for testing
     architecture = [('relu', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    model.state_dict(torch.load("./darboux_1_32.pt"))
+    model.state_dict(torch.load("./Phase1_Scalability/darboux_1_32.pt"))
     NStatus = NetworkStatus(model)
 
     # Generate random input using torch.rand for the model
@@ -101,7 +101,7 @@ def test_with_model(pre_set = True):
     else:
         S_init_Set = set()
         while len(S_init_Set)==0:
-            S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 10)
+            S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 100)
         S_Set = S_init_Set.pop()
         S = {key: list(value) for key, value in enumerate(S_Set)}
     
@@ -120,15 +120,15 @@ def test_with_model(pre_set = True):
     output_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
     result = Solve(prog)
     print(f"Is solved successfully: {result.is_success()}")
-    for i in range(len(W_B)):
-        for j in range(len(W_B[i])):
-            eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
-            result = Solve(prog)
-            print(f"Is solved successfully: {result.is_success()}")
-            if result.is_success():
-                print(f"Neuron {i} is unstable at the boundary")
-            prog.RemoveConstraint(eq_cons)
+    # for i in range(len(W_B)):
+    #     for j in range(len(W_B[i])):
+    #         eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
+    #         result = Solve(prog)
+    #         print(f"Is solved successfully: {result.is_success()}")
+    #         if result.is_success():
+    #             print(f"Neuron {i} is unstable at the boundary")
+    #         prog.RemoveConstraint(eq_cons)
 
     
 if __name__ == "__main__":
-    test_with_model()
+    test_with_model(False)

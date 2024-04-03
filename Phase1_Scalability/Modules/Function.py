@@ -1,3 +1,4 @@
+import re
 from pydrake.solvers import MathematicalProgram, Solve
 import numpy as np
 import sys, os
@@ -11,7 +12,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 
 # Region of Activation (RoA) is the set of points that are activated by a ReLU NN
 def RoA(prog:MathematicalProgram, x, model,
-        S:dict=None, W_B:dict=None, r_B:dict=None) -> MathematicalProgram:
+        S:dict=None, W_B:dict=None, r_B:dict=None, SSpace=[-2,2]) -> MathematicalProgram:
     # check if S is provided
     if S is None:
         # check if W_B, r_B are provided
@@ -36,6 +37,7 @@ def RoA(prog:MathematicalProgram, x, model,
     # Add linear constraints to the MathematicalProgram
     linear_constraint = prog.AddLinearConstraint(A= cons_W, lb=-cons_r, 
                                                  ub=np.inf*np.ones(len(cons_r)), vars=x)
+    boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
     print(linear_constraint)
     return prog
 
@@ -87,7 +89,7 @@ def LinearExp(model, S:dict) -> (dict, dict, dict, dict):
         
     return W_B, r_B, W_o, r_o
 
-def solver_lp(model, S):
+def HyperCube_Approximation(model, S):
     # Input: X: Linear expression of the output of the ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     # Create an empty MathematicalProgram named prog (with no decision variables,
@@ -107,9 +109,39 @@ def solver_lp(model, S):
     index_o = len(S.keys())-1
     # Add linear constraints
     prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
-    # prog.AddLinearConstraint(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]) == 0)
-    # Add cost function
-    # QC = prog.AddQuadraticCost(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]))
+    
+    HyperCube = {}
+    for i in range(dim):
+        lb = prog.AddCost(x[i])
+        result = Solve(prog)
+        lb_solution = result.GetSolution(x[i])
+        prog.RemoveCost(lb)
+        ub = prog.AddCost(-x[i])
+        result = Solve(prog)
+        ub_solution = result.GetSolution(x[i])
+        prog.RemoveCost(ub)
+        # print('Lower Bound:', lb_solution)
+        # print('Upper Bound:', ub_solution)
+        HyperCube[i] = [round(lb_solution, round_tol), 
+                        round(ub_solution, round_tol)]
+        
+    print('HyperCube:', HyperCube)
+
+    return HyperCube
+
+def solver_lp(model, S):
+    # Input: X: Linear expression of the output of the ReLU NN
+    # Output: X: Linear expression of the output of the ReLU NN
+    # Create an empty MathematicalProgram named prog (with no decision variables,
+    # constraints or costs)
+    prog = MathematicalProgram()
+    # Add two decision variables x[0], x[1].
+    dim = next(model.children())[0].in_features
+    x = prog.NewContinuousVariables(dim, "x")
+    
+    # Add linear constraints
+    W_B, r_B, _, _ = LinearExp(model, S)
+    prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
     
     # Now solve the program.
     result = Solve(prog)
@@ -131,3 +163,4 @@ if __name__ == "__main__":
     NStatus.get_netstatus_from_input(random_input)
     S = NStatus.network_status_values
     solver_lp(model, S)
+    HyperCube_Approximation(model, S)
