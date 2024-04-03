@@ -1,3 +1,5 @@
 Discussion.md
 Discussion.pdf
 env/
+.venv/
+*.pyc

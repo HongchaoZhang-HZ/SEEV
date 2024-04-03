@@ -61,7 +61,7 @@ def LinearExp(model, S:dict) -> (dict, dict, dict, dict):
     r_o = dict()
     for keys, layer_info in S.items():
         # Get the current activation layer
-        layer_act_list = torch.relu(torch.tensor(layer_info))
+        layer_act_list = torch.relu(torch.Tensor(layer_info).cpu())
         layer_act_output_array = np.array(layer_act_list)
         layer_act_bound_array = np.array(layer_info)
         
@@ -127,8 +127,7 @@ if __name__ == "__main__":
 
     # Generate random input using torch.rand for the model
     input_size = model.layers[0].in_features
-    random_input = torch.rand(input_size)
-    x = random_input
-    NStatus.get_netstatus_from_input(x)
+    random_input = torch.rand(input_size).to(model.device)
+    NStatus.get_netstatus_from_input(random_input)
     S = NStatus.network_status_values
     solver_lp(model, S)

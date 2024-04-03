@@ -7,7 +7,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 import PARA as p
 from Modules.Function import *
-# from auto_lirpa import BoundedModule, BoundedTensor, PerturbationLpNorm
+from auto_LiRPA import BoundedModule, BoundedTensor, PerturbationLpNorm
 
 # class Enumerate:
 #     def __init__(self) -> None:
