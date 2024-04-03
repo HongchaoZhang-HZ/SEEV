@@ -7,7 +7,7 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
 import PARA as p
 from Modules.Function import *
-from auto_LiRPA import BoundedModule, BoundedTensor, PerturbationLpNorm
+# from auto_lirpa import BoundedModule, BoundedTensor, PerturbationLpNorm
 
 # class Enumerate:
 #     def __init__(self) -> None:
@@ -91,7 +91,7 @@ def test_with_model(pre_set = True):
     # Define a simple model and S for testing
     architecture = [('relu', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    model.state_dict(torch.load("Phase1_Scalability/darboux_1_32.pt"))
+    model.state_dict(torch.load("./darboux_1_32.pt"))
     NStatus = NetworkStatus(model)
 
     # Generate random input using torch.rand for the model
@@ -118,7 +118,8 @@ def test_with_model(pre_set = True):
     index_o = len(S.keys())-1
     # Add linear constraints
     output_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
-    
+    result = Solve(prog)
+    print(f"Is solved successfully: {result.is_success()}")
     for i in range(len(W_B)):
         for j in range(len(W_B[i])):
             eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
