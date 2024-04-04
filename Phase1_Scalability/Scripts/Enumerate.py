@@ -89,9 +89,11 @@ def rdm_intialization(input_size, model, NStatus, S_init_Set, m = 10):
 
 def test_with_model(pre_set = True):
     # Define a simple model and S for testing
-    architecture = [('relu', 2), ('relu', 32), ('linear', 1)]
+    architecture = [('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    model.state_dict(torch.load("./Phase1_Scalability/darboux_1_32.pt"))
+    trained_state_dict = torch.load("./Phase1_Scalability/darboux_1_32.pt")
+    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    model.load_state_dict(trained_state_dict, strict=True)
     NStatus = NetworkStatus(model)
 
     # Generate random input using torch.rand for the model
@@ -120,14 +122,15 @@ def test_with_model(pre_set = True):
     output_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
     result = Solve(prog)
     print(f"Is solved successfully: {result.is_success()}")
-    # for i in range(len(W_B)):
-    #     for j in range(len(W_B[i])):
-    #         eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
-    #         result = Solve(prog)
-    #         print(f"Is solved successfully: {result.is_success()}")
-    #         if result.is_success():
-    #             print(f"Neuron {i} is unstable at the boundary")
-    #         prog.RemoveConstraint(eq_cons)
+    if result.is_success():
+        for i in range(len(W_B)):
+            for j in range(len(W_B[i])):
+                eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(-r_B[i][j]), x)
+                result = Solve(prog)
+                print(f"Is solved successfully: {result.is_success()}")
+                if result.is_success():
+                    print(f"Neuron {i} is unstable at the boundary")
+                prog.RemoveConstraint(eq_cons)
 
     
 if __name__ == "__main__":
