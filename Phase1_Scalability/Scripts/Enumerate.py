@@ -89,7 +89,7 @@ def rdm_intialization(input_size, model, NStatus, S_init_Set, m = 10):
 
 def test_with_model(pre_set = True):
     # Define a simple model and S for testing
-    architecture = [('relu', 32), ('linear', 1)]
+    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
     trained_state_dict = torch.load("./Phase1_Scalability/darboux_1_32.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
@@ -103,7 +103,7 @@ def test_with_model(pre_set = True):
     else:
         S_init_Set = set()
         while len(S_init_Set)==0:
-            S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 100)
+            S_init_Set = grid_intialization(input_size, model, NStatus, S_init_Set, m = 10)
         S_Set = S_init_Set.pop()
         S = {key: list(value) for key, value in enumerate(S_Set)}
     

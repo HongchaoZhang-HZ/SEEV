@@ -15,6 +15,7 @@ class NeuralNetwork(nn.Module):
         for i, (activation, layer_size) in enumerate(architecture):
             if i == 0:
                 input_size = layer_size
+                continue
             else:
                 input_size = architecture[i-1][1]
             
