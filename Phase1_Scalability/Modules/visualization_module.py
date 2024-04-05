@@ -156,4 +156,4 @@ if __name__ == "__main__":
     plt.axis([vis.DOMAIN[0][0], vis.DOMAIN[0][1], vis.DOMAIN[1][0], vis.DOMAIN[1][1]])
     plt.axis('equal') ##PLOT_VEC_SCALE = None
     plt.savefig("preview2d.png")
-    plt.show()
+    # plt.show()
