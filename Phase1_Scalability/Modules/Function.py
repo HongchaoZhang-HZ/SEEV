@@ -153,8 +153,13 @@ def solver_lp(model, S):
     
 if __name__ == "__main__":
 
-    architecture = [('relu', 2), ('relu', 32), ('relu', 32), ('linear', 1)]
+    # architecture = [('relu', 2), ('relu', 32), ('relu', 32), ('linear', 1)]
+    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
+    trained_state_dict = torch.load("./Phase1_Scalability/darboux_1_32.pt")
+    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    model.load_state_dict(trained_state_dict, strict=True)
+    # model = NNet(architecture)
     NStatus = NetworkStatus(model)
 
     # Generate random input using torch.rand for the model

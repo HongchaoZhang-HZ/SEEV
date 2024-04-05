@@ -1,8 +1,13 @@
+import sys, os
+
+sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from re import S
 import matplotlib
 from matplotlib import pyplot as plt
 import numpy as np
 import torch
+
+matplotlib.use('Agg')
 
 class visualization_module:
     def __init__(self, shape):
@@ -15,6 +20,9 @@ class visualization_module:
         self.SUB_INIT_SHAPE = []
         self.UNSAFE = [[-2, 0], [-1.5, 1.5]] # the the unsafe in super-rectangle
         self.UNSAFE_SHAPE = 3 # parabola
+        self.TOL_BOUNDARY = 0.01
+        self.SUB_UNSAFE = []
+        self.SUB_UNSAFE_SHAPE = []
 
     def plot_samples(self, fig, sample_set) -> plt.Figure:
         x = sample_set[:, 0]
@@ -53,7 +61,7 @@ class visualization_module:
         barrier_plot_nn_input = self.gen_plot_data(self.DOMAIN, self.PLOT_LEN_B)
         # apply the nn model but do not require gradient
         with torch.no_grad():
-            barrier_plot_nn_output = model(barrier_plot_nn_input).reshape(self.PLOT_LEN_B[1], self.PLOT_LEN_B[0]) # y_size * x_size
+            barrier_plot_nn_output = model.to('cpu')(barrier_plot_nn_input).reshape(self.PLOT_LEN_B[1], self.PLOT_LEN_B[0]) # y_size * x_size
         plot_Z = barrier_plot_nn_output.numpy()
         plot_sample_x = np.linspace(self.DOMAIN[0][0], self.DOMAIN[0][1], self.PLOT_LEN_B[0])
         plot_sample_y = np.linspace(self.DOMAIN[1][0], self.DOMAIN[1][1], self.PLOT_LEN_B[1])
@@ -64,7 +72,7 @@ class visualization_module:
         plt.clabel(barrier_contour, fontsize=20, colors=('k', 'b', 'y'))
         return barrier_contour
     
-    def plot_init(init_range, init_shape):
+    def plot_init(self, init_range, init_shape):
         if init_shape == 1: # rectangle
             init = matplotlib.patches.Rectangle((init_range[0][0], init_range[1][0]), \
                 init_range[0][1] - init_range[0][0], init_range[1][1] - init_range[1][0], facecolor='green')
@@ -73,7 +81,7 @@ class visualization_module:
                     (init_range[1][1] + init_range[1][0]) / 2.0), (init_range[1][1] - init_range[1][0]) / 2.0, facecolor='green')
         return init
 
-    def plot_unsafe(unsafe_range, unsafe_shape):
+    def plot_unsafe(self, unsafe_range, unsafe_shape):
         if unsafe_shape == 1: # rectangle
             unsafe = matplotlib.patches.Rectangle((unsafe_range[0][0], unsafe_range[1][0]), \
                 unsafe_range[0][1] - unsafe_range[0][0], unsafe_range[1][1] - unsafe_range[1][0], facecolor='red')
@@ -87,7 +95,7 @@ class visualization_module:
 
         return unsafe
 
-    def plot_barrier_2d(self, model):
+    def plot_barrier_2d(self, fig, ax, model):
         fig, ax = plt.subplots()
         boundary = self.plot_boundary(model) # plot boundary of barrier function
         
@@ -110,9 +118,7 @@ class visualization_module:
                 unsafe = self.plot_unsafe(self.SUB_UNSAFE[i], self.SUB_UNSAFE_SHAPE[i]) # plot unsafe
                 ax.add_patch(unsafe)
 
-        plt.axis([self.DOMAIN[0][0], self.DOMAIN[0][1], self.DOMAIN[1][0], self.DOMAIN[1][1]])
-        # plt.axis('equal') ##PLOT_VEC_SCALE = None
-        plt.show()
+        return fig, ax
 
 
     # def plot_scatter(): # scatterring sample points
@@ -134,3 +140,20 @@ class visualization_module:
     #     vector_plot = plt.quiver(vector_x_positions, vector_y_positions, vector_x_values, vector_y_values, \
     #                     color='pink', angles='xy', scale_units='xy', scale=superp.PLOT_VEC_SCALE)
     #     return vector_plot
+    
+if __name__ == "__main__":
+    from Modules.NNet import NeuralNetwork as NNet
+    
+    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
+    model = NNet(architecture)
+    trained_state_dict = torch.load("./Phase1_Scalability/darboux_1_32.pt")
+    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    model.load_state_dict(trained_state_dict, strict=True)
+    shape = [[-2, 2], [-2, 2]]
+    vis = visualization_module(shape)
+    fig, ax = plt.subplots()
+    fig, ax = vis.plot_barrier_2d(fig, ax, model)
+    plt.axis([vis.DOMAIN[0][0], vis.DOMAIN[0][1], vis.DOMAIN[1][0], vis.DOMAIN[1][1]])
+    plt.axis('equal') ##PLOT_VEC_SCALE = None
+    plt.savefig("preview2d.png")
+    plt.show()
