@@ -90,7 +90,7 @@ class SearchInit:
                     x_unsafe = input_unsafe[j]
                 if not flag:
                     for k in range(m):
-                        flag, S = self.get_zero_S(x_safe[k], x_unsafe[0])
+                        flag, S = self.get_zero_S(x_safe[k], x_unsafe[0]) # only check the first unsafe point
                         if flag:
                             S_init_Set[j] = S
         if not flag:
