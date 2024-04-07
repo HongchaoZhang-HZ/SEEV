@@ -12,6 +12,7 @@ class SearchInit:
     def __init__(self, model, case=None) -> None:
         self.zero_tol = PARA.zero_tol
         self.model = model
+        self.dim = next(model.children())[0].in_features
         self.case = case
         self.NStatus = NetworkStatus(model)
         if case is not None:
@@ -30,11 +31,10 @@ class SearchInit:
     def identification_lp(self, S):
         prog = MathematicalProgram()
         # Add two decision variables x[0], x[1].
-        dim = next(model.children())[0].in_features
-        x = prog.NewContinuousVariables(dim, "x")
+        x = prog.NewContinuousVariables(self.dim, "x")
         # Add linear constraints
-        W_B, r_B, W_o, r_o = LinearExp(model, S)
-        prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+        W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B)
         
         index_o = len(S.keys())-1
         prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
