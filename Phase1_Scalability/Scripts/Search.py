@@ -1,5 +1,5 @@
 import sys, os
-
+import copy
 from numpy import ubyte
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 
@@ -78,9 +78,9 @@ class Search(SearchInit):
         Possible_S = []
         for layer, neurons in neighbour_neurons.items():
             for neuron in neurons:
-                neighbour_S = ref_S
+                neighbour_S = copy.deepcopy(ref_S)
                 neighbour_S[layer][neuron] = -ref_S[layer][neuron]
-                Possible_S.append(neighbour_S)
+                Possible_S.append(copy.deepcopy(neighbour_S))
         return Possible_S
     
     def BFS(self, S):
@@ -96,21 +96,45 @@ class Search(SearchInit):
         queue = S
         unstable_neurons = set()
         boundary_set = set()
+        boundary_list = []
         while queue:
             current_set = queue.pop(0)
             res = self.identification_lp(current_set) 
+            # res = solver_lp(self.model, current_set)
             print(res.is_success())
             if res.is_success():
-                boundary_set.add(current_set)
-            unstable_neighbours = self.Filter_S_neighbour(current_set)
+                hashable_d = {k: tuple(v) for k, v in current_set.items()}
+                tuple_representation = tuple(sorted(hashable_d.items()))
+                if tuple_representation in boundary_set:
+                    continue
+                boundary_set.add(tuple_representation)
+                boundary_list.append(current_set)
+                unstable_neighbours = self.Filter_S_neighbour(current_set)
+                unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
+                
+                # check repeated set
+                for idx in range(len(unstable_neighbours_S)):
+                    hashable_d = {k: tuple(v) for k, v in unstable_neighbours_S[idx].items()}
+                    tuple_representation = tuple(sorted(hashable_d.items()))
+                    if tuple_representation in boundary_set:
+                        # remove idx from unstable_neighbours_S
+                        unstable_neighbours_S.pop(idx)
+                
+                queue.extend(unstable_neighbours_S)
+            else:
+                continue
             
-            for layer, neurons in unstable_neighbours.items():
-                for neuron in neurons:
-                    unstable_neurons.add((layer, neuron))
-                    queue.append({**current_set, layer: [neuron]})
+            # for layer, neurons in unstable_neighbours.items():
+            #     for neuron in neurons:
+            #         # hashable_d = {k: tuple(v) for k, v in current_set.items()}
+            #         # tuple_representation = tuple(sorted(hashable_d.items()))
+            #         # if tuple_representation in boundary_set:
+            #         #     continue
+            #         unstable_neurons.add((layer, neuron))
+            #         queue.append({**current_set, layer: [neuron]})
                     
         
-        return boundary_set
+        return boundary_list
     
 if __name__ == "__main__":
     architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
@@ -121,11 +145,13 @@ if __name__ == "__main__":
     # case = PARA.CASES[0]
     Search = Search(model)
     # (0.5, 1.5), (0, -1)
-    Search.Specify_point(torch.tensor([[[0.5, 1.8]]]), torch.tensor([[[0, -1]]]))
+    Search.Specify_point(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
     # print(Search.S_init)
 
     Search.Filter_S_neighbour(Search.S_init[0])
     Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Possible_S)
-    unstable_neurons_set = Search.BFS(Possible_S)
+    unstable_neurons_set = Search.BFS([Search.S_init[0]])
+    # unstable_neurons_set = Search.BFS(Possible_S)
     print(unstable_neurons_set)
+    print(len(unstable_neurons_set))

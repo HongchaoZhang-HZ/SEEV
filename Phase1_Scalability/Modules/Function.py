@@ -38,7 +38,7 @@ def RoA(prog:MathematicalProgram, x, model,
     linear_constraint = prog.AddLinearConstraint(A= cons_W, lb=-cons_r, 
                                                  ub=np.inf*np.ones(len(cons_r)), vars=x)
     boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
-    print(linear_constraint)
+    # print(linear_constraint)
     return prog
 
 # Given a activation set $S$, return the linear expression of the output of the ReLU NN
@@ -103,7 +103,7 @@ def HyperCube_Approximation(model, S):
     W_B, r_B, W_o, r_o = LinearExp(model, S)
     prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
     
-    print(W_B, r_B, W_o, r_o)
+    # print(W_B, r_B, W_o, r_o)
     
     # Output layer index
     index_o = len(S.keys())-1
@@ -125,7 +125,7 @@ def HyperCube_Approximation(model, S):
         HyperCube[i] = [round(lb_solution, round_tol), 
                         round(ub_solution, round_tol)]
         
-    print('HyperCube:', HyperCube)
+    # print('HyperCube:', HyperCube)
 
     return HyperCube
 
