@@ -145,9 +145,9 @@ def solver_lp(model, S):
     
     # Now solve the program.
     result = Solve(prog)
-    print(f"Is solved successfully: {result.is_success()}")
-    print(f"x optimal value: {result.GetSolution(x)}")
-    print(f"optimal cost: {result.get_optimal_cost()}") 
+    # print(f"Is solved successfully: {result.is_success()}")
+    # print(f"x optimal value: {result.GetSolution(x)}")
+    # print(f"optimal cost: {result.get_optimal_cost()}") 
 
     return result
     

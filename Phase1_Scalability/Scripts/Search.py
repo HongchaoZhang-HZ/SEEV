@@ -99,9 +99,9 @@ class Search(SearchInit):
         boundary_list = []
         while queue:
             current_set = queue.pop(0)
-            res = self.identification_lp(current_set) 
+            res = solver_lp(self.model, current_set) 
             # res = solver_lp(self.model, current_set)
-            print(res.is_success())
+            # print(res.is_success())
             if res.is_success():
                 hashable_d = {k: tuple(v) for k, v in current_set.items()}
                 tuple_representation = tuple(sorted(hashable_d.items()))
@@ -123,17 +123,6 @@ class Search(SearchInit):
                 queue.extend(unstable_neighbours_S)
             else:
                 continue
-            
-            # for layer, neurons in unstable_neighbours.items():
-            #     for neuron in neurons:
-            #         # hashable_d = {k: tuple(v) for k, v in current_set.items()}
-            #         # tuple_representation = tuple(sorted(hashable_d.items()))
-            #         # if tuple_representation in boundary_set:
-            #         #     continue
-            #         unstable_neurons.add((layer, neuron))
-            #         queue.append({**current_set, layer: [neuron]})
-                    
-        
         return boundary_list
     
 if __name__ == "__main__":
@@ -153,5 +142,12 @@ if __name__ == "__main__":
     # print(Possible_S)
     unstable_neurons_set = Search.BFS([Search.S_init[0]])
     # unstable_neurons_set = Search.BFS(Possible_S)
+    print(unstable_neurons_set)
+    print(len(unstable_neurons_set))
+    test_S = {}
+    test_S[0]=[-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1]
+    test_S[1] = [-1]
+    solver_lp(model, test_S)
+    unstable_neurons_set = Search.BFS([test_S])
     print(unstable_neurons_set)
     print(len(unstable_neurons_set))

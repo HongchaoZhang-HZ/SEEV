@@ -106,5 +106,5 @@ if __name__ == "__main__":
     # case = PARA.CASES[0]
     Search = SearchInit(model)
     # (0.5, 1.5), (0, -1)
-    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[0, -1]]]))
+    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
     print(S_init_Set)
