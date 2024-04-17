@@ -2,7 +2,7 @@ import sys, os
 import copy
 from numpy import ubyte
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
-
+from collections import deque
 from Scripts.SearchInit import *
 from Scripts.SearchInit import SearchInit
 from Modules.Function import HyperCube_Approximation
@@ -35,23 +35,28 @@ class Search(SearchInit):
         return lb_list, ub_list
     
     def Filter_S_neighbour(self, S):
-        prog = MathematicalProgram()
+        # prog = MathematicalProgram()
         # Add two decision variables x[0], x[1].
-        x = prog.NewContinuousVariables(self.dim, "x")
+        # x = prog.NewContinuousVariables(self.dim, "x")
         # Add linear constraints
         W_B, r_B, W_o, r_o = LinearExp(self.model, S)
         
         # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
         # output constraints
         index_o = len(S.keys())-1
-        prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+        # prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
         
         lb, ub = self.BoundingBox_approxi(S)
         neighbour_neurons = {}
         for i in range(len(W_B)):
             neuron_list_layer = []
             for j in range(len(W_B[i])):
+                # TODO: check if the neuron is unstable
+                prog = MathematicalProgram()
+                x = prog.NewContinuousVariables(self.dim, "x")
+                prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
                 eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(r_B[i][j]), x)
+                # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
                 bounding_box = prog.AddBoundingBoxConstraint(lb, ub, x)
                 result = Solve(prog)
                 
@@ -93,33 +98,43 @@ class Search(SearchInit):
         We then iterate through the queue to find the neurons that are unstable at the boundary of the neurons that are unstable at the boundary of S.
         We continue this process until we find all the unstable neurons.
         '''
-        queue = S
+        queue = deque() 
+        queue.append(S)
+        # queue = S
         unstable_neurons = set()
         boundary_set = set()
         boundary_list = []
         while queue:
-            current_set = queue.pop(0)
+            current_set = queue.popleft()
+            # current_set = queue.pop(0)
             res = solver_lp(self.model, current_set) 
             # res = solver_lp(self.model, current_set)
             # print(res.is_success())
             if res.is_success():
+                # add the current_set to the boundary_set (visited set)
                 hashable_d = {k: tuple(v) for k, v in current_set.items()}
                 tuple_representation = tuple(sorted(hashable_d.items()))
                 if tuple_representation in boundary_set:
                     continue
                 boundary_set.add(tuple_representation)
                 boundary_list.append(current_set)
+                
+                # finding neighbours
                 unstable_neighbours = self.Filter_S_neighbour(current_set)
+                # unstable_neighbours = {0:[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], 1:[]}
+                # unstable_neighbours = {0:[23, 30], 1:[]}
                 unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
                 
                 # check repeated set
-                for idx in range(len(unstable_neighbours_S)):
-                    hashable_d = {k: tuple(v) for k, v in unstable_neighbours_S[idx].items()}
-                    tuple_representation = tuple(sorted(hashable_d.items()))
+                # for idx in range(len(unstable_neighbours_S)):
+                for item in unstable_neighbours_S:    
+                    hashable_u = {k: tuple(v) for k, v in item.items()}
+                    tuple_representation = tuple(sorted(hashable_u.items()))
                     if tuple_representation in boundary_set:
                         # remove idx from unstable_neighbours_S
-                        unstable_neighbours_S.pop(idx)
+                        unstable_neighbours_S.remove(item)
                 
+                # add the unstable neighbours to the queue
                 queue.extend(unstable_neighbours_S)
             else:
                 continue
@@ -137,17 +152,18 @@ if __name__ == "__main__":
     Search.Specify_point(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
     # print(Search.S_init)
 
-    Search.Filter_S_neighbour(Search.S_init[0])
-    Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
-    # print(Possible_S)
-    unstable_neurons_set = Search.BFS([Search.S_init[0]])
+    # Search.Filter_S_neighbour(Search.S_init[0])
+    # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
+    print(Search.Filter_S_neighbour(Search.S_init[0]))
+    unstable_neurons_set = Search.BFS(Search.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
     print(unstable_neurons_set)
     print(len(unstable_neurons_set))
-    test_S = {}
-    test_S[0]=[-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, 1, 1, 1, 1]
-    test_S[1] = [-1]
-    solver_lp(model, test_S)
-    unstable_neurons_set = Search.BFS([test_S])
-    print(unstable_neurons_set)
-    print(len(unstable_neurons_set))
+    # test_S = {}
+    # test_S[0]=[-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1]
+    # test_S[1] = [-1]
+    # res_lp = solver_lp(model, test_S)
+    # print(res_lp.is_success())
+    # unstable_neurons_set = Search.BFS(test_S)
+    # print(unstable_neurons_set)
+    # print(len(unstable_neurons_set))

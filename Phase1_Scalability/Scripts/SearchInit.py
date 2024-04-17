@@ -58,7 +58,8 @@ class SearchInit:
             mid_point = (pt0 + pt1) / 2
             self.NStatus.get_netstatus_from_input(mid_point)
             S = self.NStatus.network_status_values
-            id_flag = self.identification_lp(S).is_success()
+            id_flag = solver_lp(self.model, S).is_success()
+            # id_flag = self.identification_lp(S).is_success()
             if id_flag:
                 flag = True
                 return flag, S
@@ -68,7 +69,7 @@ class SearchInit:
                 pt0 = mid_point
         return flag, S
     
-    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 10):
+    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 100):
         flag, S_init_Set = False, {}
         if input_safe is not None and input_unsafe is not None:
             m = input_safe.shape[0]
@@ -106,5 +107,6 @@ if __name__ == "__main__":
     # case = PARA.CASES[0]
     Search = SearchInit(model)
     # (0.5, 1.5), (0, -1)
-    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
+    # S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
+    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0]]]))
     print(S_init_Set)
