@@ -63,13 +63,13 @@ class SearchInit:
             if id_flag:
                 flag = True
                 return flag, S
-            elif self.model.forward(mid_point) * self.model.forward(pt0) < 0:
+            elif self.model.forward(mid_point) < 0:
                 pt1 = mid_point
             else:
                 pt0 = mid_point
         return flag, S
     
-    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 100):
+    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 1000):
         flag, S_init_Set = False, {}
         if input_safe is not None and input_unsafe is not None:
             m = input_safe.shape[0]

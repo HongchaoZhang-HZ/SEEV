@@ -6,7 +6,7 @@ from collections import deque
 from Scripts.SearchInit import *
 from Scripts.SearchInit import SearchInit
 from Modules.Function import HyperCube_Approximation
-
+from auto_LiRPA import BoundedModule, BoundedTensor, PerturbationLpNorm
 class Search(SearchInit):
     def __init__(self, model, case=None) -> None:
         super().__init__(model, case)
@@ -33,6 +33,41 @@ class Search(SearchInit):
             ub = cube[dim][1]
             ub_list.append(ub)
         return lb_list, ub_list
+    
+    def IBP_S_neighbour(self, S):
+        # prog = MathematicalProgram()
+        # Add two decision variables x[0], x[1].
+        # x = prog.NewContinuousVariables(self.dim, "x")
+        # Add linear constraints
+        W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+        
+        # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+        # output constraints
+        index_o = len(S.keys())-1
+        # prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+        
+        lb, ub = self.BoundingBox_approxi(S)
+        neighbour_neurons = {}
+        for layer_idx, layer in enumerate(self.model.layers):
+            
+            
+            # conduct crown-IBP in auto-lirpa to enumerate all possible neurons that are unstable at the boundary
+            target_model = self.model[0:2*i+1]
+            # we iterate over all layers. In each layer, we compare the sign of the neurons outputs of lower and upper bounds.
+            ibp_input = torch.tensor((lb+ub)/2)
+            # Wrap the model with auto_LiRPA.
+            ibp_model = BoundedModule(self.model, ibp_input)
+            # Define perturbation. Here we add Linf perturbation to input data.
+            ptb = PerturbationLpNorm(norm=np.inf, eps=(ub-lb)/2)
+            # Make the input a BoundedTensor with the pre-defined perturbation.
+            ibp_input = BoundedTensor(ibp_input, ptb)
+            # Regular forward propagation using BoundedTensor works as usual.
+            prediction = ibp_model(ibp_input)
+            # Compute LiRPA bounds using the backward mode bound propagation (CROWN).
+            lb, ub = ibp_model.compute_bounds(x=(ibp_input,), method="backward")
+        if self.verbose:
+            print(f"Number of neurons that are unstable at the boundary: {sum(len(item) for item in neighbour_neurons.values())}")
+        return neighbour_neurons
     
     def Filter_S_neighbour(self, S):
         # prog = MathematicalProgram()
@@ -121,6 +156,7 @@ class Search(SearchInit):
                 
                 # finding neighbours
                 unstable_neighbours = self.Filter_S_neighbour(current_set)
+                # unstable_neighbours = self.IBP_S_neighbour(current_set)
                 # unstable_neighbours = {0:[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31], 1:[]}
                 # unstable_neighbours = {0:[23, 30], 1:[]}
                 unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
@@ -154,7 +190,7 @@ if __name__ == "__main__":
 
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
-    print(Search.Filter_S_neighbour(Search.S_init[0]))
+    # print(Search.Filter_S_neighbour(Search.S_init[0]))
     unstable_neurons_set = Search.BFS(Search.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
     print(unstable_neurons_set)
