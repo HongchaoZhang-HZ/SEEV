@@ -73,13 +73,16 @@ def LinearExp(model, S:dict) -> (dict, dict, dict, dict):
         
         # compute boundary weight and bias for each layer
         W_B_layer = np.multiply(np.expand_dims(layer_act_bound_array,-1), W_list[keys])
-        r_B_layer = np.multiply(layer_act_output_array, r_list[keys])
+        r_B_layer = np.multiply(layer_act_bound_array, r_list[keys])
         # add boundary condition to W_B and r_B
         if keys == 0:
             W_B[keys] = np.array(W_B_layer)
             r_B[keys] = np.array(r_B_layer)
             W_o[keys] = np.array(W_o_layer)
             r_o[keys] = np.array(r_o_layer)
+        elif keys == len(S.keys())-1:
+            W_o[keys] = np.matmul(W_list[keys], W_o[keys-1])
+            r_o[keys] = np.matmul(W_list[keys], r_o[keys-1]) + np.array(r_list[keys])
         else:
             W_o[keys] = np.matmul(W_o_layer, W_o[keys-1])
             r_o[keys] = np.matmul(W_o_layer, r_o[keys-1]) + np.array(r_o_layer)
@@ -108,7 +111,7 @@ def HyperCube_Approximation(model, S):
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
-    # prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+    prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
     
     HyperCube = {}
     for i in range(dim):
@@ -140,15 +143,21 @@ def solver_lp(model, S):
     x = prog.NewContinuousVariables(dim, "x")
     
     # Add linear constraints
-    W_B, r_B, _, _ = LinearExp(model, S)
+    W_B, r_B, W_o, r_o = LinearExp(model, S)
     prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+    
+    # Output layer index
+    index_o = len(S.keys())-1
+    # Add linear constraints
+    prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
     
     # Now solve the program.
     result = Solve(prog)
     # print(f"Is solved successfully: {result.is_success()}")
     # print(f"x optimal value: {result.GetSolution(x)}")
     # print(f"optimal cost: {result.get_optimal_cost()}") 
-
+    print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
+    print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))
     return result
     
 if __name__ == "__main__":

@@ -89,8 +89,8 @@ class Search(SearchInit):
                 # TODO: check if the neuron is unstable
                 prog = MathematicalProgram()
                 x = prog.NewContinuousVariables(self.dim, "x")
-                prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
-                eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), np.array(r_B[i][j]), x)
+                prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
+                eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), -np.array(r_B[i][j]), x)
                 # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
                 bounding_box = prog.AddBoundingBoxConstraint(lb, ub, x)
                 result = Solve(prog)
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     # case = PARA.CASES[0]
     Search = Search(model)
     # (0.5, 1.5), (0, -1)
-    Search.Specify_point(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
+    Search.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0]]]))
     # print(Search.S_init)
 
     # Search.Filter_S_neighbour(Search.S_init[0])

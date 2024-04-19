@@ -37,15 +37,16 @@ class SearchInit:
         prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B)
         
         index_o = len(S.keys())-1
-        prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+        prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
         # prog.AddCost(np.array(W_o[index_o]@x + r_o[index_o]))
+        print(W_o[index_o], r_o[index_o])
         
         result = Solve(prog)
         return result
     
-    def get_zero_S(self, pt0, pt1, iter_lim = 100):
+    def get_zero_S(self, p_safe, p_unsafe, iter_lim = 100):
         # conduct binary search to find the zero point
-        # pt0 and pt1 are two points with different signs of self.model.forward
+        # p_safe and p_unsafe are two points with different signs of self.model.forward
         # return the zero point where self.model.forward is zero
         # the zero point can be found by solving linear programming
         # flag True/False indicates whether the zero point is found by the LP
@@ -55,22 +56,25 @@ class SearchInit:
         S = None
         
         for iter in range(iter_lim):
-            mid_point = (pt0 + pt1) / 2
+            mid_point = (p_safe + p_unsafe) / 2
             self.NStatus.get_netstatus_from_input(mid_point)
+            print(p_safe, mid_point, p_unsafe)
             S = self.NStatus.network_status_values
             id_flag = solver_lp(self.model, S).is_success()
-            # id_flag = self.identification_lp(S).is_success()
             if id_flag:
                 flag = True
                 return flag, S
-            elif self.model.forward(mid_point) < 0:
-                pt1 = mid_point
+            # elif self.model.forward(mid_point) > 0:
+            elif torch.sign(self.model.forward(mid_point)) * torch.sign(self.model.forward(p_safe)) < 0:
+                p_unsafe = mid_point
             else:
-                pt0 = mid_point
+                p_safe = mid_point
         return flag, S
     
     def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 1000):
+        # define default flag and S_init_Set
         flag, S_init_Set = False, {}
+        # if we specify input_safe and input_unsafe, we use the input directly
         if input_safe is not None and input_unsafe is not None:
             m = input_safe.shape[0]
             safe_list_length = input_safe.shape[1]
@@ -80,6 +84,7 @@ class SearchInit:
         else:
             safe_list_length = len(self.safe_regions)
             unsafe_list_length = len(self.unsafe_regions)
+        # iterate through all safe and unsafe regions to find all intial activation sets
         for i in range(safe_list_length):
             for j in range(unsafe_list_length):
                 if input_safe is None and input_unsafe is None:
@@ -90,7 +95,7 @@ class SearchInit:
                     x_unsafe = input_unsafe[j]
                 if not flag:
                     for k in range(m):
-                        flag, S = self.get_zero_S(x_safe[k], x_unsafe[0]) # only check the first unsafe point
+                        flag, S = self.get_zero_S(x_safe[0], x_unsafe[0]) # only check the first unsafe point
                         if flag:
                             S_init_Set[j] = S
         if not flag:
@@ -107,6 +112,6 @@ if __name__ == "__main__":
     # case = PARA.CASES[0]
     Search = SearchInit(model)
     # (0.5, 1.5), (0, -1)
-    # S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.0]]]), torch.tensor([[[0, -1]]]))
-    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0]]]))
+    S_init_Set = Search.initialization(torch.tensor([[[0.5, 1.7]]]), torch.tensor([[[-1, -1.6]]]))
+    # S_init_Set = Search.initialization(input_safe=torch.tensor([[[0.5, 1.5]]]), input_unsafe=torch.tensor([[[-1, 0]]]))
     print(S_init_Set)
