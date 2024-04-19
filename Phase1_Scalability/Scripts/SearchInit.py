@@ -39,7 +39,7 @@ class SearchInit:
         index_o = len(S.keys())-1
         prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
         # prog.AddCost(np.array(W_o[index_o]@x + r_o[index_o]))
-        print(W_o[index_o], r_o[index_o])
+        # print(W_o[index_o], r_o[index_o])
         
         result = Solve(prog)
         return result
@@ -58,7 +58,7 @@ class SearchInit:
         for iter in range(iter_lim):
             mid_point = (p_safe + p_unsafe) / 2
             self.NStatus.get_netstatus_from_input(mid_point)
-            print(p_safe, mid_point, p_unsafe)
+            # print(p_safe, mid_point, p_unsafe)
             S = self.NStatus.network_status_values
             id_flag = solver_lp(self.model, S).is_success()
             if id_flag:

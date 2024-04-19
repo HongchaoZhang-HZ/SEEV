@@ -111,7 +111,7 @@ def HyperCube_Approximation(model, S):
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
-    prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), np.array(r_o[index_o]), x)
+    prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
     
     HyperCube = {}
     for i in range(dim):
@@ -125,8 +125,9 @@ def HyperCube_Approximation(model, S):
         prog.RemoveCost(ub)
         # print('Lower Bound:', lb_solution)
         # print('Upper Bound:', ub_solution)
-        HyperCube[i] = [round(lb_solution, round_tol), 
-                        round(ub_solution, round_tol)]
+        # HyperCube[i] = [round(lb_solution, round_tol), 
+        #                 round(ub_solution, round_tol)]
+        HyperCube[i] = [lb_solution, ub_solution]
         
     # print('HyperCube:', HyperCube)
 

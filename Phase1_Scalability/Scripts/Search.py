@@ -49,14 +49,25 @@ class Search(SearchInit):
         lb, ub = self.BoundingBox_approxi(S)
         neighbour_neurons = {}
         for layer_idx, layer in enumerate(self.model.layers):
-            
-            
+            if layer_idx % 2 != 0 or layer_idx == 0:
+                continue
             # conduct crown-IBP in auto-lirpa to enumerate all possible neurons that are unstable at the boundary
-            target_model = self.model[0:2*i+1]
+            target_model = torch.nn.Sequential(self.model.layers[0:layer_idx])
+            
+            # Define the forward function for the target_model
+            def forward(self, x):
+                for module in self:
+                    x = module(x)
+                return x
+            
+            # Set the forward function for the target_model
+            target_model.forward = forward.__get__(target_model)
+            # NotImplementedError: Module [ModuleList] is missing the required "forward" function
+            
             # we iterate over all layers. In each layer, we compare the sign of the neurons outputs of lower and upper bounds.
-            ibp_input = torch.tensor((lb+ub)/2)
+            ibp_input = torch.tensor((np.array(lb)+np.array(ub))/2)
             # Wrap the model with auto_LiRPA.
-            ibp_model = BoundedModule(self.model, ibp_input)
+            ibp_model = BoundedModule(target_model, ibp_input)
             # Define perturbation. Here we add Linf perturbation to input data.
             ptb = PerturbationLpNorm(norm=np.inf, eps=(ub-lb)/2)
             # Make the input a BoundedTensor with the pre-defined perturbation.
@@ -89,17 +100,18 @@ class Search(SearchInit):
                 # TODO: check if the neuron is unstable
                 prog = MathematicalProgram()
                 x = prog.NewContinuousVariables(self.dim, "x")
-                prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
+                zero_cons = prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
                 eq_cons = prog.AddLinearEqualityConstraint(np.array(W_B[i][j]), -np.array(r_B[i][j]), x)
                 # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
                 bounding_box = prog.AddBoundingBoxConstraint(lb, ub, x)
                 result = Solve(prog)
+                # print(result.is_success())
                 
                 if result.is_success():
                     if self.verbose:
                         print(f"Neuron {i,j} is unstable at the boundary")
                     neuron_list_layer.append(j)
-                prog.RemoveConstraint(eq_cons)
+                # prog.RemoveConstraint(eq_cons)
             neighbour_neurons[i] = neuron_list_layer
         if self.verbose:
             print(f"Number of neurons that are unstable at the boundary: {sum(len(item) for item in neighbour_neurons.values())}")
@@ -195,11 +207,13 @@ if __name__ == "__main__":
     # unstable_neurons_set = Search.BFS(Possible_S)
     print(unstable_neurons_set)
     print(len(unstable_neurons_set))
-    # test_S = {}
-    # test_S[0]=[-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1]
-    # test_S[1] = [-1]
-    # res_lp = solver_lp(model, test_S)
-    # print(res_lp.is_success())
-    # unstable_neurons_set = Search.BFS(test_S)
-    # print(unstable_neurons_set)
-    # print(len(unstable_neurons_set))
+    test_S = {}
+    # [-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, -1]
+    # [-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
+    test_S[0]=[-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
+    test_S[1] = [-1]
+    res_lp = solver_lp(model, test_S)
+    print(res_lp.is_success())
+    unstable_neurons_set = Search.BFS(test_S)
+    print(unstable_neurons_set)
+    print(len(unstable_neurons_set))
