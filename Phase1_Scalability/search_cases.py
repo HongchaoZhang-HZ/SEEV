@@ -17,7 +17,7 @@ def test_darboux():
     # (0.5, 1.5), (0, -1)
     Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0]]]))
     # print(Search.S_init)
-
+    
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Search.Filter_S_neighbour(Search.S_init[0]))

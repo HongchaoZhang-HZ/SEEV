@@ -21,7 +21,7 @@ def RoA(prog:MathematicalProgram, x, model,
     else:
         # if not, compute the linear expression of the output of the ReLU NN
         W_B, r_B, _, _ = LinearExp(model, S)
-    final_layer_idx = len(W_B.keys())-1
+    final_layer_idx = len(W_B.keys())
     assert len(W_B) == len(r_B), "W_B and r_B must have the same amount of layers"
     # stack W_B and r_B constraints
     for keys, layer_info in W_B.items():
@@ -81,14 +81,14 @@ def LinearExp(model, S:dict) -> (dict, dict, dict, dict):
             W_o[keys] = np.array(W_o_layer)
             r_o[keys] = np.array(r_o_layer)
         elif keys == len(S.keys())-1:
-            W_o[keys] = np.matmul(W_list[keys], W_o[keys-1])
-            r_o[keys] = np.matmul(W_list[keys], r_o[keys-1]) + np.array(r_list[keys])
+            W_o[keys] = np.array(np.matmul(W_list[keys], W_o[keys-1]))
+            r_o[keys] = np.array(np.matmul(W_list[keys], r_o[keys-1]) + np.array(r_list[keys]))
         else:
-            W_o[keys] = np.matmul(W_o_layer, W_o[keys-1])
-            r_o[keys] = np.matmul(W_o_layer, r_o[keys-1]) + np.array(r_o_layer)
+            W_o[keys] = np.array(np.matmul(W_o_layer, W_o[keys-1]))
+            r_o[keys] = np.array(np.matmul(W_o_layer, r_o[keys-1])) + np.array(r_o_layer)
             
-            W_B[keys] = np.matmul(W_B_layer, W_o[keys-1])
-            r_B[keys] = np.matmul(W_B_layer, r_o[keys-1]) + np.array(r_B_layer)
+            W_B[keys] = np.array(np.matmul(W_B_layer, W_o[keys-1]))
+            r_B[keys] = np.array(np.matmul(W_B_layer, r_o[keys-1])) + np.array(r_B_layer)
         
     return W_B, r_B, W_o, r_o
 
@@ -157,8 +157,8 @@ def solver_lp(model, S):
     # print(f"Is solved successfully: {result.is_success()}")
     # print(f"x optimal value: {result.GetSolution(x)}")
     # print(f"optimal cost: {result.get_optimal_cost()}") 
-    # print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
-    # print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))
+    print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
+    print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))
     return result
     
 if __name__ == "__main__":
