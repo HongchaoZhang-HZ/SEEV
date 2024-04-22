@@ -1,6 +1,4 @@
-import scipy
 import torch
-import sympy as sp
 
 class case:
     '''

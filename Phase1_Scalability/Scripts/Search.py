@@ -16,7 +16,7 @@ class Search(SearchInit):
         self.verbose = False
         
     def Specify_point(self, safe_point:torch.tensor, unsafe_point:torch.tensor):
-        S_init = Search.initialization(safe_point, unsafe_point)
+        S_init = self.initialization(input_safe=safe_point, input_unsafe=unsafe_point)
         self.S_init = S_init
         
     def Hypercube_approxi(self, S) -> dict:

@@ -4,7 +4,7 @@ from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
 from Scripts.Status import NeuronStatus, NetworkStatus
 from Scripts.NSBasic import NSBasic, NS
-import PARA
+import Scripts.PARA as PARA
 from Modules.Function import *
 from Modules.visualization_module import *
 
@@ -16,8 +16,8 @@ class SearchInit:
         self.case = case
         self.NStatus = NetworkStatus(model)
         if case is not None:
-            self.safe_regions = case.safe_regions
-            self.unsafe_regions = case.unsafe_regions
+            self.safe_regions = self.case.safe_regions
+            self.unsafe_regions = self.case.unsafe_regions
     
     def sample_in_region(self, region, len_sample):
         grid_sample = [torch.linspace(region[i][0], region[i][1], int(len_sample[i])) for i in range(len(region))]
@@ -81,6 +81,10 @@ class SearchInit:
             unsafe_list_length = input_unsafe.shape[1]
             x_safe = input_safe
             x_unsafe = input_unsafe
+        elif input_safe is None:
+            safe_list_length = len(self.safe_regions)
+        elif input_unsafe is None:
+            unsafe_list_length = len(self.unsafe_regions)
         else:
             safe_list_length = len(self.safe_regions)
             unsafe_list_length = len(self.unsafe_regions)
