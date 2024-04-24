@@ -1,9 +1,9 @@
-case               ,Dimension ,NN arch                   ,num_sections ,enumeration_time
-Darboux            ,        2 ,2-512-\sigma-1            ,         258 ,10.62054085731506
-Darboux            ,        2 ,2-1024-\sigma-1           ,         533 ,42.68107080459595
-Darboux            ,        2 ,2-256-\sigma-256-\sigma-1 ,         241 ,14.69412994384765
-Darboux            ,        2 ,2-512-\sigma-512-\sigma-1 ,         611 ,68.90220999717712
-Obstacle Avoidance ,        3 ,3-64-\sigma-1             ,        1645 ,14.266000986099243
-Obstacle Avoidance ,        3 ,3-128-\sigma-1            ,        5695 ,79.63343548774719
-Obstacle Avoidance ,        3 ,3-32-\sigma-32-\sigma-1   ,        1346 ,12.68088054656982
-Obstacle Avoidance ,        3 ,3-64-\sigma-64-\sigma-1   ,        6744 ,99.71462202072144
+case               ,Dimension ,NN arch                   ,num_sections ,enumeration_time  ,NIPS24   ,
+Darboux            ,        2 ,2-512-\sigma-1            ,         258 ,10.62054085731506 ,   33.44
+Darboux            ,        2 ,2-1024-\sigma-1           ,         533 ,42.68107080459595 ,  107.63
+Darboux            ,        2 ,2-256-\sigma-256-\sigma-1 ,         241 ,14.69412994384765 ,  319.81
+Darboux            ,        2 ,2-512-\sigma-512-\sigma-1 ,         611 ,68.90220999717712 ,  619.10
+Obstacle Avoidance ,        3 ,3-64-\sigma-1             ,        1645 ,14.26600098609924 ,   19.17
+Obstacle Avoidance ,        3 ,3-128-\sigma-1            ,        5695 ,79.63343548774719 ,  169.51
+Obstacle Avoidance ,        3 ,3-32-\sigma-32-\sigma-1   ,        1346 ,12.68088054656982 ,  218.86
+Obstacle Avoidance ,        3 ,3-64-\sigma-64-\sigma-1   ,        6744 ,99.71462202072144 ,11730.28
