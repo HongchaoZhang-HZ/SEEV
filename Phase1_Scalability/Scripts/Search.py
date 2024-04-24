@@ -189,9 +189,9 @@ class Search(SearchInit):
         return boundary_list
     
 if __name__ == "__main__":
-    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
+    architecture = [('linear', 2), ('relu', 1024), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase1_Scalability/darboux_1_32.pt")
+    trained_state_dict = torch.load("./Phase1_Scalability/models/darboux_1_1024.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     # case = PARA.CASES[0]

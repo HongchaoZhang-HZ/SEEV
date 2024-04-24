@@ -6,5 +6,5 @@ sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
 from Cases import *
 
-zero_tol = 1e-5
+zero_tol = 1e-12
 round_tol = 3

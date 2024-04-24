@@ -2,6 +2,7 @@ import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
+import Scripts.PARA as PARA
 
 class NeuronStatus:
     '''Class to store the status of a neuron in a network
@@ -21,7 +22,7 @@ class NeuronStatus:
         self.neuron = neuron
         # status: -2: unknown, -1: negative, 0: zero, 1: positive
         self.status = status if status is not None else -2
-        self.tol = 1e-4
+        self.tol = PARA.zero_tol
 
     def get_id(self):
         return [self.layer, self.neuron]
