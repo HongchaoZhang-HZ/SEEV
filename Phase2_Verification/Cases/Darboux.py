@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 from Cases.Case import *
 
 class Darboux(case):
@@ -24,9 +24,9 @@ class Darboux(case):
         :param x: [np.array/torch.Tensor] input state x in R^n
         :return: [np.array/torch.Tensor] output in R^n
         '''
-        x0_dot = x[:, 0] + 2 * x[:, 0] * x[:, 1]
-        x1_dot = -x[:, 0] + 2 * x[:, 0] ** 2 - x[:, 1] ** 2
-        x_dot = torch.vstack([x0_dot, x1_dot])
+        x0_dot = x[1] + 2 * x[0] * x[1]
+        x1_dot = -x[0] + 2 * x[0] ** 2 - x[1] ** 2
+        x_dot = np.vstack([x0_dot, x1_dot])
         return x_dot
 
     def g_x(self, x):
@@ -35,7 +35,8 @@ class Darboux(case):
         :param x: [np.array/torch.Tensor] input state x in R^n
         :return: [np.array/torch.Tensor] output in R^n
         '''
-        gx = torch.zeros([self.DIM, 1])
+        # gx = torch.zeros([self.DIM, 1])
+        gx = np.zeros([self.DIM, 1])
         return gx
 
     def h_x(self, x):
