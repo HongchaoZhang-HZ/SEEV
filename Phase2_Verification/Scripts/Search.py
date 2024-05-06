@@ -1,7 +1,9 @@
 import sys, os
 import copy
 from numpy import ubyte
+from tomlkit import item
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
+from itertools import combinations
 from collections import deque
 from Scripts.SearchInit import *
 from Scripts.SearchInit import SearchInit
@@ -192,18 +194,100 @@ class Search(SearchInit):
                 continue
             previous_set = current_set
         return boundary_list, pair_wise_hinge
+    
+    def hinge_lp(self, S, neighbor_seg_list):
+        # For each item in the neighbor_seg_list, we need to find the hinge point.
+        prog = MathematicalProgram()
+        x = prog.NewContinuousVariables(self.dim, "x")
+        # Add linear constraints
+        W_B, r_B, W_o, r_o = LinearExp(model, S)
+        prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+        
+        # Output layer index
+        index_o = len(S.keys())-1
+        # Add linear constraints
+        prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
 
-    def hinge_BFS(self, pair_wise_hinge):
+        # If the neighbor_seg_list is not empty, we iterate over the items in the neighbor_seg_list to find the hinge point.
+        if len(neighbor_seg_list) != 0:
+            for neighbor_seg in neighbor_seg_list:
+                # find the hinge point
+                prog = RoA(prog, x, model, S=neighbor_seg)
+        res = Solve(prog)
+        return res.is_success()
+    
+    def hinge_post_identification(self, S, hinge_list, prior_seg_list, post_seg_list, hinge_prior_seg_list):
+        hinge_post_seg_list = [] # this list stores the post_seg that are feasible
+        for post_seg in post_seg_list:
+            # find the hinge point
+            tempt_prior_list = [prior_seg for prior_seg in prior_seg_list]
+            tempt_prior_post_list = copy.deepcopy(tempt_prior_list)
+            tempt_prior_post_list.append(post_seg)
+            feasibility_flag = self.hinge_lp(S, tempt_prior_post_list)
+            if feasibility_flag:
+                tempt_S_prior_post_list = copy.deepcopy(tempt_prior_post_list)
+                tempt_S_prior_post_list.append(S)
+                hinge_list.append(tempt_S_prior_post_list)
+                hinge_post_seg_list.append(post_seg)
+                hinge_prior_seg_list.append(tempt_prior_list)
+        if len(hinge_post_seg_list) != 0:
+            for r in range(1, len(hinge_post_seg_list) + 1):
+                for combo in combinations(hinge_post_seg_list, r):
+                    tempt_list = [prior_seg for prior_seg in prior_seg_list]
+                    tempt_list.append(item for item in combo)
+                    feasibility_flag = self.hinge_lp(S, tempt_list)
+                    if feasibility_flag:
+                        hinge_list.append([S, tempt_list])
+        return hinge_list, hinge_prior_seg_list, hinge_post_seg_list
+    
+    def hinge_identification(self, S, prior_seg_list, post_seg_list):
+        # For each item in the prior_seg_list, and post_seg_list, we need to find the hinge point.
+        # If the prior_seg_list is not empty, we iterate over the items in the prior_seg_list to find the hinge point.
+        hinge_list = []
+        if len(prior_seg_list) != 0 and len(post_seg_list) != 0:
+            hinge_prior_seg_list = [] # this list stores the prior_seg that are feasible
+            for prior_seg in prior_seg_list:
+                # If the post_seg_list is not empty, we iterate over the items in the post_seg_list to find the hinge point.
+                hinge_post_seg_list = [] # this list stores the post_seg that are feasible
+                hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, [prior_seg], post_seg_list, hinge_prior_seg_list)
+            if len(hinge_prior_seg_list) != 0:
+                for r in range(1, len(hinge_prior_seg_list) + 1):
+                    for prior_seg in combinations(hinge_prior_seg_list, r):
+                        hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, prior_seg, post_seg_list, hinge_prior_seg_list)
+        return hinge_list
+
+    def hinge_search(self, boundary_list, pair_wise_hinge):
         # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
         # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
-        # The overall design of the search is based on breadth first search for completeness. 
+        # The overall design of the search is based on exhaustive search for completeness. 
         # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
-        pass
-    
+        hinge_list = []
+        for mid_linear_segment in boundary_list:
+            # for each linear segment, find the hinge hyperplane nearby
+            prior_seg_list = []
+            post_seg_list = []
+            for pair in pair_wise_hinge:
+                # find prior segment
+                if pair[1] == mid_linear_segment:
+                    prior_seg_list.append(pair[0])
+                # find post segment
+                if pair[0] == mid_linear_segment:
+                    post_seg_list.append(pair[1])
+            # check if prior and post segment sets are empty sets
+            if len(prior_seg_list) == 0 and len(post_seg_list) == 0:
+                continue
+            # check if intersections happens
+            ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
+            if len(ho_hinge_list) != 0:
+                hinge_list.append(ho_hinge_list)
+        return hinge_list
+            
+        
+        
 if __name__ == "__main__":
-    architecture = [('linear', 2), ('relu', 1024), ('linear', 1)]
+    architecture = [('linear', 2), ('relu', 64), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase1_Scalability/models/darboux_1_1024.pt")
+    trained_state_dict = torch.load("./Phase1_Scalability/models/darboux_1_64.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     # case = PARA.CASES[0]
@@ -221,7 +305,8 @@ if __name__ == "__main__":
     print(len(unstable_neurons_set))
     print(len(pair_wise_hinge))
     
-    
+    ho_hinge = Search.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    print(len(ho_hinge))
     # test_S[0]=[-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
     # test_S[1] = [-1]
     # res_lp = solver_lp(model, test_S)
