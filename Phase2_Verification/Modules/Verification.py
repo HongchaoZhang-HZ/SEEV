@@ -86,7 +86,7 @@ def BC_verification(model, Case, reverse_flat=True, immediate_return=False):
     # (0.5, 1.5), (0, -1)
     Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0.1]]]))
 
-    unstable_neurons_set = Search_prog.BFS(Search_prog.S_init[0])
+    unstable_neurons_set, pairwise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     
     CE = []
     # Verify each boundary segments
@@ -136,21 +136,21 @@ def CBF_verification(model, Case, reverse_flat=True, U_cons_flag=False, immediat
 if __name__ == "__main__":
     
     
-    # # BC Verification
-    # case = Darboux()
-    # architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
-    # model = NNet(architecture)
-    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
-    # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
-    # model.load_state_dict(trained_state_dict, strict=True)
-    # VeriRes, CE = BC_verification(model, case, reverse_flat=True)
-    
-    # CBF Verification
-    case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 64), ('linear', 1)]
+    # BC Verification
+    case = Darboux()
+    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_64.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
-    VeriRes, CE = CBF_verification(model, case, reverse_flat=True)
+    VeriRes, CE = BC_verification(model, case, reverse_flat=True)
+    
+    # # CBF Verification
+    # case = ObsAvoid()
+    # architecture = [('linear', 3), ('relu', 64), ('linear', 1)]
+    # model = NNet(architecture)
+    # trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_64.pt")
+    # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    # model.load_state_dict(trained_state_dict, strict=True)
+    # VeriRes, CE = CBF_verification(model, case, reverse_flat=True)
     

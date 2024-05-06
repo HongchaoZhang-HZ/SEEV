@@ -151,6 +151,8 @@ class Search(SearchInit):
         unstable_neurons = set()
         boundary_set = set()
         boundary_list = []
+        previous_set = None
+        pair_wise_hinge = []
         while queue:
             current_set = queue.popleft()
             # current_set = queue.pop(0)
@@ -163,6 +165,8 @@ class Search(SearchInit):
                 tuple_representation = tuple(sorted(hashable_d.items()))
                 if tuple_representation in boundary_set:
                     continue
+                if previous_set is not None:
+                    pair_wise_hinge.append([previous_set, current_set])
                 boundary_set.add(tuple_representation)
                 boundary_list.append(current_set)
                 
@@ -186,7 +190,11 @@ class Search(SearchInit):
                 queue.extend(unstable_neighbours_S)
             else:
                 continue
-        return boundary_list
+            previous_set = current_set
+        return boundary_list, pair_wise_hinge
+
+    def hinge_BFS(self, pair_wise_hinge):
+         pass
     
 if __name__ == "__main__":
     architecture = [('linear', 2), ('relu', 1024), ('linear', 1)]
@@ -203,17 +211,17 @@ if __name__ == "__main__":
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Search.Filter_S_neighbour(Search.S_init[0]))
-    unstable_neurons_set = Search.BFS(Search.S_init[0])
+    unstable_neurons_set, pair_wise_hinge = Search.BFS(Search.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
     print(unstable_neurons_set)
     print(len(unstable_neurons_set))
-    test_S = {}
-    # [-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, -1]
-    # [-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
-    test_S[0]=[-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
-    test_S[1] = [-1]
-    res_lp = solver_lp(model, test_S)
-    print(res_lp.is_success())
-    unstable_neurons_set = Search.BFS(test_S)
-    print(unstable_neurons_set)
-    print(len(unstable_neurons_set))
+    print(len(pair_wise_hinge))
+    
+    
+    # test_S[0]=[-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
+    # test_S[1] = [-1]
+    # res_lp = solver_lp(model, test_S)
+    # print(res_lp.is_success())
+    # unstable_neurons_set = Search.BFS(test_S)
+    # print(unstable_neurons_set)
+    # print(len(unstable_neurons_set))
