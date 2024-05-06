@@ -194,7 +194,7 @@ class Search(SearchInit):
         return boundary_list, pair_wise_hinge
 
     def hinge_BFS(self, pair_wise_hinge):
-         pass
+        pass
     
 if __name__ == "__main__":
     architecture = [('linear', 2), ('relu', 1024), ('linear', 1)]
