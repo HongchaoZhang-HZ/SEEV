@@ -1,5 +1,5 @@
 import torch
-
+import numpy as np
 class case:
     '''
     Define base class for different case studies
@@ -26,6 +26,8 @@ class case:
         self.DOMAIN = DOMAIN
         self.DIM = len(self.DOMAIN)
         self.discrete = discrete
+        self.linear_fx = True
+        self.linear_gx = True
 
     def f_x(self, x):
         '''

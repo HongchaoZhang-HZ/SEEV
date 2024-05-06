@@ -27,10 +27,10 @@ class ObsAvoid(case):
         '''
 
         v = self.v
-        x0_dot = v * torch.sin(x[:, 2])
-        x1_dot = v * torch.cos(x[:, 2])
-        phi_dot = torch.zeros([len(x)])
-        x_dot = torch.vstack([x0_dot, x1_dot, phi_dot])
+        x0_dot = v * np.sin(x[2])
+        x1_dot = v * np.cos(x[2])
+        phi_dot = 0
+        x_dot = np.vstack([x0_dot, x1_dot, phi_dot])
         return x_dot
 
     def g_x(self, x):
@@ -39,10 +39,10 @@ class ObsAvoid(case):
         :param x: [np.array/torch.Tensor] input state x in R^n
         :return: [np.array/torch.Tensor] output in R^n
         '''
-        g_x0 = torch.zeros(len(x))
-        g_x1 = torch.zeros(len(x))
-        g_phi = torch.ones(len(x))
-        gx = torch.vstack([g_x0, g_x1, g_phi])
+        g_x0 = 0
+        g_x1 = 0
+        g_phi = 1
+        gx = np.vstack([g_x0, g_x1, g_phi])
         return gx
 
     def h_x(self, x):
