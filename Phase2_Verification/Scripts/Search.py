@@ -194,6 +194,10 @@ class Search(SearchInit):
         return boundary_list, pair_wise_hinge
 
     def hinge_BFS(self, pair_wise_hinge):
+        # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
+        # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
+        # The overall design of the search is based on breadth first search for completeness. 
+        # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
         pass
     
 if __name__ == "__main__":
