@@ -142,9 +142,10 @@ def test_sate():
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Search.Filter_S_neighbour(Search.S_init[0]))
-    unstable_neurons_set = Search_prog.BFS(Search_prog.S_init[0])
+    unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
-
+    ho_hinge = Search.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    print(len(ho_hinge))
     # compute searching time
     end = time.time()
     
@@ -154,7 +155,7 @@ def test_sate():
     print("Time:", end - start)
 
 if __name__ == "__main__":
-    test_darboux()
+    # test_darboux()
     # test_darboux_single()
-    # test_obs()
+    test_obs()
     # test_obs_single()
