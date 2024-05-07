@@ -1,12 +1,41 @@
 import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
+from VeriUtil import *
+from LinearVeri import *
 
 from Modules.NNet import NeuralNetwork as NNet
 from Cases.Darboux import Darboux
 from Cases.ObsAvoid import ObsAvoid
 from Scripts.Search import Search
 
-from LinearVeri import *
+def check_Lg_wo_U(model, S, Case):
+    prog = MathematicalProgram()
+    # Add two decision variables x[0], x[1].
+    dim = Case.DIM
+    x = prog.NewContinuousVariables(dim, "x")
+    prog = RoA(prog, x, model, S)
+    # Add linear constraints
+    W_B, r_B, W_o, r_o = LinearExp(model, S)
+    
+    # Output layer index
+    index_o = len(S.keys())-1
+    
+    # For cases with linear G, then we can directly check if Lgb == 0
+    if Case.linear_gx:
+        Lgb = np.array(W_o[index_o]).flatten() @ Case.g_x(x)
+        no_control_flag = np.equal(Lgb, np.zeros([Case.CTRLDIM, 1])).all()
+        # If there is control input that can affect b, then return True meaning the sufficient verification is passed
+        if not no_control_flag:
+            return True
+    else:
+        # Add linear constraints
+        prog.AddLinearConstraint(np.array(W_o[index_o]).flatten() @ x + np.array(r_o[index_o]) == 0)
+        # TODO: check if nonlinear case would have x in side Lgb
+        Lgb = np.array(W_o[index_o]).flatten() @ Case.g_x(x)
+        no_control_flag = np.equal(Lgb, np.zeros([Case.CTRLDIM, 1])).all()
+        prog.AddConstraint(no_control_flag)
+        result = Solve(prog)
+    return result.is_success()
 
 def suff_speed_up(model, S, Case, U_cons_flag=False):
     if not U_cons_flag:
