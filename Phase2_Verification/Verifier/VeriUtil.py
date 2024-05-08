@@ -46,6 +46,12 @@ class veri_hinge_basic():
         for i in range(len(self.segs)):
             prog = self.XSi(prog, x, i)
         return prog
+    
+    def all_same(items, idx=None):
+        if idx != None:
+            return all(item[idx] == items[0][idx] for item in items)
+        else:
+            return all(item == items[0] for item in items)
 
 class verifier_basic():
     def __init__(self, model, Case):

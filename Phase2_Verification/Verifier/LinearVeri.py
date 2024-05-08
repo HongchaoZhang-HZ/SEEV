@@ -6,21 +6,19 @@ class veri_seg_FG_wo_U(veri_seg_basic):
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
         
-    def zero_Lg(self, x):
+    def zero_Lg(self):
         # check if \frac{\partial b}{\partial x}G = 0, where 0 means the zero vector
+        prog = MathematicalProgram()
+        x = prog.NewContinuousVariables(self.dim, "x")
         Lgb = self.W_out @ self.Case.g_x(x)
         no_control_flag = np.equal(Lgb, np.zeros([self.dim, 1])).all()
         # If there is control input that can affect b, then return True meaning the sufficient verification is passed
         if not no_control_flag:
             return True
     
-    def min_Lf(self, reverse_flat=False):
-        # Input: X: Linear expression of the output of the ReLU NN
-        # Output: X: Linear expression of the output of the ReLU NN
-        # Create an empty MathematicalProgram named prog (with no decision variables,
-        # constraints or costs)
+    def min_Lf(self, reverse_flag=False):
         prog = MathematicalProgram()
-        # Add two decision variables x[0], x[1].
+        
         x = prog.NewContinuousVariables(self.dim, "x")
         prog = self.XS(prog, x)
 
@@ -29,7 +27,7 @@ class veri_seg_FG_wo_U(veri_seg_basic):
         # Add cost function
         fx = self.Case.f_x(x)
         Lfb = (self.W_o[self.index_o] @ fx ).flatten()[0]
-        if reverse_flat:
+        if reverse_flag:
             LC = prog.AddCost(-Lfb)
         else:
             LC = prog.AddCost(Lfb)
@@ -53,8 +51,8 @@ class veri_seg_FG_with_interval_U(veri_seg_FG_wo_U):
         threshold = self.W_out @ self.Case.g_x(x) @ self.D
         self.thrshold = threshold
     
-    def min_Lf_interval(self, reverse_flat=False):
-        res_is_success, res_x, res_cost = self.min_Lf(reverse_flat)
+    def min_Lf_interval(self, reverse_flag=False):
+        res_is_success, res_x, res_cost = self.min_Lf(reverse_flag)
         if res_cost + self.thrshold < 0:
             return False
         else:
@@ -63,9 +61,59 @@ class veri_seg_FG_with_interval_U(veri_seg_FG_wo_U):
 class veri_seg_FG_with_con_U(veri_seg_FG_with_interval_U):
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
+        
+    def Farkas_lemma_BiLinear(self, SMT_flag=False):
+        pass
+    
+class veri_hinge_FG_wo_U(veri_hinge_basic):
+    # segment verifier without control input constraints
+    # Linear Fx and Gu
+    def __init__(self, model, Case, S_list):
+        super().__init__(model, Case, S_list)
+        self.W_out_list = [seg.W_out for seg in self.segs]
+        self.r_out_list = [seg.r_out for seg in self.segs]
+        
+    def same_sign_Lg(self):
+        # check if \frac{\partial b}{\partial x}G = 0, where 0 means the zero vector
+        prog = MathematicalProgram()
+        x = prog.NewContinuousVariables(self.dim, "x")
+        Lgb_list = []
+        for i in range(len(self.segs)):
+            Lgb = self.W_out_list[i] @ self.Case.g_x(x)
+            Lgb_list.append(np.sign(Lgb))
+        # check if there is at least one row that has the same sign 
+        same_sign_flag_list = []
+        for i in range(len(self.segs)):
+            same_sign_flag = self.all_same(Lgb_list, i)
+            same_sign_flag_list.append(same_sign_flag)
+        # if more than one, then return True meaning the sufficient verification is passed
+        return any(same_sign_flag_list)
+    
+    def min_Lf_hinge(self, reverse_flag=False):
+        prog = MathematicalProgram()
+        x = prog.NewContinuousVariables(self.dim, "x")
+        prog = self.XS(prog, x)
+        # Add linear constraints
+        for i in range(len(self.segs)):
+            prog.AddLinearConstraint(self.W_out_list[i] @ x + self.r_out_list[i] == 0)
+        # Add cost function
+        fx = self.Case.f_x(x)
+        Lfb_list = []
+        for i in range(len(self.segs)):
+            Lfb = (self.W_o_list[i] @ fx ).flatten()[0]
+            if reverse_flag:
+                LC = prog.AddCost(-Lfb)
+            else:
+                LC = prog.AddCost(Lfb)
+            result = Solve(prog)
+            # If all Lfb are positive, then return True meaning the sufficient verification is passed
+            if result.get_optimal_cost() < 0:
+                return False
+            prog.RemoveCost(LC)
+        return True
+                
 
-
-def min_Lf(model, S, Case, reverse_flat=False):
+def min_Lf(model, S, Case, reverse_flag=False):
     # Input: X: Linear expression of the output of the ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     # Create an empty MathematicalProgram named prog (with no decision variables,
@@ -86,7 +134,7 @@ def min_Lf(model, S, Case, reverse_flat=False):
     # Add cost function
     fx = Case.f_x(x)
     Lfb = (W_o[index_o] @ fx ).flatten()[0]
-    if reverse_flat:
+    if reverse_flag:
         LC = prog.AddCost(-Lfb)
     else:
         LC = prog.AddCost(Lfb)
