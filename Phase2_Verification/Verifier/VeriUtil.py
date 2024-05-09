@@ -25,6 +25,12 @@ class veri_seg_basic():
             S = self.S
         prog = RoA(prog, x, self.model, S)
         return prog
+    
+    def correctness(self):
+        
+        hx = self.Case.h_x()
+        Lfb = (self.W_o[self.index_o] @ fx ).flatten()[0]
+        return Lfb
         
 class veri_hinge_basic():
     def __init__(self, model, Case, S_list):
