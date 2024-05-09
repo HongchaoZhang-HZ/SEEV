@@ -77,34 +77,34 @@ class Verifier(verifier_basic):
         else:
             return veri_hinge_Nfg_cons_U(self.model, self.Case, S)
         
-    def seg_verification(self, unstable_neurons_set):
+    def seg_verification(self, unstable_neurons_set, reverse_flag=False):
         for S in unstable_neurons_set:
             seg_verifier = self.seg_verifier(S)
-            veri_flag, ce = seg_verifier.verification()
+            veri_flag, ce = seg_verifier.verification(reverse_flag)
             if not veri_flag:
                 print('Verification failed!')
                 print('Segment counter example', ce)
                 return False, ce
         return True, None
     
-    def hinge_verification(self, hinge_set):
+    def hinge_verification(self, hinge_set, reverse_flag=False):
         for hinge in hinge_set:
             hinge_verifier = self.hinge_verifier(hinge)
-            veri_flag, ce = hinge_verifier.verification()
+            veri_flag, ce = hinge_verifier.verification(reverse_flag)
             if not veri_flag:
                 print('Verification failed!')
                 print('Hinge counter example', ce)
                 return False, ce
         return True, None
     
-    def Verification(self):
-        veri_flag_seg, ce_seg = self.seg_verification(self.unstable_neurons_set)
+    def Verification(self, reverse_flag=False):
+        veri_flag_seg, ce_seg = self.seg_verification(self.unstable_neurons_set, reverse_flag)
         if not veri_flag_seg:
             return False, ce_seg
-        veri_flag_hinge, ce_hinge = self.hinge_verification(self.pair_wise_hinge)
+        veri_flag_hinge, ce_hinge = self.hinge_verification(self.pair_wise_hinge, reverse_flag)
         if not veri_flag_hinge:
             return False, ce_hinge
-        veri_flag_ho, ce_ho = self.hinge_verification(self.ho_hinge)
+        veri_flag_ho, ce_ho = self.hinge_verification(self.ho_hinge, reverse_flag)
         if not veri_flag_ho:
             return False, ce_ho
         print('Verification passed!')
@@ -112,40 +112,41 @@ class Verifier(verifier_basic):
 
 if __name__ == "__main__":
     
-    # # BC Verification
-    # case = Darboux()
-    # architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
-    # model = NNet(architecture)
-    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
-    # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
-    # model.load_state_dict(trained_state_dict, strict=True)
-    
-    # Search_prog = Search(model)
-    # Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0.1]]]))
-    # unstable_neurons_set, pairwise_hinge = Search_prog.BFS(Search_prog.S_init[0])
-    # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pairwise_hinge)
-    
-    # Verifier = Verifier(model, case, unstable_neurons_set, pairwise_hinge, ho_hinge)
-    # veri_flag, ce = Verifier.Verification(reverse_flag=True)
-    
-    
-    # CBF Verification
-    case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 64), ('linear', 1)]
+    # BC Verification
+    case = Darboux()
+    architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_64.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
     Search_prog = Search(model)
-    spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
-    Search_prog.Specify_point(spt, uspt)
-    unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
-    ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0.1]]]))
+    unstable_neurons_set, pairwise_hinge = Search_prog.BFS(Search_prog.S_init[0])
+    ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pairwise_hinge)
     
-    Verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
+    Verifier = Verifier(model, case, unstable_neurons_set, pairwise_hinge, ho_hinge)
     veri_flag, ce = Verifier.Verification(reverse_flag=True)
+    
+    
+    # # CBF Verification
+    # case = ObsAvoid()
+    # architecture = [('linear', 3), ('relu', 64), ('linear', 1)]
+    # model = NNet(architecture)
+    # trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_64.pt")
+    # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    # model.load_state_dict(trained_state_dict, strict=True)
+    
+    # Search_prog = Search(model)
+    # spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
+    # Search_prog.Specify_point(spt, uspt)
+    # unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
+    # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    
+    # Verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
+    # veri_flag, ce = Verifier.Verification(reverse_flag=True)
+
 
 # def check_Lg_wo_U(model, S, Case):
 #     prog = MathematicalProgram()
