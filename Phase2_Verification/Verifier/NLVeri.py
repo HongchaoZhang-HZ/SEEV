@@ -5,6 +5,7 @@ class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
     # Linear Fx and Gu
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
+        self.SMT_flag = False
         
     def zero_NLg(self):
         prog = MathematicalProgram()
@@ -38,25 +39,53 @@ class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
         # Now solve the program.
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
-
+    
+    def verification(self):
+        Lf_u0_flag, Lf_u0_res_x, Lf_u0_res_cost = self.min_Lf()
+        if Lf_u0_res_cost >= 0:
+            return True, None
+        # quick check if Lgb is zero
+        if not self.SMT_flag:
+            check_Lg = self.zero_Lg()
+            if check_Lg:
+                return True, None
+        res_is_success, res_x, res_cost = self.min_LFNLg()
+        if res_cost < 0:
+            return False, res_x
+        else:
+            return True, None
+        
 class veri_hinge_Fg_wo_U(veri_hinge_FG_wo_U):
     # segment verifier without control input constraints
     def __init__(self, model, Case, S_list):
         super().__init__(model, Case, S_list)
         self.W_out_list = [seg.W_out for seg in self.segs]
         self.r_out_list = [seg.r_out for seg in self.segs]
+        self.SMT_flag = False
     
     def min_Lf_hinge(self, reverse_flag=False):
         return super().min_Lf_hinge(reverse_flag)
     
     def Farkas_lemma(self, SMT_flag=False):
         super().Farkas_lemma(SMT_flag)   
+        
+    def verification(self):
+        if not self.SMT_flag:
+            super().verification()
+        else:
+            veri_flag, ce = self.min_Lf_hinge()
+            if veri_flag:
+                return True, None
+            else:
+                veri_flag, ce = self.Farkas_lemma(SMT_flag=True)
+        return veri_flag, ce
 
 class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
     # segment verifier without control input constraints
     # Linear Fx and Gu
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
+        self.SMT_flag = False
         
     def zero_Lg(self):
         return super().zero_Lg()
@@ -67,6 +96,16 @@ class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
         else:
             # TODO: add the SMT solver for the nonlinear case
             pass
+    
+    def verification(self):
+        check_Lg = self.zero_Lg()
+        if check_Lg:
+            return True, None
+        if not self.SMT_flag:
+            return super().verification()
+        else:
+            veri_flag, ce = self.min_Lf()
+            return veri_flag, ce
         
 class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
     def __init__(self, model, Case, S):
@@ -74,6 +113,19 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
     
     def min_Lf_interval(self, reverse_flag=False):
         return super().min_Lf_interval(reverse_flag)
+    
+    def min_Lf_interval_SMT(self, reverse_flag=False):
+        pass
+    
+    def verification(self):
+        if_same_sign = self.same_sign_Lg()
+        if if_same_sign:
+            return True, None
+        elif not self.SMT_flag:
+            return super().verification()
+        else:
+            return self.min_Lf_interval_SMT()
+            
 
 class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
     # segment verifier without control input constraints

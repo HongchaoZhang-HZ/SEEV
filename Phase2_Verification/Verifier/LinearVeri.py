@@ -37,11 +37,11 @@ class veri_seg_FG_wo_U(veri_seg_basic):
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
     
-    def verification(self):
+    def verification(self, reverse_flag=False):
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
-        res_is_success, res_x, res_cost = self.min_Lf()
+        res_is_success, res_x, res_cost = self.min_Lf(reverse_flag)
         if res_cost < 0:
             return False, res_x
         else:
@@ -69,15 +69,18 @@ class veri_seg_FG_with_interval_U(veri_seg_FG_wo_U):
         else:
             return True, res_x
         
-    def verification(self):
-        return self.min_Lf_interval()
+    def verification(self, reverse_flag=False):
+        return self.min_Lf_interval(reverse_flag)
         
 class veri_seg_FG_with_con_U(veri_seg_FG_with_interval_U):
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
         
-    def Farkas_lemma_BiLinear(self, SMT_flag=False):
+    def Farkas_lemma_BiLinear(self, reverse_flag=False, SMT_flag=False):
         pass
+    
+    def verification(self, reverse_flag=False):
+        return self.Farkas_lemma_BiLinear(reverse_flag, SMT_flag=False)
     
 class veri_hinge_FG_wo_U(veri_hinge_basic):
     # segment verifier without control input constraints
@@ -126,15 +129,12 @@ class veri_hinge_FG_wo_U(veri_hinge_basic):
             prog.RemoveCost(LC)
         return True, None
                 
-    def verification(self):
+    def verification(self, reverse_flag=False):
         check_Lg = self.same_sign_Lg()
         if check_Lg:
             return True, None
-        res_is_success, res_x = self.min_Lf_hinge()
-        if not res_is_success:
-            return False, res_x
-        else:
-            return True, None
+        veri_flag, ce = self.min_Lf_hinge(reverse_flag)
+        return veri_flag, ce
 
 # def min_Lf(model, S, Case, reverse_flag=False):
 #     # Input: X: Linear expression of the output of the ReLU NN
