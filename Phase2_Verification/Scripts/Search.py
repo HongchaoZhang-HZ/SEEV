@@ -230,18 +230,21 @@ class Search(SearchInit):
             if feasibility_flag:
                 tempt_S_prior_post_list = copy.deepcopy(tempt_prior_post_list)
                 tempt_S_prior_post_list.append(S)
-                hinge_list.append(tempt_S_prior_post_list)
+                hinge_list.extend(tempt_S_prior_post_list)
                 hinge_post_seg_list.append(post_seg)
-                hinge_prior_seg_list.append(tempt_prior_list)
+                hinge_prior_seg_list.extend(tempt_prior_list)
         if len(hinge_post_seg_list) != 0:
             for r in range(1, len(hinge_post_seg_list) + 1):
                 for combo in combinations(hinge_post_seg_list, r):
                     tempt_list = [prior_seg for prior_seg in prior_seg_list]
-                    for item in list(combo):
-                        tempt_list.append(item)
+                    tempt_list = tempt_list + list(combo)
+                    # for item in list(combo):
+                    #     tempt_list.append(item)
                     feasibility_flag = self.hinge_lp(S, tempt_list)
                     if feasibility_flag:
-                        hinge_list.append([S, tempt_list])
+                        hinge_temp_list = copy.deepcopy(tempt_list)
+                        hinge_temp_list.append(S)
+                        hinge_list.extend(hinge_temp_list)
         return hinge_list, hinge_prior_seg_list, hinge_post_seg_list
     
     def hinge_identification(self, S, prior_seg_list, post_seg_list):
@@ -257,7 +260,7 @@ class Search(SearchInit):
             if len(hinge_prior_seg_list) != 0:
                 for r in range(1, len(hinge_prior_seg_list) + 1):
                     for prior_seg in combinations(hinge_prior_seg_list, r):
-                        hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, prior_seg, post_seg_list, hinge_prior_seg_list)
+                        hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, list(prior_seg), post_seg_list, hinge_prior_seg_list)
         return hinge_list
 
     def hinge_search(self, boundary_list, pair_wise_hinge):

@@ -1,5 +1,5 @@
 import sys, os
-
+import time
 from pytest import fail
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from VeriUtil import *
@@ -114,20 +114,24 @@ if __name__ == "__main__":
     
     # # BC Verification
     # case = Darboux()
-    # architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
+    # architecture = [('linear', 2), ('relu', 256), ('relu', 256), ('linear', 1)]
     # model = NNet(architecture)
-    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
+    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_2_256.pt")
     # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     # model.load_state_dict(trained_state_dict, strict=True)
     
+    # time_start = time.time()
     # Search_prog = Search(model)
-    # Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0.1]]]))
+    # Search_prog.Specify_point(torch.tensor([[[0.5, 1.5]]]), torch.tensor([[[-1, 0]]]))
     # unstable_neurons_set, pairwise_hinge = Search_prog.BFS(Search_prog.S_init[0])
-    # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pairwise_hinge)
+    # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pairwise_hinge) 
+    # search_time = time.time() - time_start
     
     # Verifier = Verifier(model, case, unstable_neurons_set, pairwise_hinge, ho_hinge)
     # veri_flag, ce = Verifier.Verification(reverse_flag=True)
-    
+    # verification_time = time.time() - time_start - search_time
+    # print('Search time:', search_time)
+    # print('Verification time:', verification_time)
     
     # CBF Verification
     case = ObsAvoid()
