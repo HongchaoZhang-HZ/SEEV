@@ -136,9 +136,9 @@ if __name__ == "__main__":
     
     # CBF Verification
     case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 128), ('linear', 1)]
+    architecture = [('linear', 3), ('relu', 32), ('relu', 64), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_128.pt")
+    trained_state_dict = torch.load("Phase1_Scalability/models/obs_2_64.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
