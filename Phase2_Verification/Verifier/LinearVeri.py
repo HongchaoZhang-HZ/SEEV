@@ -52,7 +52,7 @@ class veri_seg_FG_with_interval_U(veri_seg_FG_wo_U):
     # Linear Fx and Gu
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
-        self.D = np.max(np.abs(self.Case.CTRLDIM))
+        self.D = np.max(np.abs(self.Case.CTRLDOM), axis=1)
         self.threshold_interval()
     
     def threshold_interval(self):
@@ -100,8 +100,8 @@ class veri_hinge_FG_wo_U(veri_hinge_basic):
             Lgb_list.append(np.sign(Lgb))
         # check if there is at least one row that has the same sign 
         same_sign_flag_list = []
-        for i in range(len(self.segs)):
-            same_sign_flag = self.all_same(Lgb_list, i)
+        for i in range(self.Case.CTRLDIM):
+            same_sign_flag = self.all_same(items=Lgb_list, idx=i)
             same_sign_flag_list.append(same_sign_flag)
         # if more than one, then return True meaning the sufficient verification is passed
         return any(same_sign_flag_list)
@@ -117,7 +117,7 @@ class veri_hinge_FG_wo_U(veri_hinge_basic):
         fx = self.Case.f_x(x)
         Lfb_list = []
         for i in range(len(self.segs)):
-            Lfb = (self.W_o_list[i] @ fx ).flatten()[0]
+            Lfb = (self.W_out_list[i] @ fx ).flatten()[0]
             if reverse_flag:
                 LC = prog.AddCost(-Lfb)
             else:
@@ -125,6 +125,7 @@ class veri_hinge_FG_wo_U(veri_hinge_basic):
             result = Solve(prog)
             # If all Lfb are positive, then return True meaning the sufficient verification is passed
             if result.get_optimal_cost() < 0:
+                print('min_Lf_hinge = ', result.get_optimal_cost(), 'at point', result.GetSolution(x))
                 return False, result.GetSolution(x)
             prog.RemoveCost(LC)
         return True, None

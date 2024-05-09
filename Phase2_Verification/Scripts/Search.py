@@ -200,8 +200,8 @@ class Search(SearchInit):
         prog = MathematicalProgram()
         x = prog.NewContinuousVariables(self.dim, "x")
         # Add linear constraints
-        W_B, r_B, W_o, r_o = LinearExp(model, S)
-        prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+        W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B)
         
         # Output layer index
         index_o = len(S.keys())-1
@@ -212,7 +212,7 @@ class Search(SearchInit):
         if len(neighbor_seg_list) != 0:
             for neighbor_seg in neighbor_seg_list:
                 # find the hinge point
-                prog = RoA(prog, x, model, S=neighbor_seg)
+                prog = RoA(prog, x, self.model, S=neighbor_seg)
         res = Solve(prog)
         return res.is_success()
     
@@ -301,7 +301,7 @@ if __name__ == "__main__":
     # print(Search.Filter_S_neighbour(Search.S_init[0]))
     unstable_neurons_set, pair_wise_hinge = Search.BFS(Search.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
-    print(unstable_neurons_set)
+    # print(unstable_neurons_set)
     print(len(unstable_neurons_set))
     print(len(pair_wise_hinge))
     

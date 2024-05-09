@@ -15,6 +15,11 @@ class ObsAvoid(case):
         discrete = False
         self.v = 1
         super().__init__(DOMAIN, CTRLDOM, discrete=discrete)
+        
+        self.is_gx_linear = True
+        self.is_fx_linear = False
+        self.is_u_cons = True
+        self.is_u_cons_interval = True
 
     def f_x(self, x):
         '''

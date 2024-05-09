@@ -47,7 +47,7 @@ class veri_hinge_basic():
             prog = self.XSi(prog, x, i)
         return prog
     
-    def all_same(items, idx=None):
+    def all_same(self, items:list, idx=None):
         if idx != None:
             return all(item[idx] == items[0][idx] for item in items)
         else:
@@ -58,12 +58,9 @@ class verifier_basic():
         self.model = model
         self.Case = Case
         self.dim = Case.DIM
-        # self.is_gx_linear = Case.linear_gx
-        self.is_gx_linear = True
-        # self.is_fx_linear = Case.linear_fx
-        self.is_fx_linear = True
-        # self.is_u_cons = Case.U_cons
-        self.is_u_cons = True
-        # self.is_u_cons_interval = Case.U_cons_interval
-        self.is_u_cons_interval = True
+
+        self.is_gx_linear = Case.is_gx_linear
+        self.is_fx_linear = Case.is_fx_linear
+        self.is_u_cons = Case.is_u_cons
+        self.is_u_cons_interval = Case.is_u_cons_interval
         

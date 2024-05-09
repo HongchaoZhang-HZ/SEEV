@@ -16,6 +16,12 @@ class Darboux(case):
         discrete = False
         super().__init__(DOMAIN, CTRLDOM, discrete=discrete)
 
+        self.is_gx_linear = True
+        self.is_fx_linear = False
+        self.is_u_cons = False
+        self.is_u_cons_interval = False
+        
+
     def f_x(self, x):
         '''
         Control affine model f(x)

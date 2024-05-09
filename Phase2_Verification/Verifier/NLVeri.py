@@ -122,8 +122,8 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
         pass
     
     def verification(self, reverse_flag=False):
-        if_same_sign = self.same_sign_Lg()
-        if if_same_sign:
+        check_Lg = self.zero_Lg()
+        if check_Lg:
             return True, None
         elif not self.SMT_flag:
             return super().verification(reverse_flag)
@@ -202,7 +202,7 @@ class veri_seg_Nfg_with_interval_U(veri_seg_FG_with_interval_U):
     # Nonlinear f(x) and g(x)u
     def __init__(self, model, Case, S):
         super().__init__(model, Case, S)
-        self.D = np.max(np.abs(self.Case.CTRLDIM))
+        self.D = np.max(np.abs(self.Case.CTRLDOM), axis=1)
         self.threshold = 0
         self.SMT_flag = False
 
