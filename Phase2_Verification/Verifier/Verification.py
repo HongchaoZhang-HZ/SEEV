@@ -21,6 +21,7 @@ class Verifier(verifier_basic):
         self.pair_wise_hinge = pair_wise_hinge
         self.ho_hinge = ho_hinge
         self.diagnose()
+        self.feasibility_only = False
         
         # T - Barrier Certificate Verification, 
         # F - Control Barrier Function Verification
@@ -80,7 +81,7 @@ class Verifier(verifier_basic):
     def seg_verification(self, unstable_neurons_set, reverse_flag=False):
         for S in unstable_neurons_set:
             seg_verifier = self.seg_verifier(S)
-            veri_flag, ce = seg_verifier.verification(reverse_flag)
+            veri_flag, ce = seg_verifier.verification(reverse_flag, self.feasibility_only)
             if not veri_flag:
                 print('Verification failed!')
                 print('Segment counter example', ce)
@@ -114,9 +115,9 @@ if __name__ == "__main__":
     
     # # BC Verification
     # case = Darboux()
-    # architecture = [('linear', 2), ('relu', 256), ('relu', 256), ('linear', 1)]
+    # architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     # model = NNet(architecture)
-    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_2_256.pt")
+    # trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
     # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     # model.load_state_dict(trained_state_dict, strict=True)
     
@@ -135,9 +136,9 @@ if __name__ == "__main__":
     
     # CBF Verification
     case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 128), ('linear', 1)]
+    architecture = [('linear', 3), ('relu', 64), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_128.pt")
+    trained_state_dict = torch.load("Phase1_Scalability/models/obs_1_64.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     

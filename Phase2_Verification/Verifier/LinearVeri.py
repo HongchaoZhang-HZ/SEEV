@@ -1,3 +1,4 @@
+from calendar import c
 from tabnanny import check
 from VeriUtil import *
 
@@ -37,7 +38,16 @@ class veri_seg_FG_wo_U(veri_seg_basic):
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
     
-    def verification(self, reverse_flag=False):
+    def veri_correctness(self, reverse_flag=False):
+        return super().veri_correctness(reverse_flag)
+    
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+            if not veri_flag:
+                return False, ce
+        # check feasibility of NCBF
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
@@ -69,7 +79,13 @@ class veri_seg_FG_with_interval_U(veri_seg_FG_wo_U):
         else:
             return True, res_x
         
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+            if not veri_flag:
+                return False, ce
+        # check feasibility of NCBF
         return self.min_Lf_interval(reverse_flag)
         
 class veri_seg_FG_with_con_U(veri_seg_FG_with_interval_U):
@@ -79,7 +95,13 @@ class veri_seg_FG_with_con_U(veri_seg_FG_with_interval_U):
     def Farkas_lemma_BiLinear(self, reverse_flag=False, SMT_flag=False):
         pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+            if not veri_flag:
+                return False, ce
+        # check feasibility of NCBF
         return self.Farkas_lemma_BiLinear(reverse_flag, SMT_flag=False)
     
 class veri_hinge_FG_wo_U(veri_hinge_basic):

@@ -44,7 +44,12 @@ class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         Lf_u0_flag, Lf_u0_res_x, Lf_u0_res_cost = self.min_Lf(reverse_flag)
         if Lf_u0_res_cost >= 0:
             return True, None
@@ -101,7 +106,12 @@ class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
             # TODO: add the SMT solver for the nonlinear case
             pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
@@ -121,7 +131,12 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
     def min_Lf_interval_SMT(self, reverse_flag=False):
         pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
@@ -148,7 +163,12 @@ class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
         # TODO: add the SMT solver for the nonlinear case
         pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+            if not veri_flag:
+                return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
@@ -171,7 +191,12 @@ class veri_seg_Nfg_wo_U(veri_seg_Fg_wo_U):
             # TODO: add the SMT solver for the nonlinear case
             pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
@@ -190,7 +215,12 @@ class veri_hinge_Nfg_wo_U(veri_hinge_Fg_wo_U):
     def Farkas_lemma(self, reverse_flag=False, SMT_flag=False):
         super().Farkas_lemma(reverse_flag, SMT_flag)  
         
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
@@ -235,7 +265,12 @@ class veri_seg_Nfg_with_interval_U(veri_seg_FG_with_interval_U):
         # TODO: add the SMT solver for the nonlinear case
         pass
         
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         if not self.SMT_flag:
             veri_flag, veri_res_x = self.min_NLf_interval(reverse_flag)
             if veri_flag:
@@ -252,7 +287,12 @@ class veri_seg_Nfg_with_con_U(veri_seg_FG_with_con_U):
         # TODO: add the SMT solver for the nonlinear case
         pass
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
@@ -269,7 +309,12 @@ class veri_hinge_Nfg_cons_U(veri_hinge_Nfg_wo_U):
         # TODO: add the SMT solver for the nonlinear case
         pass 
     
-    def verification(self, reverse_flag=False):
+    def verification(self, reverse_flag=False, feasibility_only=True):
+        if not feasibility_only:
+            # check correctness of NCBF
+            veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
+        if not veri_flag:
+            return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:

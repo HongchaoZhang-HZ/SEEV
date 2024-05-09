@@ -20,6 +20,8 @@ class Darboux(case):
         self.is_fx_linear = False
         self.is_u_cons = False
         self.is_u_cons_interval = False
+        self.pos_h_x_is_safe = False
+        self.NChx = False
         
 
     def f_x(self, x):
@@ -51,5 +53,5 @@ class Darboux(case):
         :param x: [np.array/torch.Tensor] input state x in R^n
         :return: [np.array/torch.Tensor] scalar output in R
         '''
-        hx = (x[:, 0] + x[:, 1] ** 2)
+        hx = (x[0] + x[1] ** 2)
         return hx

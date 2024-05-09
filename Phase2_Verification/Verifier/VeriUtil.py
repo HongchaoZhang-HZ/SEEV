@@ -13,6 +13,8 @@ class veri_seg_basic():
         self.Case = Case
         self.dim = Case.DIM
         self._update_linear_exp(self.S)
+        self.NChx = self.Case.NChx
+        self.feasibility_only = False
         
     def _update_linear_exp(self, S):
         self.W_B, self.r_B, self.W_o, self.r_o = LinearExp(self.model, S)
@@ -26,11 +28,37 @@ class veri_seg_basic():
         prog = RoA(prog, x, self.model, S)
         return prog
     
-    def correctness(self):
+    def correctness_LP(self, reverse_flag=False):
+        prog = MathematicalProgram()
+        x = prog.NewContinuousVariables(self.dim, "x")
+        prog = self.XS(prog, x)
+
+        # Add linear constraints
+        prog.AddLinearConstraint(self.W_out @ x + self.r_out == 0)
+        # Add cost function
+        hx = self.Case.h_x(x)
+        if reverse_flag:
+            LC = prog.AddCost(-hx)
+        else:
+            LC = prog.AddCost(hx)
         
-        hx = self.Case.h_x()
-        Lfb = (self.W_o[self.index_o] @ fx ).flatten()[0]
-        return Lfb
+        # Now solve the program.
+        result = Solve(prog)
+        return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
+    
+    def correctness_SMT(self, reverse_flag=False):
+        pass
+    
+    def veri_correctness(self, reverse_flag=False):
+        if not self.NChx:
+            veri_flag, ce, cost = self.correctness_LP(reverse_flag)
+        else:
+            veri_flag, ce, cost = self.correctness_SMT(reverse_flag)
+        if cost >= 0:
+            return True, None
+        else:
+            print('correctness ce with h(x) = ', cost, 'at point', ce)
+            return False, ce
         
 class veri_hinge_basic():
     def __init__(self, model, Case, S_list):
