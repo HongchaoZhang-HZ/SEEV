@@ -75,7 +75,7 @@ class veri_hinge_Fg_wo_U(veri_hinge_FG_wo_U):
         
     def verification(self, reverse_flag):
         if not self.SMT_flag:
-            return super().verification()
+            return super().verification(reverse_flag)
         else:
             veri_flag, ce = self.min_Lf_hinge(reverse_flag)
             if veri_flag:
@@ -150,7 +150,7 @@ class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
     
     def verification(self, reverse_flag=False):
         if not self.SMT_flag:
-            return super().verification()
+            return super().verification(reverse_flag)
         else:
             return self.Farkas_lemma(reverse_flag, SMT_flag=True)
 
@@ -188,7 +188,7 @@ class veri_hinge_Nfg_wo_U(veri_hinge_Fg_wo_U):
         super().__init__(model, Case, S_list)
     
     def Farkas_lemma(self, reverse_flag=False, SMT_flag=False):
-        super().Farkas_lemma(SMT_flag)  
+        super().Farkas_lemma(reverse_flag, SMT_flag)  
         
     def verification(self, reverse_flag=False):
         if not self.SMT_flag:

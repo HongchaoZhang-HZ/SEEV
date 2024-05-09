@@ -211,6 +211,9 @@ class Search(SearchInit):
         # If the neighbor_seg_list is not empty, we iterate over the items in the neighbor_seg_list to find the hinge point.
         if len(neighbor_seg_list) != 0:
             for neighbor_seg in neighbor_seg_list:
+                # TODO: This is a quick fix but we need to identify the bug and fix it.
+                while isinstance(neighbor_seg, list):
+                    neighbor_seg = neighbor_seg[0]
                 # find the hinge point
                 prog = RoA(prog, x, self.model, S=neighbor_seg)
         res = Solve(prog)
@@ -234,7 +237,8 @@ class Search(SearchInit):
             for r in range(1, len(hinge_post_seg_list) + 1):
                 for combo in combinations(hinge_post_seg_list, r):
                     tempt_list = [prior_seg for prior_seg in prior_seg_list]
-                    tempt_list.append(item for item in combo)
+                    for item in list(combo):
+                        tempt_list.append(item)
                     feasibility_flag = self.hinge_lp(S, tempt_list)
                     if feasibility_flag:
                         hinge_list.append([S, tempt_list])
