@@ -28,7 +28,7 @@ class veri_seg_basic():
         prog = RoA(prog, x, self.model, S)
         return prog
     
-    def correctness_LP(self, reverse_flag=False):
+    def correctness_LP(self, pos_safe_flag=True):
         prog = MathematicalProgram()
         x = prog.NewContinuousVariables(self.dim, "x")
         prog = self.XS(prog, x)
@@ -37,23 +37,23 @@ class veri_seg_basic():
         prog.AddLinearConstraint(self.W_out @ x + self.r_out == 0)
         # Add cost function
         hx = self.Case.h_x(x)
-        if reverse_flag:
-            LC = prog.AddCost(-hx)
-        else:
+        if pos_safe_flag:
             LC = prog.AddCost(hx)
+        else:
+            LC = prog.AddCost(-hx)
         
         # Now solve the program.
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
     
-    def correctness_SMT(self, reverse_flag=False):
+    def correctness_SMT(self, pos_safe_flag=True):
         pass
     
-    def veri_correctness(self, reverse_flag=False):
+    def veri_correctness(self, pos_safe_flag=True):
         if not self.NChx:
-            veri_flag, ce, cost = self.correctness_LP(reverse_flag)
+            veri_flag, ce, cost = self.correctness_LP(pos_safe_flag)
         else:
-            veri_flag, ce, cost = self.correctness_SMT(reverse_flag)
+            veri_flag, ce, cost = self.correctness_SMT(pos_safe_flag)
         if cost >= 0:
             return True, None
         else:

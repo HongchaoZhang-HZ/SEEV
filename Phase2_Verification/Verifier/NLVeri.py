@@ -48,8 +48,8 @@ class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         Lf_u0_flag, Lf_u0_res_x, Lf_u0_res_cost = self.min_Lf(reverse_flag)
         if Lf_u0_res_cost >= 0:
             return True, None
@@ -110,8 +110,8 @@ class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
@@ -135,8 +135,8 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         check_Lg = self.zero_Lg()
         if check_Lg:
             return True, None
@@ -219,8 +219,8 @@ class veri_hinge_Nfg_wo_U(veri_hinge_Fg_wo_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
@@ -269,8 +269,8 @@ class veri_seg_Nfg_with_interval_U(veri_seg_FG_with_interval_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         if not self.SMT_flag:
             veri_flag, veri_res_x = self.min_NLf_interval(reverse_flag)
             if veri_flag:
@@ -313,8 +313,8 @@ class veri_hinge_Nfg_cons_U(veri_hinge_Nfg_wo_U):
         if not feasibility_only:
             # check correctness of NCBF
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
-        if not veri_flag:
-            return False, ce
+            if not veri_flag:
+                return False, ce
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:

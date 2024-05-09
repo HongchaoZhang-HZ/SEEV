@@ -38,8 +38,8 @@ class veri_seg_FG_wo_U(veri_seg_basic):
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
     
-    def veri_correctness(self, reverse_flag=False):
-        return super().veri_correctness(reverse_flag)
+    def veri_correctness(self, pos_safe_flag=True):
+        return super().veri_correctness(pos_safe_flag)
     
     def verification(self, reverse_flag=False, feasibility_only=True):
         if not feasibility_only:

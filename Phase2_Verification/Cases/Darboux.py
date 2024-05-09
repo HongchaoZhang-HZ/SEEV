@@ -20,7 +20,7 @@ class Darboux(case):
         self.is_fx_linear = False
         self.is_u_cons = False
         self.is_u_cons_interval = False
-        self.pos_h_x_is_safe = False
+        self.pos_h_x_is_safe = True
         self.NChx = False
         
 
