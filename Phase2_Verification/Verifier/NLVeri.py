@@ -38,10 +38,6 @@ class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
         # Now solve the program.
         result = Solve(prog)
         return result.is_success(), result.GetSolution(x), result.get_optimal_cost()
-    
-    def Farkas_lemma(self, SMT_flag=False):
-        # TODO: add the SMT solver for the nonlinear case
-        pass
 
 class veri_hinge_Fg_wo_U(veri_hinge_FG_wo_U):
     # segment verifier without control input constraints
@@ -55,6 +51,46 @@ class veri_hinge_Fg_wo_U(veri_hinge_FG_wo_U):
     
     def Farkas_lemma(self, SMT_flag=False):
         super().Farkas_lemma(SMT_flag)   
+
+class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
+    # segment verifier without control input constraints
+    # Linear Fx and Gu
+    def __init__(self, model, Case, S):
+        super().__init__(model, Case, S)
+        
+    def zero_Lg(self):
+        return super().zero_Lg()
+    
+    def min_Lf(self, reverse_flag=False, SMT_flag=False):
+        if not SMT_flag:
+            return super().min_Lf(reverse_flag)
+        else:
+            # TODO: add the SMT solver for the nonlinear case
+            pass
+        
+class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
+    def __init__(self, model, Case, S):
+        super().__init__(model, Case, S)
+    
+    def min_Lf_interval(self, reverse_flag=False):
+        return super().min_Lf_interval(reverse_flag)
+
+class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
+    # segment verifier without control input constraints
+    def __init__(self, model, Case, S_list):
+        super().__init__(model, Case, S_list)
+        self.W_out_list = [seg.W_out for seg in self.segs]
+        self.r_out_list = [seg.r_out for seg in self.segs]
+    
+    def same_sign_Lg(self):
+        return super().same_sign_Lg()
+    
+    def min_Lf_hinge(self, reverse_flag=False):
+        return super().min_Lf_hinge(reverse_flag)
+    
+    def Farkas_lemma(self, SMT_flag=False):
+        # TODO: add the SMT solver for the nonlinear case
+        pass
 
 class veri_seg_Nfg_wo_U(veri_seg_Fg_wo_U):
     # segment verifier without control input constraints

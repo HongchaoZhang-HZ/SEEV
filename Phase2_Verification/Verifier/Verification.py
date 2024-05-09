@@ -2,11 +2,67 @@ import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from VeriUtil import *
 from LinearVeri import *
+from NLVeri import *
 
 from Modules.NNet import NeuralNetwork as NNet
 from Cases.Darboux import Darboux
 from Cases.ObsAvoid import ObsAvoid
 from Scripts.Search import Search
+
+class Verifier(verifier_basic):
+    def __init__(self, model, Case, 
+                 unstable_neurons_set, 
+                 pair_wise_hinge, 
+                 ho_hinge, VNBC_flag=False):
+        super().__init__(model, Case)
+        self.unstable_neurons_set = unstable_neurons_set
+        self.pair_wise_hinge = pair_wise_hinge
+        self.ho_hinge = ho_hinge
+        self.diagnose()
+        
+        # T - Barrier Certificate Verification, 
+        # F - Control Barrier Function Verification
+        self.VNBC_flag = VNBC_flag 
+        
+    def diagnose(self):
+        if self.is_gx_linear:
+            type_g = 'G'
+        else:
+            type_g = 'g'
+        if self.is_fx_linear:
+            type_f = 'F'
+        else:
+            type_f = 'f'
+        if self.is_u_cons:
+            type_u = 'U'
+            if self.is_u_cons_interval:
+                type_u += 'i'
+            else:
+                type_u += 'c'
+        else:
+            type_u = 'N'
+        self.type = type_f + type_g + type_u
+        
+    def seg_verifier(self, S):
+        if self.type == 'FGN':
+            return veri_seg_FG_wo_U(self.model, self.Case, S)
+        elif self.type == 'fGN':
+            return veri_seg_fG_wo_U(self.model, self.Case, S)
+        elif self.type == 'FgN':
+            return veri_seg_Fg_wo_U(self.model, self.Case, S)
+        elif self.type == 'fgN':
+            return veri_seg_Nfg_wo_U(self.model, self.Case, S)
+        elif self.type == 'FGUi':
+            return veri_seg_FG_with_interval_U(self.model, self.Case, S)
+        elif self.type == 'fGUi':
+            return veri_seg_fG_with_interval_U(self.model, self.Case, S)
+        elif self.type == 'FgUi' or self.type == 'fgUi':
+            return veri_seg_Nfg_with_interval_U(self.model, self.Case, S)
+        elif self.type == 'FGUc':
+            return veri_seg_FG_with_con_U(self.model, self.Case, S)
+        elif self.type == 'FgUc' or self.type == 'fGUc' or self.type == 'fgUc':
+            return veri_seg_Nfg_with_con_U(self.model, self.Case, S)
+
 
 def check_Lg_wo_U(model, S, Case):
     prog = MathematicalProgram()
@@ -116,3 +172,5 @@ if __name__ == "__main__":
     # model.load_state_dict(trained_state_dict, strict=True)
     # VeriRes, CE = CBF_verification(model, case, reverse_flat=True)
     
+    unstable_neurons_set, pair_wise_hinge = Search.BFS(Search.S_init[0])
+    ho_hinge = Search.hinge_search(unstable_neurons_set, pair_wise_hinge)
