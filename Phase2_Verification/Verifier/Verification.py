@@ -160,9 +160,9 @@ if __name__ == "__main__":
     
     # CBF Verification
     case = LinearSat()
-    architecture = [('linear', 6), ('relu', 32), ('relu', 32), ('linear', 32), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', 8), ('relu', 8), ('linear', 8), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase1_Scalability/models/satellitev1_2_32.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/satellitev1_2_8.pt")
     model_state_dict = model.state_dict()
     filtered_state_dict = {k: v for k, v in trained_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
     model_state_dict.update(filtered_state_dict)
