@@ -1,4 +1,6 @@
 from collections import deque
+
+from torch import device
 from .utils import *
 
 class NeuralNetwork(nn.Module):
@@ -66,7 +68,7 @@ class NeuralNetwork(nn.Module):
         n (int): Number of layers to merge.
         """
         # Verify that `n` is within the bounds of layers available
-        print(self.to('cpu').forward(torch.tensor([0,0,0,0,0.0,0.0]).to('cpu')))
+        print(self.to('cpu').forward(torch.tensor([1,0,0,0,0.0,0.0]).to('cpu')))
         
         linear_indices = [i for i, layer in enumerate(self.layers) if isinstance(layer, nn.Linear)]
 
@@ -82,10 +84,25 @@ class NeuralNetwork(nn.Module):
         merged_bias = self.layers[last_layer_index].bias.data
 
         # Loop backward through the layers to be merged
+        device = 'cpu'
+        merged_weight = merged_weight.to(device)
+        merged_bias = merged_bias.to(device)
+
+        # Loop through the indices of layers to merge in reverse order
         for index in reversed(indices_to_merge[:-1]):
             prev_layer = self.layers[index]
-            merged_weight = torch.matmul(merged_weight, prev_layer.weight.data).to('cpu')
-            merged_bias = merged_bias.to('cpu') + torch.matmul(merged_weight.to('cpu'), prev_layer.bias.data.to('cpu')).to('cpu')
+            prev_weight = prev_layer.weight.data.to(device)
+            prev_bias = prev_layer.bias.data.to(device)
+
+            # Temporary storage for the current weight calculation
+            temp_weight = torch.matmul(merged_weight, prev_weight)
+
+            # Update the bias calculation
+            temp_bias = merged_bias + torch.matmul(merged_weight, prev_bias)
+
+            # Update merged_weight and merged_bias
+            merged_weight = temp_weight
+            merged_bias = temp_bias
 
         # Create the new merged layer
         new_layer = nn.Linear(merged_weight.shape[1], merged_weight.shape[0])
@@ -95,7 +112,7 @@ class NeuralNetwork(nn.Module):
         # Remove old layers and replace them with the new merged layer
         remaining_layers = list(self.layers)[:indices_to_merge[0]]
         remaining_layers.append(new_layer)
-
+        remaining_layers.append(torch.nn.Identity())
         # Update ModuleList
         self.layers = nn.ModuleList(remaining_layers)
-        print(self.to('cpu').forward(torch.tensor([0,0,0,0,0.0,0.0]).to('cpu')))
+        print(self.to('cpu').forward(torch.tensor([1,0,0,0,0.0,0.0]).to('cpu')))
