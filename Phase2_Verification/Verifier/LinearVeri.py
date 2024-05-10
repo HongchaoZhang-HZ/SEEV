@@ -139,7 +139,8 @@ class veri_hinge_FG_wo_U(veri_hinge_basic):
         fx = self.Case.f_x(x)
         Lfb_list = []
         for i in range(len(self.segs)):
-            Lfb = (self.W_out_list[i] @ fx ).flatten()[0]
+            # Lfb = (self.W_out_list[i] @ fx ).flatten()[0]
+            Lfb = self.W_out_list[i] @ fx 
             if reverse_flag:
                 LC = prog.AddCost(-Lfb)
             else:

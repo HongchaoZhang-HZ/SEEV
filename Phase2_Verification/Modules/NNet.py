@@ -40,12 +40,34 @@ class NeuralNetwork(nn.Module):
             x = layer(x)
         return x
     
+    def wrapper_load_state_dict(self, trained_state_dict):
+        # Get the keys from the current model's state dict
+        model_state_dict = self.state_dict()
+        model_keys = list(model_state_dict.keys())
+
+        # Get the keys from the trained model's state dict
+        trained_keys = list(trained_state_dict.keys())
+
+        # Ensure both lists have the same length (or adjust accordingly)
+        if len(model_keys) != len(trained_keys):
+            raise ValueError("Mismatch in the number of layers or keys between models.")
+
+        # Create a mapping between old (trained) and new (current) model keys
+        key_mapping = {old_key: new_key for old_key, new_key in zip(trained_keys, model_keys)}
+
+        # Create a new state dict with renamed keys
+        renamed_state_dict = {key_mapping[old_key]: value for old_key, value in trained_state_dict.items() if old_key in key_mapping}
+
+        return renamed_state_dict
+    
     def merge_last_n_layers(self, n):
         """
         Merges the last `n` linear layers.
         n (int): Number of layers to merge.
         """
         # Verify that `n` is within the bounds of layers available
+        print(self.to('cpu').forward(torch.tensor([0,0,0,0,0.0,0.0]).to('cpu')))
+        
         linear_indices = [i for i, layer in enumerate(self.layers) if isinstance(layer, nn.Linear)]
 
         if n < 2 or n > len(linear_indices):
@@ -76,3 +98,4 @@ class NeuralNetwork(nn.Module):
 
         # Update ModuleList
         self.layers = nn.ModuleList(remaining_layers)
+        print(self.to('cpu').forward(torch.tensor([0,0,0,0,0.0,0.0]).to('cpu')))

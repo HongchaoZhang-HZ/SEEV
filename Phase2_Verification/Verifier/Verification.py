@@ -163,10 +163,9 @@ if __name__ == "__main__":
     architecture = [('linear', 6), ('relu', 8), ('relu', 8), ('linear', 8), ('linear', 1)]
     model = NNet(architecture)
     trained_state_dict = torch.load("./Phase2_Verification/models/satellitev1_2_8.pt")
-    model_state_dict = model.state_dict()
-    filtered_state_dict = {k: v for k, v in trained_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
-    model_state_dict.update(filtered_state_dict)
-    model.load_state_dict(model_state_dict, strict=True)
+    renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
+    # Load the renamed state dict into the model
+    model.load_state_dict(renamed_state_dict, strict=True)
     model.merge_last_n_layers(2)
     
     time_start = time.time()
