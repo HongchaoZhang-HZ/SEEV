@@ -166,11 +166,12 @@ if __name__ == "__main__":
     model_state_dict = model.state_dict()
     filtered_state_dict = {k: v for k, v in trained_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
     model_state_dict.update(filtered_state_dict)
-    model.load_state_dict(model_state_dict)
+    model.load_state_dict(model_state_dict, strict=True)
+    model.merge_last_n_layers(2)
     
     time_start = time.time()
     Search_prog = Search(model)
-    spt = torch.tensor([[[-2, -1.5, 0.5, 0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[-1.2, -1.5, 1.1, 0.0, 0.0, 0.0]]])
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
