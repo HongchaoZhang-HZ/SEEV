@@ -155,8 +155,8 @@ def solver_lp(model, S):
     # Now solve the program.
     result = Solve(prog)
 
-    # print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
-    # print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))
+    print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
+    print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))
     return result
     
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from NLVeri import *
 from Modules.NNet import NeuralNetwork as NNet
 from Cases.Darboux import Darboux
 from Cases.ObsAvoid import ObsAvoid
+from Cases.LinearSatellite import LinearSat
 from Scripts.Search import Search
 
 class Verifier(verifier_basic):
@@ -134,18 +135,43 @@ if __name__ == "__main__":
     # print('Search time:', search_time)
     # print('Verification time:', verification_time)
     
+    # # CBF Verification
+    # case = ObsAvoid()
+    # architecture = [('linear', 3), ('relu', 64), ('relu', 64), ('linear', 1)]
+    # model = NNet(architecture)
+    # trained_state_dict = torch.load("Phase1_Scalability/models/obs_2_64.pt")
+    # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    # model.load_state_dict(trained_state_dict, strict=True)
+    
+    # time_start = time.time()
+    # Search_prog = Search(model)
+    # spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
+    # Search_prog.Specify_point(spt, uspt)
+    # unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
+    # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    # search_time = time.time() - time_start
+    
+    # Verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
+    # veri_flag, ce = Verifier.Verification(reverse_flag=True)
+    # verification_time = time.time() - time_start - search_time
+    # print('Search time:', search_time)
+    # print('Verification time:', verification_time)
+    
     # CBF Verification
-    case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 32), ('relu', 64), ('linear', 1)]
+    case = LinearSat()
+    architecture = [('linear', 6), ('relu', 32), ('relu', 32), ('linear', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_2_64.pt")
-    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
-    model.load_state_dict(trained_state_dict, strict=True)
+    trained_state_dict = torch.load("./Phase1_Scalability/models/satellitev1_2_32.pt")
+    model_state_dict = model.state_dict()
+    filtered_state_dict = {k: v for k, v in trained_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
+    model_state_dict.update(filtered_state_dict)
+    model.load_state_dict(model_state_dict)
     
     time_start = time.time()
     Search_prog = Search(model)
-    spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[-2, -1.5, 0.5, 0.0, 0.0, 0.0]]])
+    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
