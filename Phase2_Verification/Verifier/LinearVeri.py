@@ -1,6 +1,4 @@
-from calendar import c
-from tabnanny import check
-from VeriUtil import *
+from Verifier.VeriUtil import *
 
 class veri_seg_FG_wo_U(veri_seg_basic):
     # segment verifier without control input constraints

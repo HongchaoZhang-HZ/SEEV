@@ -2,9 +2,9 @@ import sys, os
 import time
 from pytest import fail
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
-from VeriUtil import *
-from LinearVeri import *
-from NLVeri import *
+from Verifier.VeriUtil import *
+from Verifier.LinearVeri import *
+from Verifier.NLVeri import *
 
 from Modules.NNet import NeuralNetwork as NNet
 from Cases.Darboux import Darboux

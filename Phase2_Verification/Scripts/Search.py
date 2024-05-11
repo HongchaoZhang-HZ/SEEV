@@ -226,15 +226,23 @@ class Search(SearchInit):
             tempt_prior_list = [prior_seg for prior_seg in prior_seg_list]
             tempt_prior_post_list = copy.deepcopy(tempt_prior_list)
             tempt_prior_post_list.append(post_seg)
+            tempt_S_prior_post_list = [S]
+            tempt_S_prior_post_list.extend(copy.deepcopy(tempt_prior_post_list))
+            if tempt_S_prior_post_list in [hinge_list]:
+                continue
             feasibility_flag = self.hinge_lp(S, tempt_prior_post_list)
             if feasibility_flag:
-                tempt_S_prior_post_list = copy.deepcopy(tempt_prior_post_list)
-                tempt_S_prior_post_list.append(S)
                 hinge_list.extend(tempt_S_prior_post_list)
                 hinge_post_seg_list.append(post_seg)
                 hinge_prior_seg_list.extend(tempt_prior_list)
-        if len(hinge_post_seg_list) != 0:
-            for r in range(1, len(hinge_post_seg_list) + 1):
+        
+        
+        if len(hinge_post_seg_list) > 1:
+            space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim-2])
+            for r in range(1, np.min([len(hinge_post_seg_list) + 1, space])):
+                if r+1+len(hinge_prior_seg_list) >= 6:
+                    print("r is greater than 6")
+                print("post r is ", r)
                 for combo in combinations(hinge_post_seg_list, r):
                     tempt_list = [prior_seg for prior_seg in prior_seg_list]
                     tempt_list = tempt_list + list(combo)
@@ -257,9 +265,12 @@ class Search(SearchInit):
                 # If the post_seg_list is not empty, we iterate over the items in the post_seg_list to find the hinge point.
                 hinge_post_seg_list = [] # this list stores the post_seg that are feasible
                 hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, [prior_seg], post_seg_list, hinge_prior_seg_list)
-            space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim])
+            
             if len(hinge_prior_seg_list) != 0:
+                space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim-2])
                 for r in range(1, np.min([len(hinge_prior_seg_list) + 1, space])):
+                    if r >= self.dim-2:
+                        break
                     for prior_seg in combinations(hinge_prior_seg_list, r):
                         hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, list(prior_seg), post_seg_list, hinge_prior_seg_list)
         return hinge_list

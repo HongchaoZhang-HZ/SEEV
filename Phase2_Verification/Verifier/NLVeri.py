@@ -2,7 +2,7 @@ from math import e
 import re
 
 from torch import zero_
-from LinearVeri import *
+from Verifier.LinearVeri import *
 
 class veri_seg_Fg_wo_U(veri_seg_FG_wo_U):
     # segment verifier without control input constraints
