@@ -12,6 +12,10 @@ from Cases.ObsAvoid import ObsAvoid
 from Cases.LinearSatellite import LinearSat
 from Scripts.Search import Search
 
+import warnings
+warnings.filterwarnings("ignore")
+
+
 class Verifier(verifier_basic):
     def __init__(self, model, Case, 
                  unstable_neurons_set, 
@@ -160,9 +164,9 @@ if __name__ == "__main__":
     
     # CBF Verification
     case = LinearSat()
-    architecture = [('linear', 6), ('relu', 32), ('relu', 32), ('linear', 32), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', 16), ('relu', 16), ('linear', 16), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase2_Verification/models/satellitev1_2_32.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/satellitev1_2_16.pt")
     renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
     # Load the renamed state dict into the model
     model.load_state_dict(renamed_state_dict, strict=True)
@@ -174,9 +178,10 @@ if __name__ == "__main__":
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
+    print('Num boundar seg is', len(unstable_neurons_set))
     ho_hinge = []
     # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
-    print('Num boundar seg is', len(unstable_neurons_set))
+    # print('Num HO hinge is', len(ho_hinge))
     search_time = time.time() - time_start
     
     Verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)

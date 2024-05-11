@@ -257,9 +257,9 @@ class Search(SearchInit):
                 # If the post_seg_list is not empty, we iterate over the items in the post_seg_list to find the hinge point.
                 hinge_post_seg_list = [] # this list stores the post_seg that are feasible
                 hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, [prior_seg], post_seg_list, hinge_prior_seg_list)
-            space = len(prior_seg_list) + len(post_seg_list) 
+            space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim])
             if len(hinge_prior_seg_list) != 0:
-                for r in range(1, len(hinge_prior_seg_list) + 1 - space):
+                for r in range(1, np.min([len(hinge_prior_seg_list) + 1, space])):
                     for prior_seg in combinations(hinge_prior_seg_list, r):
                         hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, list(prior_seg), post_seg_list, hinge_prior_seg_list)
         return hinge_list
