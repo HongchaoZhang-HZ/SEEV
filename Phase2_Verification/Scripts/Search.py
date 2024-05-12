@@ -293,7 +293,7 @@ class Search(SearchInit):
                 if pair[0] == mid_linear_segment:
                     post_seg_list.append(pair[1])
             # check if prior and post segment sets are empty sets
-            if len(prior_seg_list) == 0 and len(post_seg_list) == 0:
+            if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
                 continue
             # check if intersections happens
             ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)

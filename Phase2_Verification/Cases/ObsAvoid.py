@@ -22,6 +22,9 @@ class ObsAvoid(case):
         self.is_u_cons_interval = True
         self.pos_h_x_is_safe = True
         self.NChx = False
+        
+        self.A = [1, -1]
+        self.c = [-2, 2]
 
     def f_x(self, x):
         '''
@@ -40,6 +43,13 @@ class ObsAvoid(case):
         x_dot = np.vstack([x0_dot, x1_dot, phi_dot])
         return x_dot
 
+    def f_x_dreal(self, x):
+        v = self.v
+        x0_dot = v * dr.sin(x[2])
+        x1_dot = v * dr.cos(x[2])
+        phi_dot = 0
+        return x0_dot, x1_dot, phi_dot
+    
     def g_x(self, x):
         '''
         Control affine model g(x)=[0 0 1]'
@@ -51,6 +61,12 @@ class ObsAvoid(case):
         g_phi = 1
         gx = np.vstack([g_x0, g_x1, g_phi])
         return gx
+    
+    def g_x_dreal(self, x):
+        g_x0 = 0
+        g_x1 = 0
+        g_phi = 1
+        return g_x0, g_x1, g_phi
 
     def h_x(self, x):
         '''

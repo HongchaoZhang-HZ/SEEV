@@ -1,3 +1,4 @@
+from re import S
 from Verifier.Verification import *
 
 def BC_Darboux():
@@ -16,18 +17,21 @@ def BC_Darboux():
     ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pairwise_hinge) 
     search_time = time.time() - time_start
     
-    Verifier = Verifier(model, case, unstable_neurons_set, pairwise_hinge, ho_hinge)
-    veri_flag, ce = Verifier.Verification(reverse_flag=True)
+    verifier = Verifier(model, case, unstable_neurons_set, pairwise_hinge, ho_hinge)
+    veri_flag, ce = verifier.Verification(reverse_flag=True)
     verification_time = time.time() - time_start - search_time
     print('Search time:', search_time)
     print('Verification time:', verification_time)
     
-def CBF_Obs():
+def CBF_Obs(l, n):
     # CBF Verification
     case = ObsAvoid()
-    architecture = [('linear', 3), ('relu', 64), ('relu', 64), ('linear', 1)]
+    hdlayers = []
+    for layer in range(l):
+        hdlayers.append(('relu', n))
+    architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("Phase1_Scalability/models/obs_2_64.pt")
+    trained_state_dict = torch.load(f"Phase1_Scalability/models/obs_{l}_{n}.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
@@ -37,11 +41,21 @@ def CBF_Obs():
     uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
-    ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
-    search_time = time.time() - time_start
+    seg_search_time = time.time() - time_start
+    print('Seg Search time:', seg_search_time)
+    print('Num boundar seg is', len(unstable_neurons_set))
     
-    Verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
-    veri_flag, ce = Verifier.Verification(reverse_flag=True)
+    ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    hinge_search_time = time.time() - time_start - seg_search_time
+    print('Hinge Search time:', hinge_search_time)
+    print('Num HO hinge is', len(ho_hinge))
+    if len(ho_hinge) > 0:
+        print('Highest order is', np.max([len(ho_hinge[i]) for i in range(len(ho_hinge))]))
+    search_time = time.time() - time_start
+    print('Search time:', search_time)
+    
+    verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
+    veri_flag, ce = verifier.Verification(reverse_flag=True, SMT_flag=True)
     verification_time = time.time() - time_start - search_time
     print('Search time:', search_time)
     print('Verification time:', verification_time)
@@ -69,15 +83,16 @@ def CBF_LS(n):
     print('Num HO hinge is', len(ho_hinge))
     print('Highest order is', np.max([len(ho_hinge[i]) for i in range(len(ho_hinge))] ))
     search_time = time.time() - time_start
+    print('Search time:', search_time)
     
     verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
     veri_flag, ce = verifier.Verification(reverse_flag=True)
     verification_time = time.time() - time_start - search_time
-    print('Search time:', search_time)
+    
     print('Verification time:', verification_time)
 
 if __name__ == "__main__":
-    CBF_LS(16)
+    CBF_Obs(1, 128)
     
     
     

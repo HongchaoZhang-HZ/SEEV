@@ -1,5 +1,7 @@
 import torch
 import numpy as np
+import dreal as dr
+
 class case:
     '''
     Define base class for different case studies
