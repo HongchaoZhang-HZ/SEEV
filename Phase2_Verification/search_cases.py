@@ -156,11 +156,13 @@ def test_sate():
 def test_linear_satellite():
     case = LinearSat()
 
-    architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', 32), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt").state_dict()
+    new_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    
     model_state_dict = model.state_dict()
-    filtered_state_dict = {k: v for k, v in model_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
+    filtered_state_dict = {k: v for k, v in new_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
     model_state_dict.update(filtered_state_dict)
     model.load_state_dict(model_state_dict)
 
