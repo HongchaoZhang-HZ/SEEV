@@ -15,9 +15,9 @@ class SearchInit:
         self.dim = next(model.children())[0].in_features
         self.case = case
         self.NStatus = NetworkStatus(model)
-        if case is not None:
-            self.safe_regions = self.case.safe_regions
-            self.unsafe_regions = self.case.unsafe_regions
+        # if case is not None:
+        #     self.safe_regions = self.case.safe_regions
+        #     self.unsafe_regions = self.case.unsafe_regions
     
     def sample_in_region(self, region, len_sample):
         grid_sample = [torch.linspace(region[i][0], region[i][1], int(len_sample[i])) for i in range(len(region))]

@@ -1,6 +1,5 @@
-from re import S
 from Verifier.Verification import *
-
+from SearchVerifier import SearchVerifier
 def BC_Darboux():
     # BC Verification
     case = Darboux()
@@ -91,8 +90,30 @@ def CBF_LS(n):
     
     print('Verification time:', verification_time)
 
+def CBF_LS_SV():
+    # CBF Verification
+    case = LinearSat()
+    architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    model = NNet(architecture)
+    trained_state_dict = torch.load(f"./Phase2_Verification/models/linear_satellite_br_0.5.pt")
+    # renamed_state_dict = model.wrapper_load_sequential(trained_state_dict)
+    # Load the renamed state dict into the model
+    model.load_state_dict_from_sequential(trained_state_dict)
+    # model.merge_last_n_layers(2)
+    
+    Search_prog = SearchVerifier(model, case)
+    spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
+    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    Search_prog = SearchVerifier(model, case)
+    veri_flag, ce = Search_prog.SV_CE(spt, uspt)
+    if veri_flag:
+        print('Verification successful!')
+    else:
+        print('Verification failed!')
+        print('Counter example:', ce)
+
 if __name__ == "__main__":
-    CBF_Obs(1, 128)
+    CBF_LS_SV()
     
     
     

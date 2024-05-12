@@ -42,6 +42,28 @@ class NeuralNetwork(nn.Module):
             x = layer(x)
         return x
     
+    def load_state_dict_from_sequential(self, sequential):
+        ''' Adjusts and loads state dictionary from a sequential model '''
+        sequential_state_dict = sequential.state_dict()
+        custom_state_dict = self.state_dict()
+
+        # Map from sequential keys to custom model keys
+        # Here we assume every other layer in custom model is a Linear layer
+        translation_map = {f'{int(i/2)*2}.{suffix}': f'layers.{i}.{suffix}' 
+                           for i in range(0, len(sequential_state_dict), 2) 
+                           for suffix in ['weight', 'bias']}
+
+        # Create new state dictionary with translated keys
+        new_state_dict = {}
+        for seq_key, value in sequential_state_dict.items():
+            if seq_key in translation_map:
+                new_state_dict[translation_map[seq_key]] = value
+            else:
+                raise KeyError(f"Key {seq_key} not found in the translation map. Check layer alignment.")
+
+        # Load the translated state dictionary
+        self.load_state_dict(new_state_dict, strict=True)
+    
     def wrapper_load_state_dict(self, trained_state_dict):
         # Get the keys from the current model's state dict
         model_state_dict = self.state_dict()
