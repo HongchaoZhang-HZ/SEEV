@@ -2,6 +2,7 @@ from Cases.ObsAvoid import ObsAvoid
 from Scripts.Search import *
 import Scripts.PARA as PARA
 from Cases.Darboux import Darboux
+from Cases.LinearSatellite import LinearSat
 import time
 
 def test_darboux_single():
@@ -152,9 +153,47 @@ def test_sate():
     print(len(unstable_neurons_set))
     print("Time:", end - start)
 
+def test_linear_satellite():
+    case = LinearSat()
+
+    architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    model = NNet(architecture)
+    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_no_reg.pt")
+    model_state_dict = model.state_dict()
+    filtered_state_dict = {k: v for k, v in model_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
+    model_state_dict.update(filtered_state_dict)
+    model.load_state_dict(model_state_dict)
+
+    # record time
+    start = time.time()
+    # case = PARA.CASES[0]
+    Search_prog = Search(model)
+    # (0.5, 1.5), (0, -1)
+    # NOTE: Hardcoding normalization
+    spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    Search_prog.Specify_point(spt, uspt)
+    # print(Search.S_init)
+    
+    # Search.Filter_S_neighbour(Search.S_init[0])
+    # Possible_S = Search.Possible_S(Search .S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
+    # print(Search.Filter_S_neighbour(Search.S_init[0]))
+    unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
+    # unstable_neurons_set = Search.BFS(Possible_S)
+    ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
+    print(len(ho_hinge))
+    # compute searching time
+    end = time.time()
+    
+
+    # print(unstable_neurons_set)
+    print(len(unstable_neurons_set))
+    print("Time:", end - start)
+
 if __name__ == "__main__":
     # test_darboux()
     # test_darboux_single()
     # test_obs()
     # test_obs_single()
-    test_sate()
+    # test_sate()
+    test_linear_satellite()
