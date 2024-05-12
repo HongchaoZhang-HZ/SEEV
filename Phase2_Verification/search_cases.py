@@ -158,7 +158,7 @@ def test_linear_satellite():
 
     architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_no_reg.pt")
+    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt")
     model_state_dict = model.state_dict()
     filtered_state_dict = {k: v for k, v in model_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
     model_state_dict.update(filtered_state_dict)
