@@ -95,7 +95,8 @@ def check_negative_minfx_gx0(model, S, case, reverse_flag=False):
     constraints = XSi_b0_dreal(model, x_vars, S, n)
     
     # constraint dbdxg(x)=0
-    gx = case.g_x_dreal(x_vars)
+    if not case.is_gx_linear:
+        gx = case.g_x_dreal(x_vars)
     Lgb = sum(W_out[0, j] * gx[j] for j in range(n))
     constraints.append(Lgb == 0)
     
@@ -145,7 +146,10 @@ def farkas_lemma_seg(model, S, case, A, c, reverse_flag=False):
     
     # construct Theta
     Theta = []
-    gx = case.g_x_dreal(x_vars)
+    if not case.is_gx_linear:
+        gx = case.g_x_dreal(x_vars)
+    else:
+        gx = case.g_x_dreal(0)
     for i in range(len([S])):
         Lgb = sum(W_out_list[i][0, j] * gx[j] for j in range(n))
         Theta.append(Lgb)
@@ -232,7 +236,8 @@ def farkas_lemma_hinge(model, S_list, case, A, c, reverse_flag=False):
     constraints.append(sum(y_vars[i] * Lambda[i] for i in range(ny)) < 0)
     
     # y >= 0
-    constraints.append(y_vars[i] >= 0 for i in range(ny))
+    for i in range(ny):
+        constraints.append(y_vars[i] >= 0 )
 
     # Define the configuration for the solver
     config = dr.Config()
