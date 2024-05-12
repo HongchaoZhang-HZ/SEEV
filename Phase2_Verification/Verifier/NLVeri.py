@@ -134,7 +134,8 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
         return super().min_Lf_interval(reverse_flag)
     
     def min_Lf_interval_SMT(self, reverse_flag=False):
-        pass
+        veri_flag, ce = SMT.check_negative_minfx_gx0(self.model, self.S, self.Case, reverse_flag)
+        return veri_flag, ce
     
     def verification(self, reverse_flag=False, feasibility_only=True):
         if not feasibility_only:
@@ -175,6 +176,9 @@ class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
             veri_flag, ce = self.veri_correctness(self.Case.pos_h_x_is_safe)
             if not veri_flag:
                 return False, ce
+        same_sign_Lg = self.same_sign_Lg()
+        if same_sign_Lg:
+            return True, None
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:

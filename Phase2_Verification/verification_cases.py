@@ -77,7 +77,7 @@ def CBF_LS(n):
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
-    print('Num boundar seg is', len(unstable_neurons_set))
+    print('Num boundary seg is', len(unstable_neurons_set))
     # ho_hinge = []
     ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
     print('Num HO hinge is', len(ho_hinge))

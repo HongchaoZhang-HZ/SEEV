@@ -214,7 +214,7 @@ def farkas_lemma_hinge(model, S_list, case, A, c, reverse_flag=False):
     Theta = []
     gx = case.g_x_dreal(x_vars)
     for i in range(len(S_list)):
-        Lgb = sum(W_out_list[i][0, j] * gx[j] for j in range(n))
+        Lgb = -sum(W_out_list[i][0, j] * gx[j] for j in range(n))
         Theta.append(Lgb)
     for i in range(len(A)):
         Theta.append(A[i])
@@ -259,7 +259,7 @@ def farkas_lemma_hinge(model, S_list, case, A, c, reverse_flag=False):
             print(f"Counter example x{i+1} = {midpoint} (interval: {interval})")
         return False, ce
     else:
-        print("UNSAT: No solution exists where the function is negative.")
+        # print("UNSAT: No solution exists where the function is negative.")
         return True, None
 
 # Run the function to check for negative optimum

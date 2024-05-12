@@ -23,8 +23,10 @@ class ObsAvoid(case):
         self.pos_h_x_is_safe = True
         self.NChx = False
         
-        self.A = [1, -1]
-        self.c = [-2, 2]
+        # self.A = [-1, 1]
+        self.A = []
+        # self.c = [-2, -2]
+        self.c = []
 
     def f_x(self, x):
         '''
