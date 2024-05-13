@@ -20,6 +20,7 @@ class ObsAvoid(case):
         self.is_fx_linear = False
         self.is_u_cons = True
         self.is_u_cons_interval = True
+        self.reverse_flag = True
         self.pos_h_x_is_safe = True
         self.NChx = False
         

@@ -275,31 +275,31 @@ class Search(SearchInit):
                         hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, list(prior_seg), post_seg_list, hinge_prior_seg_list)
         return hinge_list
 
-    def hinge_search(self, boundary_list, pair_wise_hinge):
-        # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
-        # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
-        # The overall design of the search is based on exhaustive search for completeness. 
-        # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
-        hinge_list = []
-        for mid_linear_segment in boundary_list:
-            # for each linear segment, find the hinge hyperplane nearby
-            prior_seg_list = []
-            post_seg_list = []
-            for pair in pair_wise_hinge:
-                # find prior segment
-                if pair[1] == mid_linear_segment:
-                    prior_seg_list.append(pair[0])
-                # find post segment
-                if pair[0] == mid_linear_segment:
-                    post_seg_list.append(pair[1])
-            # check if prior and post segment sets are empty sets
-            if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
-                continue
-            # check if intersections happens
-            ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
-            if len(ho_hinge_list) != 0:
-                hinge_list.append(ho_hinge_list)
-        return hinge_list
+    # def hinge_search(self, boundary_list, pair_wise_hinge):
+    #     # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
+    #     # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
+    #     # The overall design of the search is based on exhaustive search for completeness. 
+    #     # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
+    #     hinge_list = []
+    #     for mid_linear_segment in boundary_list:
+    #         # for each linear segment, find the hinge hyperplane nearby
+    #         prior_seg_list = []
+    #         post_seg_list = []
+    #         for pair in pair_wise_hinge:
+    #             # find prior segment
+    #             if pair[1] == mid_linear_segment:
+    #                 prior_seg_list.append(pair[0])
+    #             # find post segment
+    #             if pair[0] == mid_linear_segment:
+    #                 post_seg_list.append(pair[1])
+    #         # check if prior and post segment sets are empty sets
+    #         if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
+    #             continue
+    #         # check if intersections happens
+    #         ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
+    #         if len(ho_hinge_list) != 0:
+    #             hinge_list.append(ho_hinge_list)
+    #     return hinge_list
             
         
         

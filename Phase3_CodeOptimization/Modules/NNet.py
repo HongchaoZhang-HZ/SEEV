@@ -42,7 +42,7 @@ class NeuralNetwork(nn.Module):
             x = layer(x)
         return x
     
-    def load_state_dict_from_sequential(self, sequential):
+    def load_state_dict_from_sequential(self, sequential:nn.Sequential):
         ''' Adjusts and loads state dictionary from a sequential model '''
         sequential_state_dict = sequential.state_dict()
         custom_state_dict = self.state_dict()

@@ -93,13 +93,16 @@ def CBF_LS(n):
 def CBF_LS_SV():
     # CBF Verification
     case = LinearSat()
-    architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', 8), ('relu', 8), ('linear', 8), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"./Phase2_Verification/models/linear_satellite_br_0.5.pt")
+    # trained_state_dict = torch.load(f"./Phase2_Verification/models/linear_satellite_br_0.5.pt")
+    trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_8.pt")
+    renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
     # renamed_state_dict = model.wrapper_load_sequential(trained_state_dict)
     # Load the renamed state dict into the model
-    model.load_state_dict_from_sequential(trained_state_dict)
-    # model.merge_last_n_layers(2)
+    # model.load_state_dict_from_sequential(trained_state_dict)
+    model.load_state_dict(renamed_state_dict, strict=True)
+    model.merge_last_n_layers(2)
     
     Search_prog = SearchVerifier(model, case)
     spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
@@ -113,7 +116,7 @@ def CBF_LS_SV():
         print('Counter example:', ce)
 
 if __name__ == "__main__":
-    # CBF_LS_SV()
+    CBF_LS_SV()
     CBF_LS(8)
     
     

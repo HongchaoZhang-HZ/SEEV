@@ -22,6 +22,7 @@ class LinearSat(case):
         self.is_u_cons_interval = False
         self.pos_h_x_is_safe = True
         self.NChx = False
+        self.reverse_flag = True
         
 
     def f_x(self, x):

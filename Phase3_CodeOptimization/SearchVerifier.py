@@ -42,7 +42,7 @@ class SearchVerifier(Search):
                 boundary_list.append(current_set)
                 
                 # verification
-                veri_flag, ce = self.verifier.seg_verification([current_set], reverse_flag = not self.case.pos_h_x_is_safe)
+                veri_flag, ce = self.verifier.seg_verification([current_set], reverse_flag = self.case.reverse_flag)
                 if not veri_flag:
                     print('Verification failed!')
                     print('Segment counter example', ce)
@@ -72,18 +72,19 @@ class SearchVerifier(Search):
         # Search Verification and output Counter Example
         time_start = time.time()
         self.Specify_point(spt, uspt)
-        veri_flag, ce, unstable_neurons_set, pair_wise_hinge = self.BFS_with_Verifier(self.S_init[0])
+        unstable_neurons_set, pair_wise_hinge = self.BFS(self.S_init[0])
+        # veri_flag, ce, unstable_neurons_set, pair_wise_hinge = self.BFS_with_Verifier(self.S_init[0])
         seg_search_time = time.time() - time_start
         print('Seg Search and Verification time:', seg_search_time)
         print('Num boundar seg is', len(unstable_neurons_set))
-        if not veri_flag:
-            return False, ce
+        # if not veri_flag:
+        #     return False, ce
         
-        veri_flag, ce = self.verifier.hinge_verification(pair_wise_hinge)
-        if not veri_flag:
-            return False, ce
+        # veri_flag, ce = self.verifier.hinge_verification(pair_wise_hinge, reverse_flag = self.case.reverse_flag)
+        # if not veri_flag:
+        #     return False, ce
         ho_hinge = self.hinge_search(unstable_neurons_set, pair_wise_hinge)
-        veri_flag, ce = self.verifier.hinge_verification(ho_hinge)
+        veri_flag, ce = self.verifier.hinge_verification(ho_hinge, reverse_flag = self.case.reverse_flag)
         if not veri_flag:
             return False, ce
         hinge_search_time = time.time() - time_start - seg_search_time
