@@ -38,7 +38,7 @@ def RoA(prog:MathematicalProgram, x, model,
     # Add linear constraints to the MathematicalProgram
     linear_constraint = prog.AddLinearConstraint(A= cons_W, lb=-cons_r, 
                                                  ub=np.inf*np.ones(len(cons_r)), vars=x)
-    boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
+    # boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
     # print(linear_constraint)
     return prog
 
@@ -143,21 +143,22 @@ def solver_lp(model, S):
     # Add two decision variables x[0], x[1].
     dim = next(model.children())[0].in_features
     x = prog.NewContinuousVariables(dim, "x")
-    
+
     # Add linear constraints
     W_B, r_B, W_o, r_o = LinearExp(model, S)
-    prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
-    
+    prog = RoA(prog, x, model, S=S)
+    # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
-    
+
     prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
     # tol = 1e-5
     # prog.AddLinearConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o])-tol, -np.array(r_o[index_o])+tol, x)
-    
+
     # Now solve the program.
     result = Solve(prog)
+    # print(result.is_success())
 
     # print('check result:', np.matmul(W_o[index_o], result.GetSolution(x)) + r_o[index_o], W_o[index_o], r_o[index_o])
     # print('ref_result:', model.forward(torch.tensor(result.GetSolution(x)).float()))

@@ -152,8 +152,8 @@ def CBF_LS_SV(n):
     Search_prog = SearchVerifier(model, case)
     # spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
-    # spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    # spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog = SearchVerifier(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)
