@@ -51,7 +51,7 @@ def CBF_Obs(l, n):
     # unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     # seg_search_time = time.time() - time_start
     # print('Seg Search time:', seg_search_time)
-    # print('Num boundar seg is', len(unstable_neurons_set))
+    # print('Num boundary seg is', len(unstable_neurons_set))
     
     # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
     # ho_hinge = Search_prog.hinge_search_3seg(unstable_neurons_set, pair_wise_hinge)
@@ -104,7 +104,7 @@ def CBF_LS(n):
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     seg_search_time = time.time() - time_start
     print('Seg Search time:', seg_search_time)
-    print('Num boundar seg is', len(unstable_neurons_set))
+    print('Num boundary seg is', len(unstable_neurons_set))
     
     # ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)
     # ho_hinge = Search_prog.hinge_search_3seg(unstable_neurons_set, pair_wise_hinge)
@@ -129,27 +129,30 @@ def CBF_LS(n):
     
     print('Verification time:', verification_time)
 
-def CBF_LS_SV():
-    # CBF Verification
-    n = 8
-    case = LinearSat()
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
-    model = NNet(architecture)
-    trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
-    renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
-    # Load the renamed state dict into the model
-    model.load_state_dict(renamed_state_dict, strict=True)
-    model.merge_last_n_layers(2)
-    
+def CBF_LS_SV(n):
     # # CBF Verification
+    # n = 8
     # case = LinearSat()
-    # architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
     # model = NNet(architecture)
-    # trained_state_dict = torch.load(f"./Phase2_Verification/models/linear_satellite_br_0.5.pt")
-    # model.load_state_dict_from_sequential(trained_state_dict)
+    # trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
+    # renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
+    # # Load the renamed state dict into the model
+    # model.load_state_dict(renamed_state_dict, strict=True)
+    # model.merge_last_n_layers(2)
+    
+    # CBF Verification
+    case = LinearSat()
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
+    model = NNet(architecture)
+    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt")
+    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
+    model.load_state_dict_from_sequential(trained_state_dict)
     
     Search_prog = SearchVerifier(model, case)
-    spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
+    # spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog = SearchVerifier(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)
@@ -160,7 +163,7 @@ def CBF_LS_SV():
         print('Counter example:', ce)
 
 if __name__ == "__main__":
-    # CBF_LS_SV()
+    CBF_LS_SV(32)
     # CBF_LS(8)
-    CBF_Obs(1, 128)
+    # CBF_Obs(1, 128)
     

@@ -70,7 +70,7 @@ class SearchVerifier(Search):
 
     def suff_check_hinge(self, unstable_neurons_set):
         prob_S_list = []
-        if self.case.is_gx_linear and self.case.is_u_cons:
+        if self.case.is_gx_linear and not self.case.is_u_cons:
             for S in unstable_neurons_set:
                 W_B, r_B, W_o, r_o = LinearExp(self.model, S)
                 index_o = len(S.keys())-1
