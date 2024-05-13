@@ -24,7 +24,7 @@ class veri_seg_basic():
     def XS(self, prog, x, S=None):
         if S == None:
             S = self.S
-        prog = RoA(prog, x, self.model, S)
+        prog = RoA(prog, x, self.model, S, SSpace=self.Case.SSpace)
         return prog
     
     def correctness_LP(self, pos_safe_flag=True):

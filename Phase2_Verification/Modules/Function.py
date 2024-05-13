@@ -38,7 +38,7 @@ def RoA(prog:MathematicalProgram, x, model,
     # Add linear constraints to the MathematicalProgram
     linear_constraint = prog.AddLinearConstraint(A= cons_W, lb=-cons_r, 
                                                  ub=np.inf*np.ones(len(cons_r)), vars=x)
-    # boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
+    boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
     # print(linear_constraint)
     return prog
 

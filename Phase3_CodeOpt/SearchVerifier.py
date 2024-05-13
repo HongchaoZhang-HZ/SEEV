@@ -27,7 +27,7 @@ class SearchVerifier(Search):
         while queue:
             current_set = queue.popleft()
             # current_set = queue.pop(0)
-            res = solver_lp(self.model, current_set) 
+            res = solver_lp(self.model, current_set, SSpace=self.case.SSpace) 
             # res = solver_lp(self.model, current_set)
             # print(res.is_success())
             if res.is_success():

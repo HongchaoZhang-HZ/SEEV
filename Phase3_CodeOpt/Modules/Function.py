@@ -38,7 +38,7 @@ def RoA(prog:MathematicalProgram, x, model,
     # Add linear constraints to the MathematicalProgram
     linear_constraint = prog.AddLinearConstraint(A= cons_W, lb=-cons_r, 
                                                  ub=np.inf*np.ones(len(cons_r)), vars=x)
-    # boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
+    boundingbox = prog.AddBoundingBoxConstraint(SSpace[0], SSpace[1], x)
     # print(linear_constraint)
     return prog
 
@@ -134,7 +134,7 @@ def HyperCube_Approximation(model, S):
 
     return HyperCube
 
-def solver_lp(model, S):
+def solver_lp(model, S, SSpace):
     # Input: X: Linear expression of the output of the ReLU NN
     # Output: X: Linear expression of the output of the ReLU NN
     # Create an empty MathematicalProgram named prog (with no decision variables,
@@ -146,8 +146,8 @@ def solver_lp(model, S):
 
     # Add linear constraints
     W_B, r_B, W_o, r_o = LinearExp(model, S)
-    prog = RoA(prog, x, model, S=S)
-    # prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B)
+    # prog = RoA(prog, x, model, S=S)
+    prog = RoA(prog, x, model, S=None, W_B=W_B, r_B=r_B, SSpace=SSpace)
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints

@@ -159,7 +159,7 @@ class Search(SearchInit):
         while queue:
             current_set = queue.popleft()
             # current_set = queue.pop(0)
-            res = solver_lp(self.model, current_set) 
+            res = solver_lp(self.model, current_set, SSpace=self.case.SSpace) 
             # res = solver_lp(self.model, current_set)
             # print(res.is_success())
             if res.is_success():
@@ -202,7 +202,7 @@ class Search(SearchInit):
         x = prog.NewContinuousVariables(self.dim, "x")
         # Add linear constraints
         W_B, r_B, W_o, r_o = LinearExp(self.model, S)
-        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B)
+        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B, SSpace=self.case.SSpace)
         
         # Output layer index
         index_o = len(S.keys())-1
@@ -214,7 +214,7 @@ class Search(SearchInit):
             for neighbor_seg in neighbor_seg_list:
                 # find the hinge point
                 W_B, r_B, W_o, r_o = LinearExp(self.model, S)
-                prog = RoA(prog, x, self.model, W_B=W_B, r_B=r_B)
+                prog = RoA(prog, x, self.model, W_B=W_B, r_B=r_B, SSpace=self.case.SSpace)
                 prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
         # Check if CLP solver is available and set options
         if ClpSolver().available():
@@ -373,10 +373,3 @@ if __name__ == "__main__":
     
     ho_hinge = Search.hinge_search(unstable_neurons_set, pair_wise_hinge)
     print(len(ho_hinge))
-    # test_S[0]=[-1, 1, -1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, -1, -1, 1, -1, 1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, 1, -1]
-    # test_S[1] = [-1]
-    # res_lp = solver_lp(model, test_S)
-    # print(res_lp.is_success())
-    # unstable_neurons_set = Search.BFS(test_S)
-    # print(unstable_neurons_set)
-    # print(len(unstable_neurons_set))

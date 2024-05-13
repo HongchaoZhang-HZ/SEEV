@@ -34,7 +34,7 @@ class SearchInit:
         x = prog.NewContinuousVariables(self.dim, "x")
         # Add linear constraints
         W_B, r_B, W_o, r_o = LinearExp(self.model, S)
-        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B)
+        prog = RoA(prog, x, self.model, S=None, W_B=W_B, r_B=r_B, SSpace=self.case.SSpace)
         
         index_o = len(S.keys())-1
         prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
@@ -76,7 +76,7 @@ class SearchInit:
             self.NStatus.get_netstatus_from_input(mid_point)
             # print(p_safe, mid_point, p_unsafe)
             S = self.NStatus.network_status_values
-            id_flag = solver_lp(self.model, S).is_success()
+            id_flag = solver_lp(self.model, S, SSpace=self.case.SSpace).is_success()
             if id_flag:
                 flag = True
                 return flag, S

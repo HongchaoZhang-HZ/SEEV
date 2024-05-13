@@ -130,28 +130,28 @@ def CBF_LS(n):
     print('Verification time:', verification_time)
 
 def CBF_LS_SV(n):
-    # # CBF Verification
-    # n = 8
-    # case = LinearSat()
-    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
-    # model = NNet(architecture)
-    # trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
-    # renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
-    # # Load the renamed state dict into the model
-    # model.load_state_dict(renamed_state_dict, strict=True)
-    # model.merge_last_n_layers(2)
-    # spt = torch.tensor([[[-1.2, -1.5, 1.1, 0.0, 0.0, 0.0]]])
-    # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    
     # CBF Verification
+    n = 8
     case = LinearSat()
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
-    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
-    model.load_state_dict_from_sequential(trained_state_dict)
-    spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
+    renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
+    # Load the renamed state dict into the model
+    model.load_state_dict(renamed_state_dict, strict=True)
+    model.merge_last_n_layers(2)
+    spt = torch.tensor([[[-1.2, -1.5, 1.1, 0.0, 0.0, 0.0]]])
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    
+    # # CBF Verification
+    # case = LinearSat()
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
+    # model = NNet(architecture)
+    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
+    # # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
+    # model.load_state_dict_from_sequential(trained_state_dict)
+    # spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     
     # Search_prog = SearchVerifier(model, case)
     # spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
@@ -167,7 +167,7 @@ def CBF_LS_SV(n):
         print('Counter example:', ce)
 
 if __name__ == "__main__":
-    CBF_LS_SV(32)
-    # CBF_LS_SV(8)
+    # CBF_LS_SV(32)
+    CBF_LS_SV(8)
     # CBF_Obs(1, 128)
     

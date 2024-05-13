@@ -12,10 +12,11 @@ class LinearSat(case):
         The system is 2D open-loop nonlinear CT system
         '''
         DOMAIN = [[-5, 5], [-5, 5], [-5, 5], [-1, 1], [-1, 1], [-1, 1]]
+        SSpace = [[-5, -5, -5, -1, -1, -1], [5, 5, 5, 1, 1, 1]]
         CTRLDOM = [[-2, 2], [-2, 2], [-2, 2]]
         discrete = False
         super().__init__(DOMAIN, CTRLDOM, discrete=discrete)
-
+        self.SSpace = SSpace
         self.is_gx_linear = True
         self.is_fx_linear = True
         self.is_u_cons = False
