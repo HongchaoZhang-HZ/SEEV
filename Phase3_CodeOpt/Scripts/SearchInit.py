@@ -55,6 +55,22 @@ class SearchInit:
         flag = False
         S = None
         
+        # self.NStatus.get_netstatus_from_input(p_safe)
+        # # print(p_safe, mid_point, p_unsafe)
+        # S = self.NStatus.network_status_values
+        # id_flag = solver_lp(self.model, S).is_success()
+        # if id_flag:
+        #     flag = True
+        #     return flag, S
+            
+        # self.NStatus.get_netstatus_from_input(p_unsafe)
+        # # print(p_safe, mid_point, p_unsafe)
+        # S = self.NStatus.network_status_values
+        # id_flag = solver_lp(self.model, S).is_success()
+        # if id_flag:
+        #     flag = True
+        #     return flag, S
+        
         for iter in range(iter_lim):
             mid_point = (p_safe + p_unsafe) / 2
             self.NStatus.get_netstatus_from_input(mid_point)
