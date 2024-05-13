@@ -156,11 +156,15 @@ def test_sate():
 def test_linear_satellite():
     case = LinearSat()
 
-    architecture = [('linear', 6), ('relu', 128), ('relu', 128), ('linear', 1)]
+    architecture = [('linear', 6), ('relu', 32), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt")
+    # trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt").state_dict()
+    # trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt").state_dict()
+    trained_state_dict = torch.load("./Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt").state_dict()
+    new_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    
     model_state_dict = model.state_dict()
-    filtered_state_dict = {k: v for k, v in model_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
+    filtered_state_dict = {k: v for k, v in new_state_dict.items() if k in model_state_dict and model_state_dict[k].shape == v.shape}
     model_state_dict.update(filtered_state_dict)
     model.load_state_dict(model_state_dict)
 
@@ -172,12 +176,15 @@ def test_linear_satellite():
     # NOTE: Hardcoding normalization
     spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    print(model(spt[0]))
+    print(model(uspt[0]))
     Search_prog.Specify_point(spt, uspt)
     # print(Search.S_init)
     
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search .S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Search.Filter_S_neighbour(Search.S_init[0]))
+    print("Beginning BFS..")
     unstable_neurons_set, pair_wise_hinge = Search_prog.BFS(Search_prog.S_init[0])
     # unstable_neurons_set = Search.BFS(Possible_S)
     ho_hinge = Search_prog.hinge_search(unstable_neurons_set, pair_wise_hinge)

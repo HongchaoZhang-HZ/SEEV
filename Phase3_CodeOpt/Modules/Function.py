@@ -150,7 +150,10 @@ def solver_lp(model, S):
     # Output layer index
     index_o = len(S.keys())-1
     # Add linear constraints
+    
     prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
+    # tol = 1e-5
+    # prog.AddLinearConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o])-tol, -np.array(r_o[index_o])+tol, x)
     
     # Now solve the program.
     result = Solve(prog)

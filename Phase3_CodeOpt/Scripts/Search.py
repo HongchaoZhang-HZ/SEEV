@@ -9,6 +9,7 @@ from Scripts.SearchInit import *
 from Scripts.SearchInit import SearchInit
 from Modules.Function import HyperCube_Approximation
 from auto_LiRPA import BoundedModule, BoundedTensor, PerturbationLpNorm
+from pydrake.solvers import ClpSolver
 class Search(SearchInit):
     def __init__(self, model, case=None) -> None:
         super().__init__(model, case)
@@ -211,13 +212,57 @@ class Search(SearchInit):
         # If the neighbor_seg_list is not empty, we iterate over the items in the neighbor_seg_list to find the hinge point.
         if len(neighbor_seg_list) != 0:
             for neighbor_seg in neighbor_seg_list:
-                # TODO: This is a quick fix but we need to identify the bug and fix it.
-                while isinstance(neighbor_seg, list):
-                    neighbor_seg = neighbor_seg[0]
                 # find the hinge point
-                prog = RoA(prog, x, self.model, S=neighbor_seg)
+                W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+                prog = RoA(prog, x, self.model, W_B=W_B, r_B=r_B)
+                prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
+        # Check if CLP solver is available and set options
+        if ClpSolver().available():
+            solver_id = ClpSolver().solver_id()
+            prog.SetSolverOption(solver_id, "PrimalTolerance", PARA.zero_tol)  # Set primal feasibility tolerance
+            prog.SetSolverOption(solver_id, "DualTolerance", PARA.zero_tol)    # Set dual feasibility tolerance
+
         res = Solve(prog)
         return res.is_success()
+    
+    def hinge_search_seg_comb(self, boundary_list, pair_wise_hinge, n=2):
+        hinge_list = []
+        for comb in combinations(boundary_list, n):
+            # for each linear segment, find the hinge hyperplane nearby
+            neighbour_seg = [comb[i] for i in range(n) if i != 0]
+            feasibility_flag = self.hinge_lp(comb[0], neighbour_seg)
+            if feasibility_flag:
+                hinge_temp_list = [comb[0]]
+                hinge_temp_list.extend(copy.deepcopy(neighbour_seg))
+                if n == 2:
+                    if hinge_temp_list in pair_wise_hinge:
+                        continue
+                    elif [hinge_temp_list[1], hinge_temp_list[0]] in pair_wise_hinge:
+                        continue
+                hinge_list.append(hinge_temp_list)
+        return hinge_list
+    
+    def hinge_search_3seg(self, boundary_list, pair_wise_hinge):
+        hinge_list = []
+        for mid_linear_segment in boundary_list:
+            # for each linear segment, find the hinge hyperplane nearby
+            neighbour_seg = []
+            for pair in pair_wise_hinge:
+                # find prior segment
+                if pair[1] == mid_linear_segment:
+                    neighbour_seg.append(pair[0])
+                # find post segment
+                if pair[0] == mid_linear_segment:
+                    neighbour_seg.append(pair[1])
+            if len(neighbour_seg) < 2:
+                continue
+            for combo in combinations(neighbour_seg, 2):
+                feasibility_flag = self.hinge_lp(mid_linear_segment, list(combo))
+                if feasibility_flag:
+                    hinge_temp_list = [mid_linear_segment]
+                    hinge_temp_list.extend(copy.deepcopy(list(combo)))
+                    hinge_list.append(hinge_temp_list)
+        return hinge_list
     
     def hinge_post_identification(self, S, hinge_list, prior_seg_list, post_seg_list, hinge_prior_seg_list):
         hinge_post_seg_list = [] # this list stores the post_seg that are feasible
@@ -235,7 +280,7 @@ class Search(SearchInit):
                 hinge_list.extend(tempt_S_prior_post_list)
                 hinge_post_seg_list.append(post_seg)
                 hinge_prior_seg_list.extend(tempt_prior_list)
-        
+                # print('found1')
         
         if len(hinge_post_seg_list) > 1:
             space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim-2])
@@ -250,8 +295,8 @@ class Search(SearchInit):
                     #     tempt_list.append(item)
                     feasibility_flag = self.hinge_lp(S, tempt_list)
                     if feasibility_flag:
-                        hinge_temp_list = copy.deepcopy(tempt_list)
-                        hinge_temp_list.append(S)
+                        hinge_temp_list = [S]
+                        hinge_temp_list.extend(copy.deepcopy(tempt_list))
                         hinge_list.extend(hinge_temp_list)
         return hinge_list, hinge_prior_seg_list, hinge_post_seg_list
     
@@ -265,41 +310,43 @@ class Search(SearchInit):
                 # If the post_seg_list is not empty, we iterate over the items in the post_seg_list to find the hinge point.
                 hinge_post_seg_list = [] # this list stores the post_seg that are feasible
                 hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, [prior_seg], post_seg_list, hinge_prior_seg_list)
-            
-            if len(hinge_prior_seg_list) != 0:
+                
+            if len(hinge_prior_seg_list) > 1:
                 space = np.min([len(prior_seg_list) + len(post_seg_list) + 1, self.dim-2])
                 for r in range(1, np.min([len(hinge_prior_seg_list) + 1, space])):
                     if r >= self.dim-2:
                         break
                     for prior_seg in combinations(hinge_prior_seg_list, r):
                         hinge_list, hinge_prior_seg_list, hinge_post_seg_list = self.hinge_post_identification(S, hinge_list, list(prior_seg), post_seg_list, hinge_prior_seg_list)
+                    
         return hinge_list
 
-    # def hinge_search(self, boundary_list, pair_wise_hinge):
-    #     # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
-    #     # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
-    #     # The overall design of the search is based on exhaustive search for completeness. 
-    #     # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
-    #     hinge_list = []
-    #     for mid_linear_segment in boundary_list:
-    #         # for each linear segment, find the hinge hyperplane nearby
-    #         prior_seg_list = []
-    #         post_seg_list = []
-    #         for pair in pair_wise_hinge:
-    #             # find prior segment
-    #             if pair[1] == mid_linear_segment:
-    #                 prior_seg_list.append(pair[0])
-    #             # find post segment
-    #             if pair[0] == mid_linear_segment:
-    #                 post_seg_list.append(pair[1])
-    #         # check if prior and post segment sets are empty sets
-    #         if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
-    #             continue
-    #         # check if intersections happens
-    #         ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
-    #         if len(ho_hinge_list) != 0:
-    #             hinge_list.append(ho_hinge_list)
-    #     return hinge_list
+    def hinge_search(self, boundary_list, pair_wise_hinge):
+        # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
+        # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
+        # The overall design of the search is based on exhaustive search for completeness. 
+        # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
+        hinge_list = []
+        for mid_linear_segment in boundary_list:
+            # for each linear segment, find the hinge hyperplane nearby
+            prior_seg_list = []
+            post_seg_list = []
+            for pair in pair_wise_hinge:
+                # find prior segment
+                if pair[1] == mid_linear_segment:
+                    prior_seg_list.append(pair[0])
+                # find post segment
+                if pair[0] == mid_linear_segment:
+                    post_seg_list.append(pair[1])
+            # check if prior and post segment sets are empty sets
+            if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
+                continue
+            # check if intersections happens
+            ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
+            if len(ho_hinge_list) != 0:
+                hinge_list.append(ho_hinge_list)
+            
+        return hinge_list
             
         
         
