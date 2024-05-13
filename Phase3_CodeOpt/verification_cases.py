@@ -145,14 +145,14 @@ def CBF_LS_SV(n):
     case = LinearSat()
     architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.pt")
+    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
     # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
     model.load_state_dict_from_sequential(trained_state_dict)
     
     Search_prog = SearchVerifier(model, case)
     # spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[5.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     Search_prog = SearchVerifier(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)

@@ -6,6 +6,7 @@ sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Modules.utils import *
 from Modules.NNet import NeuralNetwork as NNet
 from Scripts.Status import NeuronStatus, NetworkStatus
+from pydrake.solvers import ClpSolver
 
 # Given a linear expression of a ReLU NN (Activation set $S$), 
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
