@@ -77,6 +77,16 @@ class SearchVerifier(Search):
                 Lgb = np.matmul(W_o[index_o], self.case.g_x(0))
                 if np.equal(Lgb, np.zeros(self.case.CTRLDIM)).any():
                     prob_S_list.append(S)
+        elif self.case.is_gx_linear and self.case.is_u_cons_interval:
+            for S in unstable_neurons_set:
+                veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLf_interval(S, reverse_flag=self.case.reverse_flag)
+                if not veri_flag:
+                    prob_S_list.append(S)
+        else:
+            for S in unstable_neurons_set:
+                veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLfg(S, reverse_flag=self.case.reverse_flag)
+                if not veri_flag:
+                    prob_S_list.append(S)
         return prob_S_list
             
     def SV_CE(self, spt, uspt):
@@ -112,33 +122,6 @@ class SearchVerifier(Search):
         search_time = time.time() - time_start
         print('Search time:', search_time)
         return True, None
-
-    # def hinge_search(self, boundary_list, pair_wise_hinge):
-    #     # For low dim cases the pair_wise_hinge is small and maybe a loop. Therefore it is easy to enumarate nearby hinge hyperplane. 
-    #     # For high dim cases, the pair_wise_hinge is large and maybe not be a loop. Therefore, a search is needed to find combinations. 
-    #     # The overall design of the search is based on exhaustive search for completeness. 
-    #     # The enumeration of neighboring hyperplanes is based on the pair_wise_hinge and simple search.
-    #     hinge_list = []
-    #     for mid_linear_segment in boundary_list:
-    #         # for each linear segment, find the hinge hyperplane nearby
-    #         prior_seg_list = []
-    #         post_seg_list = []
-    #         for pair in pair_wise_hinge:
-    #             # find prior segment
-    #             if pair[1] == mid_linear_segment:
-    #                 prior_seg_list.append(pair[0])
-    #             # find post segment
-    #             if pair[0] == mid_linear_segment:
-    #                 post_seg_list.append(pair[1])
-    #         # check if prior and post segment sets are empty sets
-    #         if len(prior_seg_list) <= 1 or len(post_seg_list) <= 1:
-    #             continue
-    #         # check if intersections happens
-    #         ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)
-    #         if len(ho_hinge_list) != 0:
-    #             hinge_list.append(ho_hinge_list)
-            
-    #     return hinge_list
     
 if __name__ == "__main__":
     # CBF Verification
