@@ -1,5 +1,6 @@
 from Verifier.Verification import *
 from SearchVerifier import SearchVerifier
+from SearchVerifierMT import SearchVerifierMT
 def BC_Darboux():
     # BC Verification
     case = Darboux()
@@ -131,7 +132,7 @@ def CBF_LS(n):
 
 def CBF_LS_SV(n):
     # CBF Verification
-    case = LinearSat()
+    # case = LinearSat()
     # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
     # trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
     
@@ -141,36 +142,36 @@ def CBF_LS_SV(n):
     # architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
     # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_16_epoch_50_reg_0.pt").state_dict()
 
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
     # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.pt").state_dict()
     # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.1.pt").state_dict()
-    trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.05.pt").state_dict()
+    # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.05.pt").state_dict()
 
-    model = NNet(architecture)
-    
-    renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
-    # Load the renamed state dict into the model
-    model.load_state_dict(renamed_state_dict, strict=True)
-    model.merge_last_n_layers(2)
-    spt = torch.tensor([[[-1.2, -1.5, 1.1, 0.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    
-    # # CBF Verification
-    # case = LinearSat()
-    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
     # model = NNet(architecture)
-    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
-    # # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
-    # model.load_state_dict_from_sequential(trained_state_dict)
-    # spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    
+    # renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
+    # # Load the renamed state dict into the model
+    # model.load_state_dict(renamed_state_dict, strict=True)
+    # model.merge_last_n_layers(2)
+    # spt = torch.tensor([[[-1.2, -1.5, 1.1, 0.0, 0.0, 0.0]]])
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    
+    # CBF Verification
+    case = LinearSat()
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', 1)]
+    model = NNet(architecture)
+    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
+    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
+    model.load_state_dict_from_sequential(trained_state_dict)
+    spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
+    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     
     # Search_prog = SearchVerifier(model, case)
     # spt = torch.tensor([[[2, 2, 1.1, 0.0, 0.0, 0.0]]])
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     # spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
     
-    Search_prog = SearchVerifier(model, case)
+    Search_prog = SearchVerifierMT(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)
     if veri_flag:
         print('Verification successful!')
@@ -179,9 +180,9 @@ def CBF_LS_SV(n):
         print('Counter example:', ce)
 
 if __name__ == "__main__":
-    # CBF_LS_SV(32)
+    CBF_LS_SV(32)
     # CBF_LS_SV(8)
     # CBF_LS_SV(16)
-    CBF_LS_SV(8)
+    # CBF_LS_SV(8)
     # CBF_Obs(1, 128)
     
