@@ -131,11 +131,23 @@ def CBF_LS(n):
 
 def CBF_LS_SV(n):
     # CBF Verification
-    n = 8
     case = LinearSat()
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('linear', n), ('linear', 1)]
+    # trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
+    
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt").state_dict()
+
+    # architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_16_epoch_50_reg_0.pt").state_dict()
+
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.pt").state_dict()
+    # trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.1.pt").state_dict()
+    trained_state_dict = torch.load(f"./Phase3_CodeOpt/models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.05.pt").state_dict()
+
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"./Phase2_Verification/models/satellitev1_2_{n}.pt")
+    
     renamed_state_dict = model.wrapper_load_state_dict(trained_state_dict)
     # Load the renamed state dict into the model
     model.load_state_dict(renamed_state_dict, strict=True)
@@ -168,6 +180,8 @@ def CBF_LS_SV(n):
 
 if __name__ == "__main__":
     # CBF_LS_SV(32)
+    # CBF_LS_SV(8)
+    # CBF_LS_SV(16)
     CBF_LS_SV(8)
     # CBF_Obs(1, 128)
     
