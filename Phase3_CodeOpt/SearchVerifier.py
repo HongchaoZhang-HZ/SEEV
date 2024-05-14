@@ -68,26 +68,40 @@ class SearchVerifier(Search):
             previous_set = current_set
         return True, None, boundary_list, pair_wise_hinge
 
+    
     def suff_check_hinge(self, unstable_neurons_set):
         prob_S_list = []
-        if self.case.is_gx_linear and not self.case.is_u_cons:
+        if self.case.is_fx_linear:
             for S in unstable_neurons_set:
-                W_B, r_B, W_o, r_o = LinearExp(self.model, S)
-                index_o = len(S.keys())-1
-                Lgb = np.matmul(W_o[index_o], self.case.g_x(0))
-                if np.equal(Lgb, np.zeros(self.case.CTRLDIM)).any():
-                    prob_S_list.append(S)
-        elif self.case.is_gx_linear and self.case.is_u_cons_interval:
-            for S in unstable_neurons_set:
-                veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLf_interval(S, reverse_flag=self.case.reverse_flag)
-                if not veri_flag:
-                    prob_S_list.append(S)
-        else:
-            for S in unstable_neurons_set:
-                veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLfg(S, reverse_flag=self.case.reverse_flag)
-                if not veri_flag:
+                veri_check = veri_seg_FG_wo_U(self.model, self.case, S)
+                res_is_success, res_x, res_cost = veri_check.min_Lf(reverse_flag=self.case.reverse_flag)
+                if res_cost < 0:
                     prob_S_list.append(S)
         return prob_S_list
+    #     prob_S_list = []
+    #     for S in unstable_neurons_set:
+    #         self.verifier.seg_verifier._update_linear_exp(S)
+    #         res_is_success, res_x, res_cost = self.verifier.seg_verifier.min_Lf(reverse_flag=self.case.reverse_flag)
+    #         if res_cost < 0:
+    #             prob_S_list.append(S)
+    #     if self.case.is_gx_linear and not self.case.is_u_cons:
+    #         for S in unstable_neurons_set:
+    #             W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+    #             index_o = len(S.keys())-1
+    #             Lgb = np.matmul(W_o[index_o], self.case.g_x(0))
+    #             if np.equal(Lgb, np.zeros(self.case.CTRLDIM)).any():
+    #                 prob_S_list.append(S)
+    #     elif self.case.is_gx_linear and self.case.is_u_cons_interval:
+    #         for S in unstable_neurons_set:
+    #             veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLf_interval(S, reverse_flag=self.case.reverse_flag)
+    #             if not veri_flag:
+    #                 prob_S_list.append(S)
+    #     else:
+    #         for S in unstable_neurons_set:
+    #             veri_flag, veri_res_x = self.verifier.seg_verifier.min_NLfg(S, reverse_flag=self.case.reverse_flag)
+    #             if not veri_flag:
+    #                 prob_S_list.append(S)
+    #     return prob_S_list
             
     def SV_CE(self, spt, uspt):
         # Search Verification and output Counter Example
@@ -100,27 +114,44 @@ class SearchVerifier(Search):
         if not veri_flag:
             return False, ce
         
-        veri_flag, ce = self.verifier.hinge_verification(pair_wise_hinge, reverse_flag=self.case.reverse_flag)
-        if not veri_flag:
-            return False, ce
-        # ho_hinge = self.hinge_search(unstable_neurons_set, pair_wise_hinge)
         prob_S_checklist = self.suff_check_hinge(unstable_neurons_set)
         if len(prob_S_checklist) > 0:
             print('Num prob_S_checklist is', len(prob_S_checklist))
         else:
             print('No prob_S_checklist')
             return True, None
-        ho_hinge = self.hinge_search_3seg(unstable_neurons_set, pair_wise_hinge)
-        veri_flag, ce = self.verifier.hinge_verification(ho_hinge, reverse_flag=self.case.reverse_flag)
+        
+        if len(prob_S_checklist) >= len(pair_wise_hinge)/2:
+            veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
+            if not veri_flag:
+                return False, ce
+        o2_hinge = self.hinge_search_seg_comb(prob_S_checklist, pair_wise_hinge, n=2)
+        hinge2_search_time = time.time() - time_start - seg_search_time
+        print('O2 Hinge Search time:', hinge2_search_time)
+        veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
+        hinge2_verification_time = time.time() - time_start - hinge2_search_time
+        print('Pair-wise Hinge Verification time:', hinge2_verification_time)
         if not veri_flag:
             return False, ce
-        hinge_search_time = time.time() - time_start - seg_search_time
-        print('Hinge Search time:', hinge_search_time)
-        print('Num HO hinge is', len(ho_hinge))
-        if len(ho_hinge) > 0:
-            print('Highest order is', np.max([len(ho_hinge[i]) for i in range(len(ho_hinge))]))
-        search_time = time.time() - time_start
-        print('Search time:', search_time)
+        
+        o3_hinge = self.hinge_search_3seg(prob_S_checklist, o2_hinge)
+        hinge3_search_time = time.time() - time_start - hinge2_verification_time
+        print('O3 Hinge Search time:', hinge3_search_time)
+        veri_flag, ce = self.verifier.hinge_verification(o3_hinge, reverse_flag=self.case.reverse_flag)
+        hinge3_verification_time = time.time() - time_start - hinge3_search_time
+        print('Order-3 Hinge Verification time:', hinge3_verification_time)
+        if not veri_flag:
+            return False, ce
+    
+        ho_hinge = self.hinge_search(unstable_neurons_set, pair_wise_hinge)
+        ho_hinge_search_time = time.time() - time_start - hinge3_verification_time
+        print('HO Hinge Search time:', ho_hinge_search_time)
+        veri_flag, ce = self.verifier.hinge_verification(ho_hinge, reverse_flag=self.case.reverse_flag)
+        HOhinge_verification_time = time.time() - time_start - ho_hinge_search_time
+        print('HO Hinge Verification time:', HOhinge_verification_time)
+        if not veri_flag:
+            return False, ce
+        
         return True, None
     
 if __name__ == "__main__":

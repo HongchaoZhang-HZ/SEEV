@@ -138,7 +138,7 @@ class Search(SearchInit):
                 Possible_S.append(copy.deepcopy(neighbour_S))
         return Possible_S
     
-    def BFS(self, S):
+    def BFS(self, S, termination=None):
         '''
         Breadth First Search
         Conduct breadth first search on the network to find the unstable neurons
@@ -194,6 +194,9 @@ class Search(SearchInit):
             else:
                 continue
             previous_set = current_set
+            if termination is not None:
+                if len(boundary_list) >= termination:
+                    break
         return boundary_list, pair_wise_hinge
     
     def hinge_lp(self, S, neighbor_seg_list):
@@ -339,7 +342,7 @@ class Search(SearchInit):
                 if pair[0] == mid_linear_segment:
                     post_seg_list.append(pair[1])
             # check if prior and post segment sets are empty sets
-            if len(prior_seg_list) == 0 or len(post_seg_list) == 0:
+            if len(prior_seg_list) <= 1 or len(post_seg_list) <= 1:
                 continue
             # check if intersections happens
             ho_hinge_list = self.hinge_identification(mid_linear_segment, prior_seg_list, post_seg_list)

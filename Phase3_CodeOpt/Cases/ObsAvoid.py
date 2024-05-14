@@ -11,12 +11,12 @@ class ObsAvoid(case):
     '''
     def __init__(self):
         DOMAIN = [[-2, 2], [-2, 2], [-2, 2]]
-        SSpace = [[-2, -2], [2, 2]]
+        SSpace = [[-2, -2, -2], [2, 2, 2]]
         CTRLDOM = [[-2, 2]]
         discrete = False
         self.v = 1
         super().__init__(DOMAIN, CTRLDOM, discrete=discrete)
-        
+        self.SSpace = SSpace
         self.is_gx_linear = True
         self.is_fx_linear = False
         self.is_u_cons = True
