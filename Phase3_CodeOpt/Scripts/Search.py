@@ -233,7 +233,7 @@ class Search(SearchInit):
         for comb in combinations(boundary_list, n):
             if n==2 and not self.hinge_dist(comb[0], comb[1]):
                 continue
-            if not self.comb_hinge_dist(comb):
+            if n==3 and not self.comb_hinge_dist(comb):
                 continue
             # for each linear segment, find the hinge hyperplane nearby
             neighbour_seg = [comb[i] for i in range(n) if i != 0]

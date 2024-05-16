@@ -114,8 +114,8 @@ def CBF_LS(n):
     print('Hinge Search time:', hinge2_search_time)
     print('Num HO hinge is', len(o2_hinge))
     o2_hinge.extend(pair_wise_hinge)
-    o3_hinge = Search_prog.hinge_search_3seg(unstable_neurons_set, o2_hinge)
     
+    o3_hinge = Search_prog.hinge_search_3seg(unstable_neurons_set, o2_hinge)
     hinge3_search_time = time.time() - time_start - seg_search_time
     print('Hinge Search time:', hinge3_search_time)
     print('Num HO hinge is', len(o3_hinge))
@@ -124,11 +124,11 @@ def CBF_LS(n):
     search_time = time.time() - time_start
     print('Search time:', search_time)
     
-    verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
-    veri_flag, ce = verifier.Verification(reverse_flag=True)
-    verification_time = time.time() - time_start - search_time
+    # verifier = Verifier(model, case, unstable_neurons_set, pair_wise_hinge, ho_hinge)
+    # veri_flag, ce = verifier.Verification(reverse_flag=True)
+    # verification_time = time.time() - time_start - search_time
     
-    print('Verification time:', verification_time)
+    # print('Verification time:', verification_time)
 
 def CBF_LS_SV(n):
     # CBF Verification
