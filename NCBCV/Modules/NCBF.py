@@ -1,8 +1,8 @@
 from sympy import li
-from Phase1_Scalability.Modules.utils import *
-from NNet import NeuralNetwork as NNet
+from NCBCV.Modules.utils import *
+from NCBCV.Modules.NNet import NeuralNetwork as NNet
 from torch import optim
-from Cases import Cases
+from NCBCV.Cases import Cases
 
 class NCBF(NNet):
     def __init__(self, architecture:list, Case:Cases):

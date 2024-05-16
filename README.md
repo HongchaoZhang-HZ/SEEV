@@ -1,5 +1,9 @@
 # NCBCV
 
+# Installation
+```
+pip install -e .
+```
 
 # Summary of Phase 1 Development
 `pytest --md-report --md-report-flavor gfm --md-report-output md_report.md` to generate the markdown report [md_report](md_report.md). 

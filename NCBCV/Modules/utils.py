@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
-from Scripts.PARA import *
+from NCBCV.Scripts.PARA import *
 
 import dataclasses
 from typing import Optional, Tuple, Union

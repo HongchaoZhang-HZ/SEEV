@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from Cases.Case import *
+from .Case import case
 
 class LinearSat(case):
     '''
@@ -21,8 +21,11 @@ class LinearSat(case):
         self.is_fx_linear = True
         self.is_u_cons = False
         self.is_u_cons_interval = False
+        # whether h(x) > 0 is safe
         self.pos_h_x_is_safe = True
         self.NChx = False
+        # if b(x) > 0 is safe, then no need reverse (i.e. reverse_flag = False)
+        # if b(x) > 0 is unsafe, then need to reverse (i.e. reverse_flag = True)
         self.reverse_flag = True
         
 
@@ -66,4 +69,5 @@ class LinearSat(case):
         :return: [np.array/torch.Tensor] scalar output in R
         '''
         hx = (x[0]**2 + x[1]**2 + x[2]**2) - 0.25**2
+        # hx = abs(x[0]) + abs(x[1]) + abs(x[2]) - 0.25
         return hx

@@ -1,8 +1,10 @@
-from Verifier.Verification import *
 from collections import deque
-from Modules.Function import *
-from SearchVerifier import SearchVerifier
-from Scripts.Search_MT import *
+
+from NCBCV.Verifier.Verification import *
+from NCBCV.Modules.Function import *
+from NCBCV.SearchVerifier import SearchVerifier
+from NCBCV.Scripts.Search_MT import *
+
 class SearchVerifierMT(SearchVerifier):
     def __init__(self, model, case) -> None:
         super().__init__(model, case)
@@ -72,7 +74,7 @@ class SearchVerifierMT(SearchVerifier):
         boundary_list = manager.list()
         pair_wise_hinge = manager.list()
 
-        num_workers = multiprocessing.cpu_count()
+        num_workers = int(multiprocessing.cpu_count() // 2)
         # num_workers = 1
         # for _ in range(num_workers):
         #     task_queue.put(None)
@@ -99,10 +101,10 @@ class SearchVerifierMT(SearchVerifier):
         if not veri_flag.value or len(ce) > 0:
             print('Verification failed!')
             print('Segment counter example output', ce)
-            return False, ce, list(boundary_list), list(pair_wise_hinge)
+            return False, list(ce), list(boundary_list), list(pair_wise_hinge)
         else:
             print(f"Boundary list size: {len(boundary_list)}, Pair-wise hinge size: {len(pair_wise_hinge)}")
-            return veri_flag.value, ce, list(boundary_list), list(pair_wise_hinge)
+            return veri_flag.value, list(ce), list(boundary_list), list(pair_wise_hinge)
     
     def BFS_with_Verifier(self, S):
         '''
@@ -208,6 +210,7 @@ class SearchVerifierMT(SearchVerifier):
         result = self.BFS_parallel_with_verifier(self.S_init[0])
         if result:
             veri_flag, ce, unstable_neurons_set, pair_wise_hinge = result
+            ce = ce[0]
             print('Verification flag:', veri_flag)
             print('Num boundary segments:', len(unstable_neurons_set))
         seg_search_time = time.time() - time_start
@@ -260,20 +263,31 @@ class SearchVerifierMT(SearchVerifier):
     
 if __name__ == "__main__":
     # CBF Verification
-    l = 1
-    n = 128
-    case = ObsAvoid()
+    # l = 1
+    # n = 128
+    # case = ObsAvoid()
+    # hdlayers = []
+    # for layer in range(l):
+    #     hdlayers.append(('relu', n))
+    # architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
+    # model = NNet(architecture)
+    # trained_state_dict = torch.load(f"Phase1_Scalability/models/obs_{l}_{n}.pt")
+
+    l = 2
+    n = 8
+    case = Darboux()
     hdlayers = []
     for layer in range(l):
         hdlayers.append(('relu', n))
-    architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
+    architecture = [('linear', 2)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"Phase1_Scalability/models/obs_{l}_{n}.pt")
+    trained_state_dict = torch.load("../neural_clbf/darboux.pt")
+
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
-    spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[-1.0, 0.0]]])
+    uspt = torch.tensor([[[1.0, 1.0]]])
     # Search Verification and output Counter Example
     Search_prog = SearchVerifierMT(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)

@@ -3,9 +3,9 @@ from pydrake.solvers import MathematicalProgram, Solve
 import numpy as np
 import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
-from Modules.utils import *
-from Modules.NNet import NeuralNetwork as NNet
-from Scripts.Status import NeuronStatus, NetworkStatus
+from NCBCV.Modules.utils import *
+from NCBCV.Modules.NNet import NeuralNetwork as NNet
+from NCBCV.Scripts.Status import NeuronStatus, NetworkStatus
 from pydrake.solvers import ClpSolver
 
 # Given a linear expression of a ReLU NN (Activation set $S$), 

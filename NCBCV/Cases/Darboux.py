@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from Cases.Case import *
+from .Case import case
 
 class Darboux(case):
     '''
@@ -12,22 +12,25 @@ class Darboux(case):
         The system is 2D open-loop nonlinear CT system
         '''
         DOMAIN = [[-2, 2], [-2, 2]]
+        SSpace = [[-2, -2], [2, 2]]
         CTRLDOM = [[0, 0]]
         discrete = False
         super().__init__(DOMAIN, CTRLDOM, discrete=discrete)
 
+        self.SSpace = SSpace
         self.is_gx_linear = True
         self.is_fx_linear = False
         self.is_u_cons = False
         self.is_u_cons_interval = False
         self.pos_h_x_is_safe = True
         self.NChx = False
+        self.reverse_flag = True
         
 
     def f_x(self, x):
         '''
         Control affine model f(x)
-        f0 = x0 + 2*x0*x1
+        f0 = x1 + 2*x0*x1
         f1 = -x0 + 2*x0^2 - x1^2
         :param x: [np.array/torch.Tensor] input state x in R^n
         :return: [np.array/torch.Tensor] output in R^n

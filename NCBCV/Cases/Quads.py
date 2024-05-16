@@ -1,6 +1,6 @@
 import torch
 
-from Cases.Case import *
+from .Case import case
 
 class Quads(case):
     '''
