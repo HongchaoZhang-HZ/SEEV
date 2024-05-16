@@ -100,7 +100,7 @@ class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
     def zero_Lg(self):
         return super().zero_Lg()
     
-    def min_Lf(self, reverse_flag=False):
+    def min_Lfn(self, reverse_flag=False):
         if not self.SMT_flag:
             res_is_success, res_x, res_cost = super().min_Lf(reverse_flag)
             if res_cost < 0:
@@ -123,7 +123,7 @@ class veri_seg_fG_wo_U(veri_seg_FG_wo_U):
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
-            veri_flag, ce = self.min_Lf(reverse_flag)
+            veri_flag, ce = self.min_Lfn(reverse_flag)
             return veri_flag, ce
         
 class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):

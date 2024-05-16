@@ -80,6 +80,7 @@ class SearchVerifierMT(SearchVerifier):
         init_queue, pair_wise_hinge = self.BFS(root_node, termination=2*num_workers)
         for item in init_queue:
             task_queue.put(item)
+            output_queue.put(item)
         
         workers = [multiprocessing.Process(target=self.worker, args=(veri_flag, ce, task_queue, output_queue, boundary_dict, boundary_list, pair_wise_hinge)) for _ in range(num_workers)]
 
@@ -221,12 +222,12 @@ class SearchVerifierMT(SearchVerifier):
         else:
             print('No prob_S_checklist')
             return True, None
-        
+        o2_hinge = self.hinge_search_seg_comb(prob_S_checklist, pair_wise_hinge, n=2)
         if len(prob_S_checklist) >= len(pair_wise_hinge)/2:
             veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
             if not veri_flag:
                 return False, ce
-        o2_hinge = self.hinge_search_seg_comb(prob_S_checklist, pair_wise_hinge, n=2)
+        
         hinge2_search_time = time.time() - time_start - seg_search_time
         print('O2 Hinge Search time:', hinge2_search_time)
         veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
