@@ -230,6 +230,7 @@ class SearchVerifierMT(SearchVerifier):
         
         hinge2_search_time = time.time() - time_start - seg_search_time
         print('O2 Hinge Search time:', hinge2_search_time)
+        print('Num O2 hinge is', len(o2_hinge))
         veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
         hinge2_verification_time = time.time() - time_start - hinge2_search_time
         print('Pair-wise Hinge Verification time:', hinge2_verification_time)
@@ -239,6 +240,7 @@ class SearchVerifierMT(SearchVerifier):
         o3_hinge = self.hinge_search_3seg(prob_S_checklist, o2_hinge)
         hinge3_search_time = time.time() - time_start - hinge2_verification_time
         print('O3 Hinge Search time:', hinge3_search_time)
+        print('Num O3 hinge is', len(o3_hinge))
         veri_flag, ce = self.verifier.hinge_verification(o3_hinge, reverse_flag=self.case.reverse_flag)
         hinge3_verification_time = time.time() - time_start - hinge3_search_time
         print('Order-3 Hinge Verification time:', hinge3_verification_time)
