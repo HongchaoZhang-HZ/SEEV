@@ -216,7 +216,7 @@ class Search(SearchInit):
         if len(neighbor_seg_list) != 0:
             for neighbor_seg in neighbor_seg_list:
                 # find the hinge point
-                W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+                W_B, r_B, W_o, r_o = LinearExp(self.model, neighbor_seg)
                 prog = RoA(prog, x, self.model, W_B=W_B, r_B=r_B, SSpace=self.case.SSpace)
                 prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
         # Check if CLP solver is available and set options
