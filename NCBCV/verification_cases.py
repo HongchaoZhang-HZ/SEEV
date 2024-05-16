@@ -166,7 +166,7 @@ def CBF_LS_SV(n):
     # spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
 
-    l = 2
+    l = 4
     n = 8
     case = Darboux()
     hdlayers = []
@@ -174,14 +174,15 @@ def CBF_LS_SV(n):
         hdlayers.append(('relu', n))
     architecture = [('linear', 2)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("NCBCV/models/darboux_2_8_clbf.pt").state_dict()
+    trained_state_dict = torch.load("NCBCV/models/darboux_4_8_cbf.pt").state_dict()
 
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     model = model.cpu()
     
-    uspt = torch.tensor([[[-1.0, 0.0]]])
     spt = torch.tensor([[[1.0, 1.0]]])
+    uspt = torch.tensor([[[-1.0, 0.0]]])
+    
     print(model(spt[0]))
     print(model(uspt[0]))
     # Search_prog = SearchVerifier(model, case)
@@ -189,8 +190,8 @@ def CBF_LS_SV(n):
     # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
     # spt = torch.tensor([[[2.2, 3.5, 4.1, 0.0, 0.0, 0.0]]])
     
-    Search_prog = SearchVerifierMT(model, case)
     # Search_prog = SearchVerifier(model, case)
+    Search_prog = SearchVerifier(model, case)
     veri_flag, ce = Search_prog.SV_CE(spt, uspt)
     if veri_flag:
         print('Verification successful!')
