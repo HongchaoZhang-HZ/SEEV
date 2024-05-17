@@ -1,6 +1,8 @@
 import torch
 
 from .Case import case
+import numpy as np
+import dreal as dr
 
 class Quads(case):
     '''

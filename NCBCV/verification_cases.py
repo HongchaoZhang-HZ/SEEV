@@ -174,7 +174,8 @@ def CBF_LS_SV(n):
         hdlayers.append(('relu', n))
     architecture = [('linear', 2)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("NCBCV/models/darboux_4_8_cbf.pt").state_dict()
+    # trained_state_dict = torch.load("NCBCV/models/darboux_4_8_cbf.pt").state_dict()
+    trained_state_dict = torch.load("NCBCV/models/darboux.pt").state_dict()
 
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
