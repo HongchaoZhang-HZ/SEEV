@@ -216,7 +216,7 @@ class Search(SearchInit):
         if len(neighbor_seg_list) != 0:
             for neighbor_seg in neighbor_seg_list:
                 # find the hinge point
-                W_B, r_B, W_o, r_o = LinearExp(self.model, S)
+                W_B, r_B, W_o, r_o = LinearExp(self.model, neighbor_seg)
                 prog = RoA(prog, x, self.model, W_B=W_B, r_B=r_B, SSpace=self.case.SSpace)
                 prog.AddLinearEqualityConstraint(np.array(W_o[index_o]), -np.array(r_o[index_o]), x)
         # Check if CLP solver is available and set options
@@ -231,6 +231,10 @@ class Search(SearchInit):
     def hinge_search_seg_comb(self, boundary_list, pair_wise_hinge, n=2):
         hinge_list = []
         for comb in combinations(boundary_list, n):
+            if n==2 and not self.hinge_dist(comb[0], comb[1]):
+                continue
+            if n==3 and not self.comb_hinge_dist(comb):
+                continue
             # for each linear segment, find the hinge hyperplane nearby
             neighbour_seg = [comb[i] for i in range(n) if i != 0]
             feasibility_flag = self.hinge_lp(comb[0], neighbour_seg)
@@ -302,6 +306,26 @@ class Search(SearchInit):
                         hinge_temp_list.extend(copy.deepcopy(tempt_list))
                         hinge_list.extend(hinge_temp_list)
         return hinge_list, hinge_prior_seg_list, hinge_post_seg_list
+    
+    def hinge_dist(self, S0, S1, target_dist=1):
+        # Given two activation S0 and S1, compute how many neurons are different between S0 and S1
+        dist = 0
+        for layer in range(len(S0)):
+            for neuron in range(len(S0[layer])):
+                if S0[layer][neuron] != S1[layer][neuron]:
+                    dist += 1
+                if dist > target_dist:
+                    return False
+        if dist == target_dist:
+            return True
+        else:
+            return False
+    
+    def comb_hinge_dist(self, S_list):
+        for inner_comb in combinations(S_list, 2):
+            if not self.hinge_dist(inner_comb[0], inner_comb[1]):
+                return False
+        return True
     
     def hinge_identification(self, S, prior_seg_list, post_seg_list):
         # For each item in the prior_seg_list, and post_seg_list, we need to find the hinge point.
