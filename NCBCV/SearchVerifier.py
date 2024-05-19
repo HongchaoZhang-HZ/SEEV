@@ -104,6 +104,8 @@ class SearchVerifier(Search):
     #     return prob_S_list
             
     def SV_CE(self, spt, uspt):
+        result_info = {}
+
         # Search Verification and output Counter Example
         time_start = time.time()
         self.Specify_point(spt, uspt)
@@ -111,48 +113,58 @@ class SearchVerifier(Search):
         seg_search_time = time.time() - time_start
         print('Seg Search and Verification time:', seg_search_time)
         print('Num boundar seg is', len(unstable_neurons_set))
+
+        result_info['seg_search_time'] = seg_search_time
+        result_info['num_boundary_seg'] = len(unstable_neurons_set)
         if not veri_flag:
-            return False, ce
+            return False, ce, result_info
         
         prob_S_checklist = self.suff_check_hinge(unstable_neurons_set)
+        result_info['num_prob_S_checklist'] = len(prob_S_checklist)
         if len(prob_S_checklist) > 0:
             print('Num prob_S_checklist is', len(prob_S_checklist))
         else:
             print('No prob_S_checklist')
-            return True, None
+            return True, None, result_info
         
         if len(prob_S_checklist) >= len(pair_wise_hinge)/2:
             veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
             if not veri_flag:
-                return False, ce
+                return False, ce, result_info
         o2_hinge = self.hinge_search_seg_comb(prob_S_checklist, pair_wise_hinge, n=2)
         hinge2_search_time = time.time() - time_start - seg_search_time
         print('O2 Hinge Search time:', hinge2_search_time)
+        result_info['hinge2_search_time'] = hinge2_search_time
         veri_flag, ce = self.verifier.hinge_verification(o2_hinge, reverse_flag=self.case.reverse_flag)
         hinge2_verification_time = time.time() - time_start - hinge2_search_time
         print('Pair-wise Hinge Verification time:', hinge2_verification_time)
+        result_info['hinge2_verification_time'] = hinge2_verification_time
         if not veri_flag:
-            return False, ce
+            return False, ce, result_info
         
         o3_hinge = self.hinge_search_3seg(prob_S_checklist, o2_hinge)
         hinge3_search_time = time.time() - time_start - hinge2_verification_time
         print('O3 Hinge Search time:', hinge3_search_time)
+        result_info['hinge3_search_time'] = hinge3_search_time
         veri_flag, ce = self.verifier.hinge_verification(o3_hinge, reverse_flag=self.case.reverse_flag)
         hinge3_verification_time = time.time() - time_start - hinge3_search_time
         print('Order-3 Hinge Verification time:', hinge3_verification_time)
+        result_info['hinge3_verification_time'] = hinge3_verification_time
         if not veri_flag:
-            return False, ce
+            return False, ce, result_info
     
         ho_hinge = self.hinge_search(unstable_neurons_set, pair_wise_hinge)
         ho_hinge_search_time = time.time() - time_start - hinge3_verification_time
         print('HO Hinge Search time:', ho_hinge_search_time)
+        result_info['ho_hinge_search_time'] = ho_hinge_search_time
         veri_flag, ce = self.verifier.hinge_verification(ho_hinge, reverse_flag=self.case.reverse_flag)
         HOhinge_verification_time = time.time() - time_start - ho_hinge_search_time
         print('HO Hinge Verification time:', HOhinge_verification_time)
+        result_info['HOhinge_verification_time'] = HOhinge_verification_time
         if not veri_flag:
-            return False, ce
+            return False, ce, result_info
         
-        return True, None
+        return True, None, result_info
     
 if __name__ == "__main__":
     # CBF Verification
@@ -172,9 +184,10 @@ if __name__ == "__main__":
     uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
     # Search Verification and output Counter Example
     Search_prog = SearchVerifier(model, case)
-    veri_flag, ce = Search_prog.SV_CE(spt, uspt)
+    veri_flag, ce, info = Search_prog.SV_CE(spt, uspt)
     if veri_flag:
         print('Verification successful!')
+        print("Search info:", info)
     else:
         print('Verification failed!')
         print('Counter example:', ce)
