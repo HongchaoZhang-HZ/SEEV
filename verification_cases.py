@@ -6,7 +6,7 @@ def BC_Darboux():
     case = Darboux()
     architecture = [('linear', 2), ('relu', 32), ('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load("./Phase2_Verification/models/darboux_1_32.pt")
+    trained_state_dict = torch.load("./models/darboux_1_32.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
@@ -161,7 +161,7 @@ def CBF_LS_SV(n):
     architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
     model = NNet(architecture)
     # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
-    trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
+    trained_state_dict = torch.load(f"models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
     model.load_state_dict_from_sequential(trained_state_dict)
     spt = torch.tensor([[[2.0, 2.0, 2.0, 0.0, 0.0, 0.0]]]) * 5
     uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
