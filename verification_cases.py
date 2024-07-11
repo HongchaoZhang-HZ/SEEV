@@ -31,7 +31,7 @@ def CBF_Obs(l, n):
         hdlayers.append(('relu', n))
     architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    trained_state_dict = torch.load(f"Phase1_Scalability/models/obs_{l}_{n}.pt")
+    trained_state_dict = torch.load(f"models/obs_{l}_{n}.pt")
     trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     model.load_state_dict(trained_state_dict, strict=True)
     
@@ -182,7 +182,7 @@ def CBF_LS_SV(n):
 if __name__ == "__main__":
     # CBF_LS_SV(32)
     # CBF_LS_SV(8)
-    CBF_LS_SV(16)
+    # CBF_LS_SV(16)
     # CBF_LS_SV(8)
-    # CBF_Obs(1, 128)
+    CBF_Obs(1, 128)
     
