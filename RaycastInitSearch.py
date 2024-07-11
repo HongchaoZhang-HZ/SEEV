@@ -1,4 +1,5 @@
 from hmac import new
+from numpy import sign
 from torch import ne
 from Verifier.VeriUtil import *
 from Scripts.Status import NeuronStatus, NetworkStatus
@@ -11,14 +12,24 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 
 # Raycast Initialial Search:
 class Ray:
-    def __init__(self, model, Origin, Direction:np.array):
+    def __init__(self, model, case, Origin, Direction:np.array, safe_desire=True):
         self.Origin = Origin
         self.Direction = Direction
         self.rayspeed = 1.0
         self.partical_dense = 10
+        self.reflect_penalty = 10
         self.reflect_limit = 5
         self.dying_limit = 20
+        self.safe_desire = safe_desire
         self.NStatus = NetworkStatus(model)
+        self.speed_step = self.rayspeed / self.partical_dense
+        self.if_spacebound = False
+        self.if_rayintersect = False
+        self.if_raytransparency = False
+        self.model = model
+        self.case = case
+        self.list_intersection = []
+        self.list_activation_intersections = []
         
     def orthogonal_vector(W_o):
         # Ensure W_o is a numpy array
@@ -73,48 +84,127 @@ class Ray:
         new_direction = angle_cosine * v_normalized + np.sqrt(1 - angle_cosine**2) * orthogonal_component
         return new_direction
     
-    def rayspread(self, model, case, angle=None, speed=None):
-        if speed is None:
-            speed = self.rayspeed
-        if angle is None:
-            angle = self.Direction
+    def rayspread(self):
+        sign_origin = np.sign(self.model.forward(torch.tensor(self.Origin)))
         while self.dying_limit > 0:
-            if 
-        self.dying_limit -= speed
-        if self.if_spacebound(case.DOM):
-            self.dying_limit -= 10
-        # TODO: raystep(angle, speed)
-        target = self.Origin + angle * speed
-        list_flag_exceed = not(self.if_spacebound(target, case.DOM))
+            for step in range(self.partical_dense):
+                # raystep in angle with desired speed
+                target = self.Origin + self.Direction * self.speed_step * step
+                self.dying_limit -= self.speed_step  
+                
+                # check if the ray bounce on the space boundary
+                if self.if_spacebound(target, self.case.DOM):
+                    self.dying_limit -= 10
+                    break
+                
+                # check if the ray intersect with the model
+                if self.if_rayintersect(target, sign_origin):
+                    self.reflect_limit -= 1
+                    break
+    
+    def binarysearch(self, p_safe, p_unsafe, iter_lim=100):
+        flag = False
+        S = None
+        x = None
+        for iter in range(iter_lim):
+            mid_point = (p_safe + p_unsafe) / 2
+            self.NStatus.get_netstatus_from_input(mid_point)
+            # print(p_safe, mid_point, p_unsafe)
+            S = self.NStatus.network_status_values
+            res = solver_lp(self.model, S, SSpace=self.case.SSpace)
+            x = res.get_x_values()
+            if res.is_success():
+                flag = True
+                return flag, S, x
+            # elif self.model.forward(mid_point) > 0:
+            elif torch.sign(self.model.forward(mid_point)) * torch.sign(self.model.forward(p_safe)) < 0:
+                p_unsafe = mid_point
+            else:
+                p_safe = mid_point
+        return flag, S, x
+    
+    def if_rayintersect(self, target, sign_origin):
+        # first we check if the sign flips
+        sign_target = np.sign(self.model.forward(torch.tensor(target)))
+        if sign_origin != sign_target:
+            # second we check if the ray intersect with the model
+            # Implement the ray intersection using binary search
+            previous_point = torch.tensor(target - self.speed_step * self.Direction)
+            if sign_origin == 1:
+                safe_point = previous_point
+                unsafe_point = target
+            else:
+                safe_point = target
+                unsafe_point = previous_point
+            succ_flag, S, x = self.binarysearch(safe_point, unsafe_point)
+            if succ_flag:
+                self.list_intersection.append(x)
+                self.list_activation_intersections.append(S)
+                self.Origin = x
+                self.Direction = self.compute_exit_angle_from_model(self.model, x)
+            if self.if_raytransparency(sign_origin):
+                self.Origin = target
+                self.reflect_limit += 1
+            
+            print("The ray has hit the space boundary")
+            print("The new direction is: ", self.Direction)
+            print("The new origin is: ", self.Origin)
+            return True
+        else:
+            return False
+            
+            
+    
+    def if_raytransparency(self, sign_origin):
+        if self.safe_desire:
+            if sign_origin == 1:
+                return False
+            else:
+                return True
+        else:
+            if sign_origin == -1:
+                return False
+            else:
+                return True
+    
+    def if_spacebound(self, target, spacebound=None):
+        # if the intersect is on the space boundary, return True
+        # compare if the vector target exceeds the space boundary
+        if spacebound is None:
+            spacebound = self.DOM
+        # space bondary is represented by a list of list. Each inner list is a pair of lower and upper bound of the space. 
+        list_flag_exceed = [target[i] < spacebound[i][0] or target[i] > spacebound[i][1] for i in range(len(target))]
+        
         if any(list_flag_exceed):
-            self.dying_limit -= 10
-            self.Direction = self.compute_boundary_angle(list_flag_exceed, case.DOM)
-            # TODO: Compute new origin
-            self.Origin = target
-            return False, None
+            self.if_spacebound = True
+            self.dying_limit -= self.reflect_penalty
+            self.Direction = self.compute_boundary_angle(list_flag_exceed, spacebound)
+            # Calculate new origin
+            new_origin = np.copy(target)
+            for I, exceed in enumerate(list_flag_exceed):
+                if exceed:
+                    if target[I] < spacebound[I][0]:
+                        boundary = spacebound[I][0]
+                    else:
+                        boundary = spacebound[I][1]
+                    
+                    # Calculate the intersection point
+                    t = (boundary - target[I]) / (self.Direction[I] * self.speed_step)
+                    intersection_point = target + t * (-self.Direction * self.speed_step)
+                    
+                    # Update new_origin with the intersection point for the exceeded dimension
+                    new_origin[I] = intersection_point[I]
+            
+            self.Origin = new_origin
+            # visualize
+            print("The ray has hit the space boundary")
+            print("The new direction is: ", self.Direction)
+            print("The new origin is: ", self.Origin)
+            
+            return True
+        else:
+            return False
         
-        # TODO: ray spread with angle and speed by sampling a few points in the given direction and steplength
-        list_samples = [self.Origin + angle * speed/self.partical_dense * i for i in range(self.partical_dense)]
-        sign_origin = np.sign(model.forward(torch.tensor(self.Origin)))
-        for sample in list_samples:
-            sign_sample = np.sign(model.forward(torch.tensor(sample)))
-            if sign_origin != sign_sample:
-                # TODO: call binary search
-                intersection = None
-                return True, intersection
-    
-    def if_rayintersect(self, model):
-        # TODO: Implement the ray intersection using binary search
-        
-        pass
-    
-    def if_raytransparency(self):
-        # TODO: if intersect and goes to desired side, return True
-        pass
-    
-    def if_spacebound(self, spacebound):
-        # TODO: if the intersect is on the space boundary, return True
-        pass
     
     def raycast(self, model, case):
         list_intersect = []
@@ -153,8 +243,5 @@ class RaycastInitSearch:
         # uniformly distrbuted random origin in the space
         origin_list = [np.random.uniform(self.DOM[i][0], self.DOM[i][1]) for i in range(self.dim)]
         return np.array(origin_list)
-    
-    def reflect_direction(self, ray):
-        # TODO: compute exit angle from the surface normal
-        pass
+
     

@@ -87,7 +87,7 @@ class SearchInit:
                 p_safe = mid_point
         return flag, S
     
-    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 1000):
+    def initialization(self, input_safe:torch.tensor=None, input_unsafe:torch.tensor=None, m = 1):
         # define default flag and S_init_Set
         flag, S_init_Set = False, {}
         # if we specify input_safe and input_unsafe, we use the input directly
