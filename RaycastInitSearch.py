@@ -12,7 +12,9 @@ from Scripts.Status import NeuronStatus, NetworkStatus
 
 # Raycast Initialial Search:
 class Ray:
-    def __init__(self, model, case, Origin, Direction:np.array, safe_desire=True):
+    def __init__(self, model, case, 
+                 Origin:np.array, Direction:np.array, 
+                 safe_desire=True):
         self.Origin = Origin
         self.Direction = Direction
         self.rayspeed = 1.0
@@ -20,22 +22,24 @@ class Ray:
         self.reflect_penalty = 10
         self.reflect_limit = 5
         self.dying_limit = 20
+        
         self.safe_desire = safe_desire
         self.NStatus = NetworkStatus(model)
         self.speed_step = self.rayspeed / self.partical_dense
-        self.if_spacebound = False
-        self.if_rayintersect = False
-        self.if_raytransparency = False
+        self.is_spacebound = False
+        self.is_rayintersect = False
+        self.is_raytransparency = False
         self.model = model
+        self.num_layers = len(self.model.layers)/2
         self.case = case
         self.list_intersection = []
         self.list_activation_intersections = []
         
-    def orthogonal_vector(W_o):
+    def orthogonal_vector(self, W_o):
         # Ensure W_o is a numpy array
-        W_o = np.asarray(W_o)
+        W_o = np.asarray(W_o).squeeze()
         # Choose the first standard basis vector e1
-        e1 = np.zeros_like(W_o)
+        e1 = np.zeros_like(W_o).squeeze()
         e1[0] = 1
         # Project e1 onto W_o
         projection = np.dot(e1, W_o) / np.dot(W_o, W_o) * W_o
@@ -57,11 +61,11 @@ class Ray:
     def compute_exit_angle_from_model(self, model, intersect):
         # compute new_direction from the model
         # Given input direction and the intersection point with the model, we first compute the orthogonal vector to the model. Then we compute the exit angle. 
-        self.NStatus.get_netstatus_from_input(torch.tensor(intersect))
+        self.NStatus.get_netstatus_from_input(torch.tensor(intersect).float())
         S = self.NStatus.network_status_values
         W_B, r_B, W_o, r_o = LinearExp(model, S)
         # The idea is that the hyperplane can be represented by the gain computed from the model. The orthogonal vector can be computed by the computed gain.
-        orth_vec = self.orthogonal_vector(W_o)
+        orth_vec = self.orthogonal_vector(W_o[self.num_layers-1])
         
         new_direction = self.update_direction(self.Direction, orth_vec)
         return new_direction
@@ -85,7 +89,7 @@ class Ray:
         return new_direction
     
     def rayspread(self):
-        sign_origin = np.sign(self.model.forward(torch.tensor(self.Origin)))
+        sign_origin = np.sign(self.model.forward(torch.tensor(self.Origin).float()).detach().numpy())
         while self.dying_limit > 0:
             for step in range(self.partical_dense):
                 # raystep in angle with desired speed
@@ -93,7 +97,7 @@ class Ray:
                 self.dying_limit -= self.speed_step  
                 
                 # check if the ray bounce on the space boundary
-                if self.if_spacebound(target, self.case.DOM):
+                if self.if_spacebound(target, self.case.DOMAIN):
                     self.dying_limit -= 10
                     break
                 
@@ -107,12 +111,12 @@ class Ray:
         S = None
         x = None
         for iter in range(iter_lim):
-            mid_point = (p_safe + p_unsafe) / 2
+            mid_point = (p_safe + p_unsafe) / 2.0
             self.NStatus.get_netstatus_from_input(mid_point)
             # print(p_safe, mid_point, p_unsafe)
             S = self.NStatus.network_status_values
             res = solver_lp(self.model, S, SSpace=self.case.SSpace)
-            x = res.get_x_values()
+            x = res.get_x_val()
             if res.is_success():
                 flag = True
                 return flag, S, x
@@ -125,22 +129,23 @@ class Ray:
     
     def if_rayintersect(self, target, sign_origin):
         # first we check if the sign flips
-        sign_target = np.sign(self.model.forward(torch.tensor(target)))
+        sign_target = np.sign(self.model.forward(torch.tensor(target).float()).detach().numpy())
         if sign_origin != sign_target:
             # second we check if the ray intersect with the model
             # Implement the ray intersection using binary search
             previous_point = torch.tensor(target - self.speed_step * self.Direction)
-            if sign_origin == 1:
-                safe_point = previous_point
-                unsafe_point = target
+            if (not self.case.reverse_flag and sign_origin == 1) or (self.case.reverse_flag and sign_origin == -1):
+                safe_point = previous_point.float()
+                unsafe_point = torch.tensor(target).float()
             else:
-                safe_point = target
-                unsafe_point = previous_point
+                safe_point = torch.tensor(target).float()
+                unsafe_point = previous_point.float()
             succ_flag, S, x = self.binarysearch(safe_point, unsafe_point)
             if succ_flag:
                 self.list_intersection.append(x)
                 self.list_activation_intersections.append(S)
                 self.Origin = x
+                # TODO: debug this function
                 self.Direction = self.compute_exit_angle_from_model(self.model, x)
             if self.if_raytransparency(sign_origin):
                 self.Origin = target
@@ -171,7 +176,7 @@ class Ray:
         # if the intersect is on the space boundary, return True
         # compare if the vector target exceeds the space boundary
         if spacebound is None:
-            spacebound = self.DOM
+            spacebound = self.DOMAIN
         # space bondary is represented by a list of list. Each inner list is a pair of lower and upper bound of the space. 
         list_flag_exceed = [target[i] < spacebound[i][0] or target[i] > spacebound[i][1] for i in range(len(target))]
         
@@ -221,7 +226,6 @@ class Ray:
                     self.Direction = self.compute_exit_angle_from_model(model, self.intersect)
         return list_intersect
 
-
 class RaycastInitSearch:
     def __init__(self, model, case, Origin=None):
         self.model = model
@@ -244,4 +248,20 @@ class RaycastInitSearch:
         origin_list = [np.random.uniform(self.DOM[i][0], self.DOM[i][1]) for i in range(self.dim)]
         return np.array(origin_list)
 
+if __name__ == "__main__":
+    from Cases.LinearSatellite import LinearSat
+    from Modules.NNet import NeuralNetwork as NNet
     
+    case = LinearSat()
+    n = 16
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    model = NNet(architecture)
+    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
+    trained_state_dict = torch.load(f"models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
+    model.load_state_dict_from_sequential(trained_state_dict)
+    
+    Origin = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    Direction = np.array([0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
+    ray = Ray(model, case, Origin, Direction)
+    ray.rayspread()
+    print(ray.list_intersection)
