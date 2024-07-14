@@ -1,3 +1,4 @@
+from mimetypes import init
 from re import search
 from socket import timeout
 import sys, os
@@ -10,7 +11,9 @@ sys.path.append(os.path.realpath(os.path.dirname(__file__) + "/.."))
 from Scripts.Search import *
 from Cases.ObsAvoid import ObsAvoid
 
-class SearchMT(Search):
+from RaycastInitSearch import *
+
+class SearchMTRaycast(Search):
     def __init__(self, model, case=None) -> None:
         super().__init__(model, case)
         self.model = model
@@ -40,7 +43,7 @@ class SearchMT(Search):
 
                         unstable_neighbours = self.Filter_S_neighbour(current_set)
                         unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
-                        print(f"Neighbours count: {len(unstable_neighbours_S)}")
+                        # print(f"Neighbours count: {len(unstable_neighbours_S)}")
 
                         for item in unstable_neighbours_S:
                             hashable_u = tuple(sorted((k, tuple(v)) for k, v in item.items()))
@@ -54,7 +57,7 @@ class SearchMT(Search):
             print("Worker terminated.")
             return
 
-    def BFS_parallel(self, root_node):
+    def BFS_parallel(self):
         manager = multiprocessing.Manager()
         task_queue = manager.Queue()
         output_queue = manager.Queue()
@@ -66,8 +69,21 @@ class SearchMT(Search):
         # num_workers = 1
         # for _ in range(num_workers):
         #     task_queue.put(None)
-            
-        init_queue, pair_wise_hinge = self.BFS(root_node, termination=2*num_workers)
+        Origin = [np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])]
+        Direction = [np.array([0.0, 0.0, 1.0, 0.0, 0.0, 0.0])]
+        RCSearch = RaycastSearch(model, case, same_origin=True, same_direction=False)
+        RCSearch.num_rays = 5
+        RCSearch.raycast(Origin, Direction)
+        init_act_set = RCSearch.list_activation_intersections
+        init_queue = []
+        pair_wise_hinge = []
+        init_queue = init_act_set
+        # for root_node in init_act_set:
+        #     init_queue_item, pair_wise_hinge_item = self.BFS(root_node, termination=2*num_workers)
+        #     init_queue += init_queue_item
+        #     pair_wise_hinge += pair_wise_hinge_item
+        
+        # init_queue, pair_wise_hinge = self.BFS(root_node, termination=2*num_workers)
         for item in init_queue:
             task_queue.put(item)
         
@@ -76,11 +92,11 @@ class SearchMT(Search):
         for w in workers:
             w.start()
 
-        # for w in workers:
-        #     w.join()
+        for w in workers:
+            w.join()
             
-        # for w in workers:
-        #     w.terminate()
+        for w in workers:
+            w.terminate()
         
         print(f"Boundary list size: {len(boundary_list)}, Pair-wise hinge size: {len(pair_wise_hinge)}")
         return list(boundary_list), list(pair_wise_hinge)
@@ -92,9 +108,9 @@ if __name__ == "__main__":
     # trained_state_dict = torch.load("models/obs_1_64.pt")
     # trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
     # model.load_state_dict(trained_state_dict, strict=True)
-    # # case = PARA.CASES[0]
-    # case = ObsAvoid()
     
+    # TODO: debug multiple thread 
+    # TODO: rewrite multiple thread part and make it working stably
     from Cases.LinearSatellite import LinearSat
     from Modules.NNet import NeuralNetwork as NNet
     
@@ -105,21 +121,25 @@ if __name__ == "__main__":
     # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
     trained_state_dict = torch.load(f"models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
     model.load_state_dict_from_sequential(trained_state_dict)
+    
+    
+    # case = PARA.CASES[0]
+    # case = ObsAvoid()
     # Search = Search(model)
     start_time = time.time()
-    Search_prog = SearchMT(model, case)
+    Search_prog = SearchMTRaycast(model, case)
     
     # (0.5, 1.5), (0, -1)
-    spt = torch.tensor([[[-3.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    Search_prog.Specify_point(spt, uspt)
+    # spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
+    # Search_prog.Specify_point(spt, uspt)
     # print(Search.S_init)
 
     # Search.Filter_S_neighbour(Search.S_init[0])
     # Possible_S = Search.Possible_S(Search.S_init[0], Search.Filter_S_neighbour(Search.S_init[0]))
     # print(Search.Filter_S_neighbour(Search.S_init[0]))
     # unstable_neurons_set, pair_wise_hinge = Search.BFS(Search.S_init[0])
-    unstable_neurons_set, pair_wise_hinge = Search_prog.BFS_parallel(Search_prog.S_init[0])
+    unstable_neurons_set, pair_wise_hinge = Search_prog.BFS_parallel()
     
     search_time = time.time() - start_time
     print('Search time:', search_time)
@@ -128,6 +148,6 @@ if __name__ == "__main__":
     # print(unstable_neurons_set)
     print(len(unstable_neurons_set))
     print(len(pair_wise_hinge))
-    
+    print(f"Boundary list size: {len(unstable_neurons_set)}, Pair-wise hinge size: {len(pair_wise_hinge)}")
     # ho_hinge = Search.hinge_search(unstable_neurons_set, pair_wise_hinge)
     # print(len(ho_hinge))
