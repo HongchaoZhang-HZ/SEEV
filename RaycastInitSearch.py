@@ -1,6 +1,7 @@
 from hmac import new
 from numpy import sign
 from torch import ne
+from Cases import ObsAvoid
 from Verifier.VeriUtil import *
 from Scripts.Status import NeuronStatus, NetworkStatus
 
@@ -283,18 +284,23 @@ class RaycastSearch:
 
 if __name__ == "__main__":
     from Cases.LinearSatellite import LinearSat
+    from Cases.ObsAvoid import ObsAvoid
     from Modules.NNet import NeuralNetwork as NNet
     
-    case = LinearSat()
-    n = 16
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    l = 1
+    n = 128
+    case = ObsAvoid()
+    hdlayers = []
+    for layer in range(l):
+        hdlayers.append(('relu', n))
+    architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
-    trained_state_dict = torch.load(f"models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
-    model.load_state_dict_from_sequential(trained_state_dict)
+    trained_state_dict = torch.load(f"models/obs_{l}_{n}.pt")
+    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    model.load_state_dict(trained_state_dict, strict=True)
     
-    Origin = [np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])]
-    Direction = [np.array([0.0, 0.0, 1.0, 0.0, 0.0, 0.0])]
+    Origin = [np.array([0.0, 0.0, 0.0])]
+    Direction = [np.array([0.0, 0.0, 1.0])]
     # ray = Ray(model, case, Origin[0], Direction[0])
     # ray.rayspread()
     # print(len(ray.list_intersection))

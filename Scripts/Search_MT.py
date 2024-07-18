@@ -95,23 +95,26 @@ if __name__ == "__main__":
     # # case = PARA.CASES[0]
     # case = ObsAvoid()
     
-    from Cases.LinearSatellite import LinearSat
-    from Modules.NNet import NeuralNetwork as NNet
-    
-    case = LinearSat()
-    n = 16
-    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    l = 1
+    n = 128
+    case = ObsAvoid()
+    hdlayers = []
+    for layer in range(l):
+        hdlayers.append(('relu', n))
+    architecture = [('linear', 3)] + hdlayers + [('linear', 1)]
     model = NNet(architecture)
-    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
-    trained_state_dict = torch.load(f"models/linear_satellite_layer_3_hidden_16_epoch_50_reg_0.pt")
-    model.load_state_dict_from_sequential(trained_state_dict)
+    trained_state_dict = torch.load(f"models/obs_{l}_{n}.pt")
+    trained_state_dict = {f"layers.{key}": value for key, value in trained_state_dict.items()}
+    model.load_state_dict(trained_state_dict, strict=True)
     # Search = Search(model)
     start_time = time.time()
     Search_prog = SearchMT(model, case)
     
     # (0.5, 1.5), (0, -1)
-    spt = torch.tensor([[[-3.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
-    uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    # spt = torch.tensor([[[-3.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    # uspt = torch.tensor([[[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]])
+    spt = torch.tensor([[[-1.0, 0.0, 0.0]]])
+    uspt = torch.tensor([[[0.0, 0.0, 0.0]]])
     Search_prog.Specify_point(spt, uspt)
     # print(Search.S_init)
 
