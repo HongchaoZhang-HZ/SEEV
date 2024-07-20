@@ -218,6 +218,7 @@ class RaycastSearch:
         self.case = case
         self.num_origin = 1
         self.num_rays = 4
+        self.reflect_limit = 2
         self.list_rays = []
         self.list_intersection = []
         self.list_activation_intersections = []
@@ -248,7 +249,7 @@ class RaycastSearch:
     
     def rdm_origin(self):
         # uniformly distrbuted random origin in the space
-        origin_list = [np.random.uniform(self.DOM[i][0], self.DOM[i][1]) for i in range(self.case.DIM)]
+        origin_list = [np.random.uniform(self.case.DOMAIN[i][0], self.case.DOMAIN[i][1]) for i in range(self.case.DIM)]
         return np.array(origin_list)
     
     def init_ray(self, Origin=None, Direction=None):
@@ -300,7 +301,7 @@ if __name__ == "__main__":
     model.load_state_dict(trained_state_dict, strict=True)
     
     Origin = [np.array([0.0, 0.0, 0.0])]
-    Direction = [np.array([0.0, 0.0, 1.0])]
+    Direction = [np.array([-1.0, 0.0, 0.0])]
     # ray = Ray(model, case, Origin[0], Direction[0])
     # ray.rayspread()
     # print(len(ray.list_intersection))

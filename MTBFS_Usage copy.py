@@ -1,4 +1,3 @@
-from ast import arg
 from Verifier.Verification import *
 from collections import deque
 from Modules.Function import *
@@ -20,6 +19,7 @@ class SearchMT(Search):
         self.task_queue = self.manager.Queue()
         self.output_queue = self.manager.Queue()
         self.boundary_dict = self.manager.dict()
+        self.visited = self.manager.dict()
         self.boundary_list = self.manager.list()
         self.pair_wise_hinge = self.manager.list()
         self.num_workers = multiprocessing.cpu_count()
@@ -27,9 +27,14 @@ class SearchMT(Search):
     def worker(self):
         while True:
             print('num of tasks:', self.task_queue.qsize())
-            current_set = self.task_queue.get()
             if self.task_queue.empty():
                 break
+            current_set = self.task_queue.get()
+            hashable_d = tuple(sorted((k, tuple(v)) for k, v in current_set.items()))
+            if hashable_d in self.visited:
+                continue
+            else:
+                self.visited[hashable_d] = True
             if current_set is None:
                 print(f"Worker {os.getpid()} received termination signal.")
                 break
@@ -37,10 +42,11 @@ class SearchMT(Search):
                 res = solver_lp(self.model, current_set, SSpace=self.case.SSpace)
                 if res.is_success():
                     self.output_queue.put(current_set)
-                    hashable_d = tuple(sorted((k, tuple(v)) for k, v in current_set.items()))
+                    # hashable_d = tuple(sorted((k, tuple(v)) for k, v in current_set.items()))
                     if hashable_d not in self.boundary_dict:
                         self.boundary_dict[hashable_d] = True
                         self.boundary_list.append(current_set)
+                        # TODO: add pair-wise hinge
 
                         unstable_neighbours = self.Filter_S_neighbour(current_set)
                         unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
@@ -63,23 +69,18 @@ class SearchMT(Search):
 
         for w in workers:
             w.start()
-            
+
+        # Add sentinel values to stop the workers
+        if self.task_queue.qsize() == 0:
+            self.task_queue.put(None)
+
         # Wait for all workers to finish
         for w in workers:
             w.join()
 
-        # Add sentinel values to stop the workers
-        if self.task_queue.empty():
-            print("Worker received termination signal.")
-            self.task_queue.put(None)
-        
-        for w in workers:
-            w.terminate()
-
         print(f"Boundary list size: {len(self.boundary_list)}, Pair-wise hinge size: {len(self.pair_wise_hinge)}")
         return list(self.boundary_list), list(self.pair_wise_hinge)
 
-    
 if __name__ == "__main__":
     # CBF Verification
     l = 1
@@ -103,10 +104,3 @@ if __name__ == "__main__":
     Search_prog.BFS_parallel(Search_prog.S_init[0])
     end_time = time.time() - start_time
     print('Time taken:', end_time)
-    # veri_flag, ce = Search_prog.SV_CE(spt, uspt)
-    # if veri_flag:
-    #     print('Verification successful!')
-    # else:
-    #     print('Verification failed!')
-    #     print('Counter example:', ce)
-        

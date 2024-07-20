@@ -3,15 +3,15 @@ from Verifier.Verification import *
 from collections import deque
 from Modules.Function import *
 from SearchVerifier import SearchVerifier
-from Scripts.Search_MT import *
+from MTBFS_UsageProfile import SearchMT
 import multiprocessing
 import time
 import os
 from RaycastInitSearch import *
 from Cases.ObsAvoid import ObsAvoid
 
-class SearchMTRC(Search):
-    def __init__(self, model, case=None) -> None:
+class SearchMTRC(SearchMT):
+    def __init__(self, model, case=None, Origin=None, Direction=None, same_origin=True, same_direction=False) -> None:
         super().__init__(model, case)
         self.model = model
         self.case = case
@@ -25,45 +25,19 @@ class SearchMTRC(Search):
         self.boundary_list = self.manager.list()
         self.pair_wise_hinge = self.manager.list()
         self.num_workers = multiprocessing.cpu_count()
+        self.visited = self.manager.dict()
         
-        self.Origin = [np.array([0.0, 0.0, 0.0])]
-        self.Direction = [np.array([0.0, 0.0, 1.0])]
+        self.Origin = Origin
+        self.Direction = Direction
         
         self.RCS = RaycastSearch(model, case, same_origin=True, same_direction=False)
-        self.RCS.num_rays = 10
+        self.RCS.num_rays = 4
         self.RCS.raycast(self.Origin, self.Direction)
-
-    def worker(self):
-        while True:
-            print('num of tasks:', self.task_queue.qsize())
-            current_set = self.task_queue.get()
-            if self.task_queue.empty():
-                break
-            if current_set is None:
-                print(f"Worker {os.getpid()} received termination signal.")
-                break
-            try:
-                res = solver_lp(self.model, current_set, SSpace=self.case.SSpace)
-                if res.is_success():
-                    self.output_queue.put(current_set)
-                    hashable_d = tuple(sorted((k, tuple(v)) for k, v in current_set.items()))
-                    if hashable_d not in self.boundary_dict:
-                        self.boundary_dict[hashable_d] = True
-                        self.boundary_list.append(current_set)
-
-                        unstable_neighbours = self.Filter_S_neighbour(current_set)
-                        unstable_neighbours_S = self.Possible_S(current_set, unstable_neighbours)
-
-                        for item in unstable_neighbours_S:
-                            hashable_u = tuple(sorted((k, tuple(v)) for k, v in item.items()))
-                            if hashable_u not in self.boundary_dict:
-                                self.task_queue.put(item)
-            except Exception as e:
-                print(f"Worker error: {e}")
 
     def BFS_parallel(self):
         print("Initializing BFS_parallel...")
         # init_queue, self.pair_wise_hinge = self.BFS(root_node, termination=2*self.num_workers)
+        # print(len(self.RCS.list_activation_intersections))
         for item in self.RCS.list_activation_intersections:
             self.task_queue.put(item)
         print(f"Initial task queue size: {self.task_queue.qsize()}")
@@ -88,8 +62,7 @@ class SearchMTRC(Search):
         print(f"Boundary list size: {len(self.boundary_list)}, Pair-wise hinge size: {len(self.pair_wise_hinge)}")
         return list(self.boundary_list), list(self.pair_wise_hinge)
 
-    
-if __name__ == "__main__":
+def obs_rcMT():
     # CBF Verification
     l = 1
     n = 128
@@ -104,13 +77,48 @@ if __name__ == "__main__":
     model.load_state_dict(trained_state_dict, strict=True)
     
     # Search Verification and output Counter Example
+    Origin = [np.array([0.0, 0.0, 0.0])]
+    Direction = [np.array([-1.0, 0.0, 0.0])]
+    Search_prog = SearchMTRC(model, case, Origin, Direction)
     start_time = time.time()
-    Search_prog = SearchMTRC(model, case)
     # Search_prog.Specify_point(spt, uspt)
     # Search_prog.RCS.raycast(Origin, Direction)
     Search_prog.BFS_parallel()
+    
     end_time = time.time() - start_time
     print('Time taken:', end_time)
+    
+if __name__ == "__main__":
+    # CBF Verification
+    from Cases.LinearSatellite import LinearSat
+    case = LinearSat()
+    n = 8
+    architecture = [('linear', 6), ('relu', n), ('relu', n), ('relu', n), ('relu', n), ('linear', 1)]
+    model = NNet(architecture)
+    # trained_state_dict = torch.load(f"Phase2_Verification/models/linear_satellite_hidden_32_epoch_50_reg_0.05.pt")
+    trained_state_dict = torch.load(f"models/linear_satellite_layer_4_hidden_8_epoch_50_reg_0.1.pt")
+    model.load_state_dict_from_sequential(trained_state_dict)
+
+    
+    # Search Verification and output Counter Example
+    Origin = [np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])]
+    Direction = [np.array([1.0, 0.0, 0.0, 0.0, 0.0, 0.0])]
+    Search_prog = SearchMTRC(model, case, Origin=Origin, Direction=Direction, same_origin=True, same_direction=False)
+    start_time = time.time()
+    # Search_prog.Specify_point(spt, uspt)
+    # Search_prog.RCS.raycast(Origin, Direction)
+    Search_prog.BFS_parallel()
+    
+    end_time = time.time() - start_time
+    print('Time taken:', end_time)
+    
+    # num = 0
+    # for item in Search_prog.boundary_list:
+    #     hashable_d = tuple(sorted((k, tuple(v)) for k, v in item.items()))
+    #     if hashable_d in Search_prog.boundary_dict:
+    #         num += 1
+    # print(f"Number of items in boundary list: {num}")
+    
     # veri_flag, ce = Search_prog.SV_CE(spt, uspt)
     # if veri_flag:
     #     print('Verification successful!')
