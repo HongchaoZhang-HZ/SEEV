@@ -4,7 +4,7 @@ from torch import ne
 from Cases import ObsAvoid
 from Verifier.VeriUtil import *
 from Scripts.Status import NeuronStatus, NetworkStatus
-
+import Scripts.PARA as PARA
 ''' Raycast Initialial Search
 
 '''
@@ -16,16 +16,17 @@ class Ray:
     def __init__(self, model, case, 
                  Origin:np.array, Direction:np.array, 
                  safe_desire=True):
+        self.model = model
         self.Origin = Origin
         self.Direction = Direction
-        self.rayspeed = 1.0
-        self.partical_dense = 10
-        self.reflect_penalty = 10
-        self.reflect_limit = 5
-        self.dying_limit = 30
+        self.rayspeed = PARA.rayspeed
+        self.partical_dense = PARA.partical_dense
+        self.reflect_penalty = PARA.reflect_limit
+        self.reflect_limit = PARA.reflect_limit
+        self.dying_limit = PARA.dying_limit
         
         self.safe_desire = safe_desire
-        self.NStatus = NetworkStatus(model)
+        self.NStatus = NetworkStatus(self.model)
         self.speed_step = self.rayspeed / self.partical_dense
         self.is_spacebound = False
         self.is_rayintersect = False
@@ -214,11 +215,13 @@ class Ray:
 class RaycastSearch:
     def __init__(self, model, case, 
                  same_origin=None, same_direction=None):
-        self.model = model
+        if model.device != 'cpu':
+            self.model = model.to('cpu')
+        else:        
+            self.model = model
         self.case = case
         self.num_origin = 1
-        self.num_rays = 4
-        self.reflect_limit = 2
+        self.num_rays = PARA.num_rays
         self.list_rays = []
         self.list_intersection = []
         self.list_activation_intersections = []

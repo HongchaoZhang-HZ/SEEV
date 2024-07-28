@@ -8,3 +8,10 @@ from Cases import *
 
 zero_tol = 1e-16
 round_tol = 3
+
+rayspeed = 1
+partical_dense = 100
+reflect_penalty = 10
+reflect_limit = 10
+dying_limit = 50
+num_rays = 100
