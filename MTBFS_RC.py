@@ -9,6 +9,10 @@ import time
 import os
 from RaycastInitSearch import *
 from Cases.ObsAvoid import ObsAvoid
+import os
+import cProfile
+import pstats
+import io
 
 class SearchMTRC(SearchMT):
     def __init__(self, model, case=None, Origin=None, Direction=None, same_origin=True, same_direction=False) -> None:
@@ -35,6 +39,8 @@ class SearchMTRC(SearchMT):
         self.RCS.raycast(self.Origin, self.Direction)
 
     def BFS_parallel(self):
+        profiler = cProfile.Profile()
+        profiler.enable()
         print("Initializing BFS_parallel...")
         # init_queue, self.pair_wise_hinge = self.BFS(root_node, termination=2*self.num_workers)
         # print(len(self.RCS.list_activation_intersections))
@@ -58,9 +64,17 @@ class SearchMTRC(SearchMT):
         
         for w in workers:
             w.terminate()
+        
+        profiler.disable()
+        s = io.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(profiler, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        # print(s.getvalue())
 
         print(f"Boundary list size: {len(self.boundary_list)}, Pair-wise hinge size: {len(self.pair_wise_hinge)}")
         return list(self.boundary_list), list(self.pair_wise_hinge)
+    
 
 def obs_rcMT():
     # CBF Verification
