@@ -109,13 +109,13 @@ class SearchVerifierMTP(SearchVerifier):
 
         for w in workers:
             w.start()
-            
-        if self.task_queue.qsize() == 0:
-            self.task_queue.put(None)
 
         for w in workers:
             if self.veri_flag.value:
                 w.join()
+                
+        if self.task_queue.qsize() == 0:
+            self.task_queue.put(None)
         
         profiler.disable()
         s = io.StringIO()

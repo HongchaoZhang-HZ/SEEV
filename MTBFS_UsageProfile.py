@@ -87,13 +87,15 @@ class SearchMT(Search):
         for w in workers:
             w.start()
 
+        # Wait for all workers to finish
+        for w in workers:
+            w.join()
+        
         # Add sentinel values to stop the workers
         if self.task_queue.qsize() == 0:
             self.task_queue.put(None)
 
-        # Wait for all workers to finish
-        for w in workers:
-            w.join()
+        
 
         profiler.disable()
         s = io.StringIO()

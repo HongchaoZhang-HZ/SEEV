@@ -64,13 +64,13 @@ class SearchMT(Search):
         for w in workers:
             w.start()
 
-        # Add sentinel values to stop the workers
-        if self.task_queue.qsize() == 0:
-            self.task_queue.put(None)
-
         # Wait for all workers to finish
         for w in workers:
             w.join()
+        
+        # Add sentinel values to stop the workers
+        if self.task_queue.qsize() == 0:
+            self.task_queue.put(None)
 
         print(f"Boundary list size: {len(self.boundary_list)}, Pair-wise hinge size: {len(self.pair_wise_hinge)}")
         return list(self.boundary_list), list(self.pair_wise_hinge)
