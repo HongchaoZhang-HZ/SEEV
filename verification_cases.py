@@ -182,7 +182,7 @@ def CBF_LS_SV(n):
 if __name__ == "__main__":
     # CBF_LS_SV(32)
     # CBF_LS_SV(8)
-    CBF_LS_SV(16)
+    # CBF_LS_SV(16)
     # CBF_LS_SV(8)
-    # CBF_Obs(1, 128)
+    CBF_Obs(1, 128)
     

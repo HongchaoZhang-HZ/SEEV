@@ -147,8 +147,10 @@ class veri_seg_fG_with_interval_U(veri_seg_FG_with_interval_U):
         if check_Lg:
             return True, None
         elif not self.SMT_flag:
+            print('?')
             return super().verification(reverse_flag)
         else:
+            print('?')
             return self.min_Lf_interval_SMT(reverse_flag)
             
 class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
@@ -179,6 +181,7 @@ class veri_hinge_fG_wo_U(veri_hinge_FG_wo_U):
         same_sign_Lg = self.same_sign_Lg()
         if same_sign_Lg:
             return True, None
+        print('?')
         if not self.SMT_flag:
             return super().verification(reverse_flag)
         else:
