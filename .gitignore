@@ -3,3 +3,7 @@ Discussion.pdf
 env/
 .venv/
 *.pyc
+DevDocument/
+*.csv
+.vscode/
+.VSCodeCounter/

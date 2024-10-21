@@ -1,0 +1,74 @@
+import multiprocessing
+
+def bfs_worker(task_stack, result_queue, graph, visited, lock):
+    while True:
+        with lock:
+            if not task_stack:
+                break
+            node = task_stack.pop()
+        if node is None:
+            break
+        if node not in visited:
+            visited[node] = True
+            result_queue.put(node)
+            with lock:
+                for neighbor in graph[node]:
+                    if neighbor not in visited:
+                        task_stack.append(neighbor)
+
+def parallel_dfs(graph, start_node):
+    num_cores = multiprocessing.cpu_count()
+    manager = multiprocessing.Manager()
+    task_stack = manager.list()  # Shared stack
+    result_queue = multiprocessing.Queue()
+    visited = manager.dict()
+    lock = manager.Lock()  # Lock for synchronizing access to the stack
+
+    # Start worker processes
+    workers = []
+    for _ in range(num_cores):
+        p = multiprocessing.Process(target=bfs_worker, args=(task_stack, result_queue, graph, visited, lock))
+        p.start()
+        workers.append(p)
+
+    # Add the initial task (start node) to the stack
+    with lock:
+        task_stack.append(start_node)
+
+    results = []
+    processed_nodes = set()
+
+    while any(p.is_alive() for p in workers) or not result_queue.empty():
+        try:
+            node = result_queue.get(timeout=1)
+            if node not in processed_nodes:
+                results.append(node)
+                processed_nodes.add(node)
+        except multiprocessing.queues.Empty:
+            continue
+
+    # Add sentinel values to stop the workers
+    with lock:
+        for _ in range(num_cores):
+            task_stack.append(None)
+
+    # Wait for all workers to finish
+    for p in workers:
+        p.join()
+
+    return results
+
+# Example usage
+if __name__ == "__main__":
+    graph = {
+        0: [1, 2],
+        1: [0, 3, 4],
+        2: [0, 5, 6],
+        3: [1],
+        4: [1],
+        5: [2],
+        6: [2]
+    }
+    start_node = 0
+    result = parallel_dfs(graph, start_node)
+    print(result)
