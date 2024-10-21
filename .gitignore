@@ -7,3 +7,4 @@ DevDocument/
 *.csv
 .vscode/
 .VSCodeCounter/
+__pycache__/
