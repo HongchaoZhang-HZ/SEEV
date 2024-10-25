@@ -1,77 +1,43 @@
-# NCBCV
+<div align="center">
 
-# Installation
+# SEEV: Synthesis with Efficient Exact Verification for ReLU Neural Barrier Functions
+
+[![Conference](https://img.shields.io/badge/NeurIPS%20'24-Accepted-success)](https://openreview.net/forum?id=nWMqQHzI3W)
+
+</div>
+
+This repository contains the implementation of [SEEV (Synthesis with Efficient Exact Verification)](https://openreview.net/forum?id=nWMqQHzI3W), a novel framework for synthesizing Neural Control Barrier Functions (NCBFs) with ReLU activations and performing efficient safety verification. The SEEV approach integrates synthesis and verification to reduce computational overhead while maintaining safety guarantees for autonomous systems. It includes algorithms for training NCBFs with regularization and efficient verification of safety conditions across benchmark systems.
+
+## Requirements
+
+To install requirements and set up for the project:
+
+```setup
+pip install -r requirements.txt
+[Inside NCBCV] pip install -e .
+[Inside neural_clbf_ncbcv] pip install -e .
 ```
-pip install -e .
-```
 
-# Summary of Phase 1 Development
-`pytest --md-report --md-report-flavor gfm --md-report-output md_report.md` to generate the markdown report [md_report](md_report.md). 
+Note that the directory `neural_clbf_ncbcv` is adapted from https://github.com/MIT-REALM/neural_clbf. 
 
-|                 filepath                 | $$\textcolor{#23d18b}{\tt{passed}}$$ | SUBTOTAL |
-| ---------------------------------------- | --------------------------------: | -------: |
-| $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_BaBBasic.py}}$$ |   $$\textcolor{#23d18b}{\tt{4}}$$ | $$\textcolor{#23d18b}{\tt{4}}$$ |
-| $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_NNet.py}}$$ |   $$\textcolor{#23d18b}{\tt{2}}$$ | $$\textcolor{#23d18b}{\tt{2}}$$ |
-| $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_NSBasic.py}}$$ |  $$\textcolor{#23d18b}{\tt{15}}$$ | $$\textcolor{#23d18b}{\tt{15}}$$ |
-| $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_Status.py}}$$ |   $$\textcolor{#23d18b}{\tt{6}}$$ | $$\textcolor{#23d18b}{\tt{6}}$$ |
-| $$\textcolor{#23d18b}{\tt{Phase1\\_Scalability/test/test\\_utils.py}}$$ |   $$\textcolor{#23d18b}{\tt{2}}$$ | $$\textcolor{#23d18b}{\tt{2}}$$ |
-| $$\textcolor{#23d18b}{\tt{TOTAL}}$$      |  $$\textcolor{#23d18b}{\tt{29}}$$ | $$\textcolor{#23d18b}{\tt{29}}$$ |
+## Training the Neural Control Barrier Functions (NCBF)
 
-<!-- # Strucutre of the Project
-```plaintext
-NCBF
-├── Cases.py
-│   ── Different Cases
-├── NNet.py 
-``` -->
+The commands for trainig the CBFs are located in `neural_clbf_ncbcv/darboux_commands.txt`, `neural_clbf_ncbcv/obs_avoid_commands.txt`, `neural_clbf_ncbcv/linear_satellite_commands.txt` and `neural_clbf_ncbcv/high_o_commands.txt`. The commands in these files are properly seeded, with hyperparameters specified accordingly.
 
-## Development Log: Status (Neural Network Status Tracker)
+## Evaluating the NCBF Models
 
-This script is designed for monitoring and analyzing the internal states of a neural network. It focuses on tracking the status of individual neurons across different layers during data processing.
+To perform certification, run the commands located in `neural_clbf_ncbcv/certify_commands.sh`, which evaluates pretrained models located in `neural_clbf_ncbcv/models`. The metrics reported in the paper will be outputs to stdout.
 
-### Key Features
+## Citation
 
-#### NeuronStatus Class
-- **Function**: Represents and manages the state of a single neuron.
-- **Key Methods**:
-  - Status determination based on neuron values.
-  - Status display for individual neurons.
+If you find this repository useful in your research, please consider citing:
 
-#### NetworkStatus Class
-- **Function**: Handles the status of the entire neural network.
-- **Key Methods**:
-  - Updates and displays the statuses of neurons in each layer.
-  - Processes input data through the network for real-time status monitoring.
-
-### Usage
-- The script sets up a neural network, processes a random input, and visualizes neuron states.
-- Ideal for debugging and understanding neuron behaviors within network layers.
-
-### Dependencies
-- Relies on custom modules (`Modules.utils` and `Modules.NNet`) and PyTorch.
-
-
-## Development Log: Neuron Status Management in Neural Networks
-This script implements a system for managing and tracking the status of neurons in neural networks, aiding in network analysis and debugging.
-
-### Key Features
-
-#### NSBasic Class
-- **Functionality**: Handles management of neuron status sets (Positive, Negative, Zero, Unknown).
-- **Features**: 
-  - Includes getters and setters for status set management.
-  - Provides methods for adding, removing, and updating neuron statuses.
-
-#### NS Class (Extension of NSBasic)
-- **Enhancement**: Adds additional functionalities, currently unspecified.
-- **Placeholders**: Includes `init_SOI()` and `update_SOI()` methods for future development.
-
-### Usage
-- The classes are designed to be integrated with neural network models for monitoring neuron statuses.
-- They offer functionalities to dynamically manage and track the status of individual neurons across network layers.
-- The script can be particularly useful for neural network debugging and detailed analysis of neuron behavior during model training and inference.
-
-### Dependencies
-- External modules: `Modules.utils`, `Modules.NNet`.
-- Custom classes: `NeuronStatus`, `NetworkStatus` from `Scripts.Status`.
-- The script is dependent on these modules for core functionalities like neural network architecture and utility functions.
+```bibtex
+@inproceedings{
+anonymous2024seev,
+title={{SEEV}: Synthesis with Efficient Exact Verification for Re{LU} Neural Barrier Functions},
+author={Anonymous},
+booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+year={2024},
+url={https://openreview.net/forum?id=nWMqQHzI3W}
+}
