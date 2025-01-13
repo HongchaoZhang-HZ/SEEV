@@ -36,7 +36,7 @@ If you find this repository useful in your research, please consider citing:
 @inproceedings{
 anonymous2024seev,
 title={{SEEV}: Synthesis with Efficient Exact Verification for Re{LU} Neural Barrier Functions},
-author={Anonymous},
+author={Zhang, Hongchao and Qin, Zhizhen and Gao, Sicun and Clark, Andrew},
 booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
 year={2024},
 url={https://openreview.net/forum?id=nWMqQHzI3W}
