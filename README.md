@@ -8,9 +8,22 @@
 
 This repository contains the implementation of [SEEV (Synthesis with Efficient Exact Verification)](https://openreview.net/forum?id=nWMqQHzI3W), a novel framework for synthesizing Neural Control Barrier Functions (NCBFs) with ReLU activations and performing efficient safety verification. The SEEV approach integrates synthesis and verification to reduce computational overhead while maintaining safety guarantees for autonomous systems. It includes algorithms for training NCBFs with regularization and efficient verification of safety conditions across benchmark systems.
 
+📖 **Documentation:** https://hongchaozhang-hz.github.io/SEEV/ — build locally with `python -m sphinx -W --keep-going -b html site site/_build/html`.
+
+## Quick start (focused path)
+
+The maintained, license-free path targets **Python 3.10+** and installs from `requirements-ci.txt`:
+
+```bash
+python -m pip install -r requirements-ci.txt
+python -m pytest tests/unit tests/ci -q
+```
+
+The full research and certification path below requires additional dependencies and a Gurobi license.
+
 ## Requirements
 
-The requirements has been tested for python version 3.9.
+The full research and certification path has been tested for Python 3.9; the focused CI path above targets Python 3.10+.
 
 To install requirements and set up for the project, first, install [auto_LiRPA](https://github.com/Verified-Intelligence/auto_LiRPA) following the project's README.
 

@@ -1,0 +1,2 @@
+# Sphinx build output is generated; never commit it.
+_build/
