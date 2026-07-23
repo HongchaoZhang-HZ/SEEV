@@ -1,12 +1,20 @@
 import re
-from pydrake.solvers import MathematicalProgram, Solve
 import numpy as np
 import sys, os
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from EEV.Modules.utils import *
 from EEV.Modules.NNet import NeuralNetwork as NNet
 from EEV.Scripts.Status import NeuronStatus, NetworkStatus
-from pydrake.solvers import ClpSolver
+
+# Drake is only needed when a solver-backed helper is called. Keeping the
+# import optional lets the data and neural-status surface load without Drake.
+try:
+    from pydrake.solvers import MathematicalProgram, Solve
+except ModuleNotFoundError as exc:
+    if exc.name not in {"pydrake", "pydrake.solvers"}:
+        raise
+    MathematicalProgram = None
+    Solve = None
 
 # Given a linear expression of a ReLU NN (Activation set $S$), 
 # return a set of linear constraints to formulate $\mathcal{X}(S)$
