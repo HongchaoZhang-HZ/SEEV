@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved
+Local verification passed; publication pending
 
 ## Inputs
 
@@ -32,6 +32,17 @@ Approved
 - `tasks/prd-seev-hardening-site.md` — approved requirements.
 - `tasks/tasks-seev-hardening-site.md` — approved workflow task plan.
 - `tasks/supervisor-plan-v1.md` — immutable Claude supervision plan.
+- `EEV/EEV/`, `tests/`, and `scripts/ci/` — focused imports, behavior tests,
+  strict report/dependency gates, and measured sample-generation optimization.
+- `requirements.txt` and `requirements-ci.txt` — Pillow 12.3.0 minimum and
+  Python 3.10+ focused environment.
+- `.github/workflows/` — stable `unit` and `site` pull-request gates plus Pages
+  deployment.
+- `site/`, `requirements-docs.txt`, and `README.md` — warning-clean project
+  site, usage documentation, and public entry point.
+- `artifacts/m2/benchmark.json` and `artifacts/m3/VALIDATION.md` — raw benchmark
+  and site validation evidence.
+- `tasks/verification-seev-hardening-site.md` — independent verifier verdict.
 
 ## Validation Strategy
 
@@ -45,73 +56,76 @@ Approved
 
 ## Tasks
 
-- [ ] 1.0 Establish the maintained unit-test surface and Pillow policy
-  - [ ] 1.1 Refactor only the core package imports needed by focused tests.
+- [x] 1.0 Establish the maintained unit-test surface and Pillow policy
+  - [x] 1.1 Refactor only the core package imports needed by focused tests.
     - Dependencies: none
     - Scope: `EEV/EEV`, packaging metadata
     - Owner: Claude executor; Codex reviewer
     - Acceptance: focused modules import without licensed solvers.
     - Validate: `.venv/bin/python -m pytest tests/unit -q`
-    - Evidence: pending
-  - [ ] 1.2 Add behavior-focused unit tests and a strict JUnit integrity gate.
+    - Evidence: focused solver-free imports pass in the 97-test CI gate.
+  - [x] 1.2 Add behavior-focused unit tests and a strict JUnit integrity gate.
     - Dependencies: 1.1
     - Scope: `tests/unit`, `scripts/ci`
     - Owner: Claude executor; Codex reviewer
     - Acceptance: tests pass; report has no failures, errors, unexpected skips,
       and meets its recorded count floor.
     - Validate: `.venv/bin/python -m pytest tests/unit -q --junitxml=artifacts/unit.xml && .venv/bin/python scripts/ci/check_test_report.py artifacts/unit.xml`
-    - Evidence: pending
-  - [ ] 1.3 Replace Pillow 9.5.0 with a Python 3.10+ compatible safe constraint.
+    - Evidence: JUnit accepted 97 tests with zero failures, errors, or skips.
+  - [x] 1.3 Replace Pillow 9.5.0 with a Python 3.10+ compatible safe constraint.
     - Dependencies: none
     - Scope: dependency files and dependency check
     - Owner: Claude executor; Codex reviewer
     - Acceptance: resolved Pillow is at least 12.3.0 and no direct requirement
       permits an older release.
     - Validate: `.venv/bin/python scripts/ci/check_pillow.py`
-    - Evidence: pending
+    - Evidence: installed Pillow 12.3.0; both direct constraints accepted.
 
-- [ ] 2.0 Add CI and measured optimization
-  - [ ] 2.1 Add pull-request unit/report and site-build jobs.
+- [x] 2.0 Add CI and measured optimization
+  - [x] 2.1 Add pull-request unit/report and site-build jobs.
     - Dependencies: 1.0
     - Scope: `.github/workflows/ci.yml`, CI support files
     - Owner: Claude executor; Codex reviewer
     - Acceptance: workflow syntax is valid and local equivalents pass.
     - Validate: local unit/report/dependency/site commands plus GitHub run
-    - Evidence: pending
-  - [ ] 2.2 Optimize one profiled core hot path.
+    - Evidence: local YAML/contract validation passed; live run pending.
+  - [x] 2.2 Optimize one profiled core hot path.
     - Dependencies: 1.2
     - Scope: one core implementation path and its tests/benchmark
     - Owner: Claude executor; Codex reviewer
     - Acceptance: behavior is unchanged and final benchmark median is no slower
       than the recorded baseline.
     - Validate: `.venv/bin/python -m pytest tests/unit tests/performance -q`
-    - Evidence: pending
+    - Evidence: tracked median ratio 0.401; float64, integer, and float32
+      behavior is bit-for-bit identical in the required unit gate.
 
-- [ ] 3.0 Build the public project site
-  - [ ] 3.1 Create the Sphinx site, responsive visual system, and usage content.
+- [x] 3.0 Build the public project site
+  - [x] 3.1 Create the Sphinx site, responsive visual system, and usage content.
     - Dependencies: 1.0
     - Scope: `site/`, factual links and commands from repository sources
     - Owner: Claude executor; Codex reviewer
     - Acceptance: required pages/content are present, commands are copyable, and
       the warning-clean site build passes.
     - Validate: `.venv/bin/python -m sphinx -W --keep-going -b html site site/_build/html`
-    - Evidence: pending
-  - [ ] 3.2 Add Pages deployment and README entry points.
+    - Evidence: 36 site tests; seven warning-clean pages; desktop/mobile browser
+      checks found one H1 and no horizontal overflow.
+  - [x] 3.2 Add Pages deployment and README entry points.
     - Dependencies: 3.1
     - Scope: `.github/workflows/pages.yml`, `README.md`
     - Owner: Claude executor; Codex reviewer
     - Acceptance: Pages workflow builds the same `site/_build/html` output.
     - Validate: local site build plus GitHub Pages run
-    - Evidence: pending
+    - Evidence: local Pages workflow contract passed; live deployment pending.
 
 - [ ] 4.0 Independently verify and publish
-  - [ ] 4.1 Audit the final diff against every PRD criterion.
+  - [x] 4.1 Audit the final diff against every PRD criterion.
     - Dependencies: 2.0, 3.0
     - Scope: read-only verification and `tasks/verification-seev-hardening-site.md`
     - Owner: Codex and independent verifier
     - Acceptance: required gates pass with no unreported scope deviation.
     - Validate: all focused and broad commands in this plan
-    - Evidence: pending
+    - Evidence: independent verifier PASS at `d00d03b`; see
+      `tasks/verification-seev-hardening-site.md`.
   - [ ] 4.2 Push the feature branch, open a pull request, and require passing CI.
     - Dependencies: 4.1
     - Scope: GitHub branch and pull request
