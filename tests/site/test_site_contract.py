@@ -43,13 +43,16 @@ def test_conf_uses_furo_and_registers_local_assets():
     assert 'html_theme = "furo"' in conf
     assert '"seev.css"' in conf
     assert '"copybutton.js"' in conf
+    assert '"sidebar-scrollspy.js"' in conf
     assert os.path.isfile(os.path.join(_STATIC, "seev.css"))
     assert os.path.isfile(os.path.join(_STATIC, "copybutton.js"))
+    assert os.path.isfile(os.path.join(_STATIC, "sidebar-scrollspy.js"))
 
 
 def test_navigation_lists_every_page():
     index = _read("index.rst")
     assert ".. toctree::" in index
+    assert ":hidden:" in index
     for name in _PAGES:
         if name == "index.rst":
             continue

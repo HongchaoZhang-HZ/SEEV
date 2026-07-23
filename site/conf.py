@@ -38,7 +38,7 @@ html_theme = "furo"
 html_title = "SEEV"
 html_static_path = ["_static"]
 html_css_files = ["seev.css"]
-html_js_files = ["copybutton.js"]
+html_js_files = ["copybutton.js", "sidebar-scrollspy.js"]
 html_show_sourcelink = False
 html_copy_source = False
 
