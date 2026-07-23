@@ -14,8 +14,13 @@ def generate_samples(domain, num_samples):
     num_dimensions = len(domain)
 
     # Convert once so scaling stays entirely in Torch while preserving the
-    # dtype selected by the previous NumPy conversion.
-    domain = torch.as_tensor(np.array(domain))
+    # dtype selected by the previous NumPy/Torch operation. Torch keeps
+    # integer bounds in float32 arithmetic, while the legacy mixed operation
+    # promoted them to float64, so make that promotion explicit.
+    domain_array = np.array(domain)
+    if np.issubdtype(domain_array.dtype, np.integer):
+        domain_array = domain_array.astype(np.float64)
+    domain = torch.as_tensor(domain_array)
     lows = domain[:, 0]
     spans = domain[:, 1] - domain[:, 0]
 

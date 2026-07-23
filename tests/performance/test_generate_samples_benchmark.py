@@ -52,6 +52,18 @@ def test_optimized_matches_legacy_bit_for_bit():
     assert torch.equal(legacy, optimized)
 
 
+def test_optimized_matches_legacy_for_integer_domain():
+    domain = [(0, 3), (-4, 7), (2, 2)]
+    torch.manual_seed(_SEED)
+    legacy = _legacy_generate_samples(domain, _NUM_SAMPLES)
+    torch.manual_seed(_SEED)
+    optimized = optimized_generate_samples(domain, _NUM_SAMPLES)
+
+    assert legacy.dtype == optimized.dtype == torch.float64
+    assert legacy.shape == optimized.shape
+    assert torch.equal(legacy, optimized)
+
+
 def test_optimized_scaling_is_warning_free():
     # The legacy path emits the NumPy 2 deprecation warning; the optimized
     # path must not emit any warning during scaling.
