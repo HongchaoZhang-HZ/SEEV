@@ -1,6 +1,6 @@
 """Contract tests for the SEEV documentation visual and interaction system.
 
-The dark palette, single orange accent, code-block left rule, responsive
+The light/dark palettes, orange accent, code-block left rule, responsive
 layout, and reduced-motion handling live in ``_static/seev.css``. The
 dependency-free copy control lives in ``_static/copybutton.js``. These checks
 assert their presence as text so no browser or bundler is required.
@@ -18,11 +18,18 @@ def _read(name):
         return handle.read()
 
 
-def test_dark_palette_and_single_accent():
+def test_light_and_dark_palettes_with_accessible_accents():
     css = _read("seev.css").lower()
+    assert "#f8f7f4" in css  # light canvas
+    assert "#ffffff" in css  # light cards
+    assert "#b54800" in css  # light accent
     assert "#09090b" in css  # dark canvas
     assert "#16161a" in css  # dark cards
-    assert "#ea6400" in css  # single orange accent
+    assert "#ea6400" in css  # dark accent
+    assert 'body[data-theme="light"]' in css
+    assert 'body[data-theme="dark"]' in css
+    assert 'body[data-theme="auto"]' in css
+    assert "prefers-color-scheme: dark" in css
 
 
 def test_readable_content_width_around_820px():

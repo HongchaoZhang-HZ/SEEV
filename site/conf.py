@@ -17,7 +17,10 @@ paper_title = (
 # Venue and year, kept verbatim from README.md / the BibTeX entry.
 venue = "The Thirty-eighth Annual Conference on Neural Information Processing Systems"
 year = "2024"
-openreview_url = "https://openreview.net/forum?id=nWMqQHzI3W"
+paper_url = (
+    "https://proceedings.neurips.cc/paper_files/paper/2024/hash/"
+    "b7868dedad7192f83c9efb042da43317-Abstract-Conference.html"
+)
 
 # -- General configuration ---------------------------------------------------
 
@@ -39,12 +42,11 @@ html_js_files = ["copybutton.js"]
 html_show_sourcelink = False
 html_copy_source = False
 
-# Force the restrained dark documentation system regardless of the visitor's
-# OS colour scheme; the palette lives in ``_static/seev.css``.
+# The coordinated light and dark palettes live in ``_static/seev.css``.
 html_theme_options = {
     "light_css_variables": {
-        "color-brand-primary": "#ea6400",
-        "color-brand-content": "#ea6400",
+        "color-brand-primary": "#b54800",
+        "color-brand-content": "#a84000",
     },
     "dark_css_variables": {
         "color-brand-primary": "#ea6400",

@@ -1,0 +1,5 @@
+# Optional local development tools.
+-r requirements-ci.txt
+mypy
+flake8
+brunette

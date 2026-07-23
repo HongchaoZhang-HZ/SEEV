@@ -15,13 +15,13 @@ SEEV
 
 SEEV is the reference implementation of `SEEV: Synthesis with Efficient Exact
 Verification for ReLU Neural Barrier Functions
-<https://openreview.net/forum?id=nWMqQHzI3W>`_, published at the
+<https://proceedings.neurips.cc/paper_files/paper/2024/hash/b7868dedad7192f83c9efb042da43317-Abstract-Conference.html>`_, published at the
 Thirty-eighth Annual Conference on Neural Information Processing Systems
 (NeurIPS 2024). The framework trains ReLU Neural Control Barrier Functions
 (NCBFs) with verification-aware regularization and then verifies the safety
 conditions exactly by reasoning over the network's activation regions.
 
-- Paper and reviews: https://openreview.net/forum?id=nWMqQHzI3W
+- Paper: https://proceedings.neurips.cc/paper_files/paper/2024/hash/b7868dedad7192f83c9efb042da43317-Abstract-Conference.html
 - Source repository: https://github.com/HongchaoZhang-HZ/SEEV — the ``EEV``
   verification package and the ``neural_clbf_seev`` training/certification
   code.

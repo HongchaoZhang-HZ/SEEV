@@ -1,0 +1,6 @@
+# Optional legacy integrations. Do not install these for the focused CI path.
+#
+# auto_LiRPA is inherited from the exactverif-reluncbf-nips23 search code.
+# Gurobi is an optional evaluation backend in the adapted neural_clbf stack.
+auto_LiRPA
+gurobipy==9.1.2

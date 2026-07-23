@@ -1,0 +1,3 @@
+# Optional local performance-test dependencies.
+-r requirements-ci.txt
+pytest-benchmark>=4.0

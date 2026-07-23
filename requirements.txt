@@ -1,3 +1,6 @@
+# Legacy research runtime. This file is not the maintained CI environment;
+# use requirements-ci.txt for the supported license-free path.
+
 # Standard
 numpy==1.26.4
 matplotlib==3.8.3
@@ -5,12 +8,6 @@ seaborn==0.13.2
 pandas==2.2.2
 scipy==1.10.1
 scikit-learn==1.2.1
-
-# Code quality
-mypy
-pytest
-flake8
-brunette
 
 # Learning libraries
 torch==1.9.1
@@ -20,14 +17,12 @@ torchmetrics==0.5.1
 # Optimization
 cvxpy==1.2.1
 cvxpylayers==0.1.5
-gurobipy==9.1.2
 osqp
 ecos
 scs
 casadi
 drake
 dreal==4.21.6.2
-tomlkit==0.13.2
 Pillow>=12.3.0
 
 # Geometry

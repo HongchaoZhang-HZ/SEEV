@@ -1,6 +1,5 @@
 import sys, os
 import time
-from pytest import fail
 sys.path.append(os.path.realpath(os.path.dirname(__file__)+"/.."))
 from Verifier.VeriUtil import *
 from Verifier.LinearVeri import *
@@ -119,6 +118,3 @@ class Verifier(verifier_basic):
             return False, ce_ho
         print('Verification passed!')
         return True, None
-
-    
-    
