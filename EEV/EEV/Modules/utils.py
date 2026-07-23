@@ -13,14 +13,17 @@ def generate_samples(domain, num_samples):
     # Get the dimensions of the domain
     num_dimensions = len(domain)
 
-    # Convert domain to numpy array
-    domain = np.array(domain)
+    # Convert once so scaling stays entirely in Torch while preserving the
+    # dtype selected by the previous NumPy conversion.
+    domain = torch.as_tensor(np.array(domain))
+    lows = domain[:, 0]
+    spans = domain[:, 1] - domain[:, 0]
 
     # Generate random samples
     samples = torch.rand((num_samples, num_dimensions))
 
-    # Scale the samples to the domain
-    samples = samples * (domain[:, 1] - domain[:, 0]) + domain[:, 0]
+    # Scale the samples to the domain (Torch-only arithmetic)
+    samples = samples * spans + lows
 
     return samples
 
