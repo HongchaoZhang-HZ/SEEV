@@ -28,8 +28,10 @@ a pretrained model from ``neural_clbf_seev/models``. The exact commands live in
    python certify_cbf.py --system_name darboux --cbf_hidden_layers 2 --cbf_hidden_size 256 --model_path models/darboux_2_256.pt
 
 The metrics reported in the paper are written to stdout. This example requires
-the full research / certification path from :doc:`getting-started`, including a
-Gurobi license; it is not part of continuous integration.
+the full research / certification path from :doc:`getting-started`. The
+historical auto_LiRPA search integration is installed separately from
+``requirements-legacy.txt``; the optional Gurobi controller backend is not a
+focused-CI dependency.
 
 Supported system names
 -----------------------
@@ -57,5 +59,6 @@ The seeded training commands, with hyperparameters specified per run, live in
 - ``neural_clbf_seev/linear_satellite_commands.txt``
 - ``neural_clbf_seev/high_o_commands.txt``
 
-Training and certification use the full research path and its licensed-solver
-requirement; see :doc:`limitations`.
+Training and certification use the full research path. Legacy verification and
+licensed-solver extras are isolated from the focused environment; see
+:doc:`limitations`.

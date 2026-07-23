@@ -19,7 +19,8 @@ python -m pip install -r requirements-ci.txt
 python -m pytest tests/unit tests/ci -q
 ```
 
-The full research and certification path below requires additional dependencies and a Gurobi license.
+The full research and certification path below uses additional legacy
+dependencies. The focused path does not install them.
 
 ## Requirements
 
@@ -40,11 +41,14 @@ Then, run the following commands:
 
 ```setup
 pip install -r requirements.txt
+pip install -r requirements-legacy.txt
 [Inside EEV] pip install -e .
 [Inside neural_clbf_seev] pip install -e .
 ```
 
-A gurobi license is required.
+Install `requirements-legacy.txt` only when reproducing the historical
+auto_LiRPA search path or the optional Gurobi evaluation backend. The latter
+requires a Gurobi license.
 
 
 Note that the directory `neural_clbf_seev` is adapted from https://github.com/MIT-REALM/neural_clbf. 

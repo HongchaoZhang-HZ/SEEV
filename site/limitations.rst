@@ -9,7 +9,8 @@ Licensed solvers
 ----------------
 
 The adapted ``neural_clbf`` training stack includes a Gurobi evaluation
-backend. It is a legacy optional integration and requires a **Gurobi license**.
+backend. It is isolated in ``requirements-legacy.txt``, is not installed by
+the maintained path, and requires a **Gurobi license**.
 The upstream `exactverif-reluncbf-nips23
 <https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_ repository
 does not declare or import Gurobi.
@@ -21,9 +22,11 @@ The research path pins older libraries — for example ``torch==1.9.1``,
 ``pytorch-lightning==1.3.4``, ``cvxpy==1.2.1``, and ``dreal==4.21.6.2`` — and
 also contains the ``auto_LiRPA`` search integration inherited from
 `exactverif-reluncbf-nips23
-<https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. These
-legacy dependencies can conflict with newer toolchains and are separate from
-the license-free ``requirements-ci.txt`` used by the focused path.
+<https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. The
+auto_LiRPA and Gurobi integrations are declared separately in
+``requirements-legacy.txt``. These legacy dependencies can conflict with newer
+toolchains and are separate from the license-free ``requirements-ci.txt`` used
+by the focused path.
 
 Pretrained model expectations
 -----------------------------

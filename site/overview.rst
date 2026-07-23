@@ -53,8 +53,9 @@ verification surface; it does not run paper-scale training or certification.
 
 **Full research / certification path.** Reproducing the paper's training and
 exact certification uses the dependencies pinned in ``requirements.txt``,
-editable installs of the ``EEV`` and ``neural_clbf_seev`` packages, and legacy
-optional integrations. The ``auto_LiRPA`` search integration descends from
+editable installs of the ``EEV`` and ``neural_clbf_seev`` packages, and
+optional integrations isolated in ``requirements-legacy.txt``. The
+``auto_LiRPA`` search integration descends from
 `exactverif-reluncbf-nips23
 <https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. Gurobi
 enters through the adapted

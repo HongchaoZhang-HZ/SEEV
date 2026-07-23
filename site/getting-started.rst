@@ -34,22 +34,33 @@ Full research / certification path
 .. warning::
 
    The full path is **not** covered by continuous integration. It requires
-   additional, older pinned dependencies (see ``requirements.txt``) and a
-   **Gurobi license**. Reproducing it may require a specific platform and
-   non-trivial resources; results are not re-derived on this site.
+   additional, older pinned dependencies (see ``requirements.txt``).
+   Historical auto_LiRPA search and Gurobi evaluation integrations are
+   isolated in ``requirements-legacy.txt``. Reproducing them may require a
+   specific platform, a Gurobi license, and non-trivial resources; results are
+   not re-derived on this site.
 
 Reproducing the paper's training and exact certification requires:
 
-1. Installing the legacy
-   `auto_LiRPA <https://github.com/Verified-Intelligence/auto_LiRPA>`_
-   integration inherited from
-   `exactverif-reluncbf-nips23
-   <https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_.
-2. Installing the pinned research dependencies:
+1. Installing the pinned research runtime:
 
    .. code-block:: bash
 
       pip install -r requirements.txt
+
+2. Installing the optional legacy integrations only when reproducing the
+   historical auto_LiRPA search or Gurobi evaluation paths:
+
+   .. code-block:: bash
+
+      pip install -r requirements-legacy.txt
+
+   ``auto_LiRPA`` is inherited from
+   `exactverif-reluncbf-nips23
+   <https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. Gurobi
+   is inherited through the adapted
+   `neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_ stack and requires
+   a valid license.
 
 3. Editable installs of the two in-repository packages:
 
@@ -57,10 +68,6 @@ Reproducing the paper's training and exact certification requires:
 
       cd EEV && pip install -e .
       cd neural_clbf_seev && pip install -e .
-
-4. A valid **Gurobi license** for the optional evaluation backend inherited
-   through the adapted
-   `neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_ stack.
 
 The ``neural_clbf_seev`` directory is adapted from
 `neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_. Once this path is

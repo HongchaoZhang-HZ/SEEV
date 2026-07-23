@@ -91,6 +91,7 @@ def test_getting_started_distinguishes_paths_with_license_warning():
     assert ".. warning::" in text
     assert "Gurobi license" in text
     assert "requirements.txt" in text
+    assert "requirements-legacy.txt" in text
 
 
 def test_usage_has_exact_darboux_certification_example():
@@ -169,3 +170,5 @@ def test_legacy_dependency_provenance_is_explicit():
     assert source in limitations
     assert "not" in limitations.lower()
     assert "Gurobi" in limitations
+    assert "requirements-legacy.txt" in overview
+    assert "requirements-legacy.txt" in limitations
