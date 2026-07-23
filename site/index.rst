@@ -72,6 +72,7 @@ What SEEV provides
 .. toctree::
    :maxdepth: 2
    :caption: Documentation
+   :hidden:
 
    overview
    method

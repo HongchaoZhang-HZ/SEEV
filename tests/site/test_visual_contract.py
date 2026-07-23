@@ -30,6 +30,7 @@ def test_light_and_dark_palettes_with_accessible_accents():
     assert 'body[data-theme="dark"]' in css
     assert 'body[data-theme="auto"]' in css
     assert "prefers-color-scheme: dark" in css
+    assert 'html:has(body[data-theme="dark"])' in css
 
 
 def test_readable_content_width_around_820px():
@@ -70,5 +71,19 @@ def test_copy_control_is_accessible_and_dependency_free():
     assert "aria-label" in js
     assert "clipboard" in js.lower()
     # Keep the control dependency-free: no imports or external URLs.
+    assert "import " not in js
+    assert "http://" not in js and "https://" not in js
+
+
+def test_left_sidebar_scrollspy_is_accessible_and_dependency_free():
+    css = _read("seev.css")
+    js = _read("sidebar-scrollspy.js")
+    assert ".toc-drawer" in css
+    assert "display: none" in css
+    assert "seev-page-sections" in js
+    assert "current-page" in js
+    assert "aria-current" in js
+    assert "aria-expanded" in js
+    assert 'addEventListener("scroll"' in js
     assert "import " not in js
     assert "http://" not in js and "https://" not in js

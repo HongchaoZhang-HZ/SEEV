@@ -45,6 +45,17 @@ body[data-theme="auto"] {
   color-scheme: light;
 }
 
+/* Keep the browser canvas in sync with Furo's body-level theme. Without this,
+   the root canvas stays light and can show below the dark page while scrolling. */
+html {
+  background: #f8f7f4;
+}
+
+html:has(body[data-theme="dark"]) {
+  background: #09090b;
+  color-scheme: dark;
+}
+
 /* Graphite dark palette. */
 body[data-theme="dark"] {
   --color-background-primary: #09090b;   /* canvas */
@@ -79,6 +90,11 @@ body[data-theme="dark"] {
 }
 
 @media (prefers-color-scheme: dark) {
+  html:has(body[data-theme="auto"]) {
+    background: #09090b;
+    color-scheme: dark;
+  }
+
   body[data-theme="auto"] {
     --color-background-primary: #09090b;
     --color-background-secondary: #16161a;
@@ -116,11 +132,72 @@ body[data-theme="dark"] {
 body {
   font-size: 0.94rem;
   line-height: 1.65;
+  min-height: 100vh;
+  background: var(--color-background-primary);
 }
 
 article[role="main"] {
   max-width: 820px;
   margin-inline: auto;
+}
+
+/* --- Navigation: one contextual table of contents in the left pane ------- */
+.toc-drawer {
+  display: none;
+}
+
+.sidebar-tree .toctree-l1 > a[aria-expanded] {
+  position: relative;
+  padding-right: 1.5rem;
+}
+
+.sidebar-tree .toctree-l1 > a[aria-expanded]::after {
+  position: absolute;
+  top: 50%;
+  right: 0.45rem;
+  content: "›";
+  color: var(--color-foreground-muted);
+  transform: translateY(-50%);
+  transition: transform 0.15s ease;
+}
+
+.sidebar-tree .toctree-l1 > a[aria-expanded="true"]::after {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.sidebar-tree .toctree-l1 > .seev-page-sections {
+  margin: 0.25rem 0 0.65rem;
+  padding: 0 0 0 0.8rem;
+  border-left: 1px solid var(--color-sidebar-background-border);
+}
+
+.sidebar-tree .seev-page-sections[hidden] {
+  display: none;
+}
+
+.sidebar-tree .seev-page-sections li {
+  margin: 0.12rem 0;
+}
+
+.sidebar-tree .seev-page-sections a {
+  display: block;
+  padding: 0.28rem 0.55rem;
+  border-radius: 4px;
+  color: var(--color-sidebar-link-text);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.sidebar-tree .seev-page-sections a:hover {
+  color: var(--color-brand-primary);
+  background: var(--color-sidebar-item-expander-background--hover);
+}
+
+.sidebar-tree .seev-page-sections a.current-section {
+  color: var(--color-brand-primary);
+  background: var(--color-sidebar-item-background--current);
+  box-shadow: inset 2px 0 var(--color-brand-primary);
 }
 
 /* Restrained heading scale; avoid oversized headings. */
