@@ -41,13 +41,17 @@ def test_contents_permission_is_read_only():
     assert re.search(r"^\s*contents:\s*read\s*$", text, re.MULTILINE)
 
 
-def test_single_unit_job_with_timeout_and_python_310():
+def test_unit_and_site_jobs_with_timeout_and_python_310():
     text = _workflow_text()
     jobs_text = text[text.index("jobs:") :]
+    # The workflow now runs both the focused ``unit`` gate and the ``site``
+    # documentation-build gate; both must be present, in this order.
     assert re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", jobs_text, re.MULTILINE) == [
-        "unit"
+        "unit",
+        "site",
     ]
     assert re.search(r"^\s*name:\s*unit\s*$", text, re.MULTILINE)
+    assert re.search(r"^\s*name:\s*site\s*$", text, re.MULTILINE)
     assert re.search(r"^\s*timeout-minutes:\s*\d+", text, re.MULTILINE)
     assert re.search(r'python-version:\s*"?3\.10"?', text)
 

@@ -1,0 +1,4 @@
+# License-free documentation toolchain for the SEEV project site.
+# The site is a static Sphinx/Furo build with no external services.
+sphinx>=7.2
+furo>=2024.1.29
