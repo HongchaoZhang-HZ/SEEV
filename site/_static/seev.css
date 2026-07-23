@@ -1,18 +1,52 @@
 /*
  * SEEV documentation visual system.
  *
- * Restrained dark theme layered on top of Furo. A single orange accent, thin
- * borders, a compact type scale, a readable content column, and a CSS-only
- * hero texture. No external fonts, images, or generated SVG. Respects
- * prefers-reduced-motion and keeps strong keyboard focus.
+ * Coordinated light and dark themes layered on top of Furo. A restrained
+ * orange accent, thin borders, a compact type scale, a readable content
+ * column, and a CSS-only hero texture. No external fonts, images, or generated
+ * SVG. Respects prefers-color-scheme, prefers-reduced-motion, and strong
+ * keyboard focus.
  */
 
-/* Palette applied to both Furo colour schemes so the site is always dark. */
+/* Warm paper-like light palette. ``auto`` defaults to this palette and follows
+   the operating-system dark preference in the media query below. */
 :root,
 body,
 body[data-theme="light"],
-body[data-theme="dark"],
 body[data-theme="auto"] {
+  --color-background-primary: #f8f7f4;   /* canvas */
+  --color-background-secondary: #ffffff; /* cards, sidebar */
+  --color-background-hover: #f1eee8;
+  --color-background-border: #d9d4cb;    /* thin borders */
+
+  --color-foreground-primary: #24201c;
+  --color-foreground-secondary: #5b534b;
+  --color-foreground-muted: #786f66;
+  --color-foreground-border: #d9d4cb;
+
+  --color-brand-primary: #b54800;
+  --color-brand-content: #a84000;
+
+  --color-sidebar-background: #f3f0eb;
+  --color-sidebar-background-border: #ddd7ce;
+  --color-sidebar-link-text: #514a43;
+  --color-sidebar-link-text--top-level: #24201c;
+  --color-sidebar-item-background--current: #e8e2da;
+  --color-sidebar-item-expander-background--hover: #e8e2da;
+
+  --color-api-background: #ffffff;
+  --color-highlight-on-target: #fff1e8;
+
+  --seev-code-background: #f4f1ec;
+  --seev-control-background: #ffffff;
+  --seev-grid-color: rgba(181, 72, 0, 0.12);
+  --seev-glow-color: rgba(234, 100, 0, 0.14);
+
+  color-scheme: light;
+}
+
+/* Graphite dark palette. */
+body[data-theme="dark"] {
   --color-background-primary: #09090b;   /* canvas */
   --color-background-secondary: #16161a; /* cards, sidebar */
   --color-background-hover: #1c1c22;
@@ -36,7 +70,46 @@ body[data-theme="auto"] {
   --color-api-background: #16161a;
   --color-highlight-on-target: #26262c;
 
+  --seev-code-background: #0f0f13;
+  --seev-control-background: #16161a;
+  --seev-grid-color: rgba(234, 100, 0, 0.10);
+  --seev-glow-color: rgba(234, 100, 0, 0.22);
+
   color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  body[data-theme="auto"] {
+    --color-background-primary: #09090b;
+    --color-background-secondary: #16161a;
+    --color-background-hover: #1c1c22;
+    --color-background-border: #26262c;
+
+    --color-foreground-primary: #ededf0;
+    --color-foreground-secondary: #b6b6bf;
+    --color-foreground-muted: #8a8a94;
+    --color-foreground-border: #26262c;
+
+    --color-brand-primary: #ea6400;
+    --color-brand-content: #ea6400;
+
+    --color-sidebar-background: #0d0d10;
+    --color-sidebar-background-border: #1e1e24;
+    --color-sidebar-link-text: #c7c7cf;
+    --color-sidebar-link-text--top-level: #ededf0;
+    --color-sidebar-item-background--current: #1c1c22;
+    --color-sidebar-item-expander-background--hover: #1c1c22;
+
+    --color-api-background: #16161a;
+    --color-highlight-on-target: #26262c;
+
+    --seev-code-background: #0f0f13;
+    --seev-control-background: #16161a;
+    --seev-grid-color: rgba(234, 100, 0, 0.10);
+    --seev-glow-color: rgba(234, 100, 0, 0.22);
+
+    color-scheme: dark;
+  }
 }
 
 /* Compact, readable body type and a ~820px content column. */
@@ -86,7 +159,7 @@ div.highlight {
   border: 1px solid var(--color-background-border);
   border-left: 3px solid var(--color-brand-primary);
   border-radius: 4px;
-  background: #0f0f13;
+  background: var(--seev-code-background);
 }
 
 div.highlight pre {
@@ -104,7 +177,7 @@ div.highlight pre {
   font-size: 0.72rem;
   font-family: inherit;
   color: var(--color-foreground-secondary);
-  background: #16161a;
+  background: var(--seev-control-background);
   border: 1px solid var(--color-background-border);
   border-radius: 4px;
   cursor: pointer;
@@ -143,8 +216,8 @@ div.highlight pre {
 
 .seev-hero__grid {
   background-image:
-    linear-gradient(to right, rgba(234, 100, 0, 0.10) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(234, 100, 0, 0.10) 1px, transparent 1px);
+    linear-gradient(to right, var(--seev-grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--seev-grid-color) 1px, transparent 1px);
   background-size: 34px 34px;
   mask-image: radial-gradient(ellipse 70% 80% at 30% 0%, #000 40%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 70% 80% at 30% 0%, #000 40%, transparent 100%);
@@ -153,7 +226,7 @@ div.highlight pre {
 .seev-hero__glow {
   background: radial-gradient(
     ellipse 60% 70% at 80% 10%,
-    rgba(234, 100, 0, 0.22),
+    var(--seev-glow-color),
     transparent 60%
   );
 }

@@ -2,11 +2,11 @@
 
 # SEEV: Synthesis with Efficient Exact Verification for ReLU Neural Barrier Functions
 
-[![Conference](https://img.shields.io/badge/NeurIPS%20'24-Accepted-success)](https://openreview.net/forum?id=nWMqQHzI3W)
+[![Conference](https://img.shields.io/badge/NeurIPS%20'24-Accepted-success)](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b7868dedad7192f83c9efb042da43317-Abstract-Conference.html)
 
 </div>
 
-This repository contains the implementation of [SEEV (Synthesis with Efficient Exact Verification)](https://openreview.net/forum?id=nWMqQHzI3W), a novel framework for synthesizing Neural Control Barrier Functions (NCBFs) with ReLU activations and performing efficient safety verification. The SEEV approach integrates synthesis and verification to reduce computational overhead while maintaining safety guarantees for autonomous systems. It includes algorithms for training NCBFs with regularization and efficient verification of safety conditions across benchmark systems.
+This repository contains the implementation of [SEEV (Synthesis with Efficient Exact Verification)](https://proceedings.neurips.cc/paper_files/paper/2024/hash/b7868dedad7192f83c9efb042da43317-Abstract-Conference.html), a novel framework for synthesizing Neural Control Barrier Functions (NCBFs) with ReLU activations and performing efficient safety verification. The SEEV approach integrates synthesis and verification to reduce computational overhead while maintaining safety guarantees for autonomous systems. It includes algorithms for training NCBFs with regularization and efficient verification of safety conditions across benchmark systems.
 
 📖 **Documentation:** https://hongchaozhang-hz.github.io/SEEV/ — build locally with `python -m sphinx -W --keep-going -b html site site/_build/html`.
 
@@ -25,7 +25,16 @@ The full research and certification path below requires additional dependencies 
 
 The full research and certification path has been tested for Python 3.9; the focused CI path above targets Python 3.10+.
 
-To install requirements and set up for the project, first, install [auto_LiRPA](https://github.com/Verified-Intelligence/auto_LiRPA) following the project's README.
+The `auto_LiRPA` search integration is inherited from the legacy
+[`exactverif-reluncbf-nips23`](https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23)
+verification path. Gurobi enters through the adapted
+[`neural_clbf`](https://github.com/MIT-REALM/neural_clbf) training stack; it is
+not declared by `exactverif-reluncbf-nips23`. Both are legacy, optional
+integrations outside the focused CI path.
+
+To install requirements and set up for the full legacy path, first install
+[auto_LiRPA](https://github.com/Verified-Intelligence/auto_LiRPA) following the
+project's README.
 
 Then, run the following commands:
 
@@ -53,11 +62,16 @@ To perform certification, run the commands located in `neural_clbf_seev/certify_
 If you find this repository useful in your research, please consider citing:
 
 ```bibtex
-@inproceedings{
-zhang2024seev,
-title={{SEEV}: Synthesis with Efficient Exact Verification for Re{LU} Neural Barrier Functions},
-author={Hongchao Zhang and Zhizhen Qin and Sicun Gao and Andrew Clark},
-booktitle={The Thirty-eighth Annual Conference on Neural Information Processing Systems},
-year={2024},
-url={https://openreview.net/forum?id=nWMqQHzI3W}
+@inproceedings{zhang2024seev,
+    author = {Zhang, Hongchao and Qin, Zhizhen and Gao, Sicun and Clark, Andrew},
+    booktitle = {Advances in Neural Information Processing Systems},
+    doi = {10.52202/079017-3214},
+    editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+    pages = {101367--101392},
+    publisher = {Curran Associates, Inc.},
+    title = {SEEV: Synthesis with Efficient Exact Verification for ReLU Neural Barrier Functions},
+    url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/b7868dedad7192f83c9efb042da43317-Paper-Conference.pdf},
+    volume = {37},
+    year = {2024}
 }
+```

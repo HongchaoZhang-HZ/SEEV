@@ -8,19 +8,22 @@ any part of it.
 Licensed solvers
 ----------------
 
-The full certification and training path requires a **Gurobi license**
-(``gurobipy`` is pinned in ``requirements.txt``). Without a valid license the
-exact certification example and the paper-scale runs cannot be executed.
+The adapted ``neural_clbf`` training stack includes a Gurobi evaluation
+backend. It is a legacy optional integration and requires a **Gurobi license**.
+The upstream `exactverif-reluncbf-nips23
+<https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_ repository
+does not declare or import Gurobi.
 
 Legacy research dependencies
 ----------------------------
 
 The research path pins older libraries — for example ``torch==1.9.1``,
 ``pytorch-lightning==1.3.4``, ``cvxpy==1.2.1``, and ``dreal==4.21.6.2`` — and
-also depends on an external
-`auto_LiRPA <https://github.com/Verified-Intelligence/auto_LiRPA>`_ setup.
-These pins can conflict with newer toolchains and are separate from the
-license-free ``requirements-ci.txt`` used by the focused path.
+also contains the ``auto_LiRPA`` search integration inherited from
+`exactverif-reluncbf-nips23
+<https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. These
+legacy dependencies can conflict with newer toolchains and are separate from
+the license-free ``requirements-ci.txt`` used by the focused path.
 
 Pretrained model expectations
 -----------------------------

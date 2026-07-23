@@ -3,7 +3,7 @@
 These checks read the ``site/`` sources as text (no Sphinx import required) and
 assert that every required page exists, that the required commands and links are
 present verbatim, that navigation wires every page into the table of contents,
-and that the dark visual system, copy control, responsive rules, and
+and that the two-theme visual system, copy control, responsive rules, and
 reduced-motion handling are all present.
 """
 
@@ -71,7 +71,10 @@ def test_landing_has_three_capability_cards():
 
 def test_landing_has_paper_and_repository_links():
     index = _read("index.rst")
-    assert "https://openreview.net/forum?id=nWMqQHzI3W" in index
+    assert (
+        "https://proceedings.neurips.cc/paper_files/paper/2024/hash/"
+        "b7868dedad7192f83c9efb042da43317-Abstract-Conference.html"
+    ) in index
     assert "https://github.com/HongchaoZhang-HZ/SEEV" in index
 
 
@@ -121,8 +124,48 @@ def test_limitations_covers_required_caveats():
 
 def test_citation_has_exact_bibtex():
     text = _read("citation.rst")
-    assert "@inproceedings{" in text
-    assert "zhang2024seev" in text
-    assert "author={Hongchao Zhang and Zhizhen Qin and Sicun Gao and Andrew Clark}" in text
-    assert "year={2024}" in text
-    assert "url={https://openreview.net/forum?id=nWMqQHzI3W}" in text
+    assert "@inproceedings{zhang2024seev," in text
+    assert (
+        "author = {Zhang, Hongchao and Qin, Zhizhen and Gao, Sicun and "
+        "Clark, Andrew}"
+    ) in text
+    assert "booktitle = {Advances in Neural Information Processing Systems}" in text
+    assert "doi = {10.52202/079017-3214}" in text
+    assert (
+        "editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and "
+        "U. Paquet and J. Tomczak and C. Zhang}"
+    ) in text
+    assert "pages = {101367--101392}" in text
+    assert "publisher = {Curran Associates, Inc.}" in text
+    assert (
+        "title = {SEEV: Synthesis with Efficient Exact Verification for ReLU "
+        "Neural Barrier Functions}"
+    ) in text
+    assert "volume = {37}" in text
+    assert "year = {2024}" in text
+    assert (
+        "url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/"
+        "b7868dedad7192f83c9efb042da43317-Paper-Conference.pdf}"
+    ) in text
+
+
+def test_readme_uses_official_proceedings_record_and_bibtex():
+    with open(_README, "r", encoding="utf-8") as handle:
+        readme = handle.read()
+    assert (
+        "https://proceedings.neurips.cc/paper_files/paper/2024/hash/"
+        "b7868dedad7192f83c9efb042da43317-Abstract-Conference.html"
+    ) in readme
+    assert "@inproceedings{zhang2024seev," in readme
+    assert "doi = {10.52202/079017-3214}" in readme
+    assert "openreview.net" not in readme
+
+
+def test_legacy_dependency_provenance_is_explicit():
+    overview = _read("overview.rst")
+    limitations = _read("limitations.rst")
+    source = "https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23"
+    assert source in overview
+    assert source in limitations
+    assert "not" in limitations.lower()
+    assert "Gurobi" in limitations

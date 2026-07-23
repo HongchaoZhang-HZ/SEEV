@@ -52,8 +52,13 @@ runs. It covers the core data structures and the license-free portions of the
 verification surface; it does not run paper-scale training or certification.
 
 **Full research / certification path.** Reproducing the paper's training and
-exact certification uses the dependencies pinned in ``requirements.txt``, an
-`auto_LiRPA <https://github.com/Verified-Intelligence/auto_LiRPA>`_ setup,
-editable installs of the ``EEV`` and ``neural_clbf_seev`` packages, and a
-Gurobi license. This path is **not** covered by continuous integration. See
-:doc:`getting-started` and :doc:`limitations` for the requirements and caveats.
+exact certification uses the dependencies pinned in ``requirements.txt``,
+editable installs of the ``EEV`` and ``neural_clbf_seev`` packages, and legacy
+optional integrations. The ``auto_LiRPA`` search integration descends from
+`exactverif-reluncbf-nips23
+<https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_. Gurobi
+enters through the adapted
+`neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_ training stack, not
+the exact-verification repository. This path is **not** covered by continuous
+integration. See :doc:`getting-started` and :doc:`limitations` for the
+requirements and caveats.

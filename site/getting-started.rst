@@ -40,8 +40,11 @@ Full research / certification path
 
 Reproducing the paper's training and exact certification requires:
 
-1. Installing `auto_LiRPA <https://github.com/Verified-Intelligence/auto_LiRPA>`_
-   by following that project's README.
+1. Installing the legacy
+   `auto_LiRPA <https://github.com/Verified-Intelligence/auto_LiRPA>`_
+   integration inherited from
+   `exactverif-reluncbf-nips23
+   <https://github.com/HongchaoZhang-HZ/exactverif-reluncbf-nips23>`_.
 2. Installing the pinned research dependencies:
 
    .. code-block:: bash
@@ -55,7 +58,9 @@ Reproducing the paper's training and exact certification requires:
       cd EEV && pip install -e .
       cd neural_clbf_seev && pip install -e .
 
-4. A valid **Gurobi license**.
+4. A valid **Gurobi license** for the optional evaluation backend inherited
+   through the adapted
+   `neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_ stack.
 
 The ``neural_clbf_seev`` directory is adapted from
 `neural_clbf <https://github.com/MIT-REALM/neural_clbf>`_. Once this path is
