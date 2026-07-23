@@ -2,9 +2,7 @@
 
 ## Verdict
 
-PASS for all local acceptance criteria at implementation commit `d00d03b`.
-AC-5, AC-6, and AC-7 require live GitHub state and remain pending until
-publication.
+PASS for all local and live acceptance criteria.
 
 ## Independent evidence
 
@@ -26,11 +24,23 @@ publication.
   `site/_build/html` artifact.
 - Full `origin/main...HEAD` diff inspected; `git diff --check` passed.
 
+## Live evidence
+
+- PR #5 passed required `unit` and `site` checks before merge.
+- PR #5 merged to `main` as `463ee5c`.
+- `main` requires pull requests and strict `unit`/`site` checks, enforces the
+  rules for administrators, requires conversation resolution and linear
+  history, and rejects force pushes and deletions.
+- Pages run `30030915659` completed successfully.
+- `https://hongchaozhang-hz.github.io/SEEV/` returned HTTP 200 with the expected
+  SEEV landing-page content.
+
 ## Boundaries
 
 - The licensed solver-backed research path was not run and is not a required
   pull-request gate.
 - `actionlint` was unavailable. YAML parsing and workflow contract tests
   passed.
-- Live PR checks, branch protection, Pages deployment, and Pillow alert state
-  are verified after push and merge.
+- The Pillow requirement and installed environment are remediated. GitHub
+  Dependabot alert closure is asynchronous and is checked separately from the
+  acceptance verdict.
