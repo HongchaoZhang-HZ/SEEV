@@ -2,7 +2,7 @@
 
 ## Status
 
-Local verification passed; publication pending
+Complete
 
 ## Inputs
 
@@ -117,7 +117,7 @@ Local verification passed; publication pending
     - Validate: local site build plus GitHub Pages run
     - Evidence: local Pages workflow contract passed; live deployment pending.
 
-- [ ] 4.0 Independently verify and publish
+- [x] 4.0 Independently verify and publish
   - [x] 4.1 Audit the final diff against every PRD criterion.
     - Dependencies: 2.0, 3.0
     - Scope: read-only verification and `tasks/verification-seev-hardening-site.md`
@@ -126,21 +126,22 @@ Local verification passed; publication pending
     - Validate: all focused and broad commands in this plan
     - Evidence: independent verifier PASS at `d00d03b`; see
       `tasks/verification-seev-hardening-site.md`.
-  - [ ] 4.2 Push the feature branch, open a pull request, and require passing CI.
+  - [x] 4.2 Push the feature branch, open a pull request, and require passing CI.
     - Dependencies: 4.1
     - Scope: GitHub branch and pull request
     - Owner: Codex
     - Acceptance: required PR checks pass.
     - Validate: GitHub API and Actions state
-    - Evidence: pending
-  - [ ] 4.3 Protect `main`, merge through the pull request, enable Pages, and
+    - Evidence: PR #5 passed required `unit` and `site` checks before merge.
+  - [x] 4.3 Protect `main`, merge through the pull request, enable Pages, and
         verify the live site.
     - Dependencies: 4.2
     - Scope: GitHub repository settings and merge
     - Owner: Codex
     - Acceptance: branch protection and public Pages URL satisfy AC-6 and AC-7.
     - Validate: GitHub API plus public URL request
-    - Evidence: pending
+    - Evidence: protected `main`, merge commit `463ee5c`, successful Pages run
+      `30030915659`, and HTTP 200 from the public site.
 
 ## Deviations and Decisions
 

@@ -56,6 +56,12 @@ def test_unit_and_site_jobs_with_timeout_and_python_310():
     assert re.search(r'python-version:\s*"?3\.10"?', text)
 
 
+def test_ci_uses_node24_action_generations():
+    text = _workflow_text()
+    assert text.count("actions/checkout@v7") == 2
+    assert text.count("actions/setup-python@v7") == 2
+
+
 def test_installs_requirements_ci():
     commands = _workflow_commands(_workflow_text())
     assert "python -m pip install -r requirements-ci.txt" in commands

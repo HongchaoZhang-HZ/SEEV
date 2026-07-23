@@ -75,10 +75,11 @@ def test_site_job_has_read_only_contents_permission():
 def test_pages_uses_official_actions_and_deploys_built_html_only():
     text = _read(_PAGES)
     uses = " ".join(_uses(text))
-    assert "actions/checkout@" in uses
-    assert "actions/configure-pages@" in uses
-    assert "actions/upload-pages-artifact@" in uses
-    assert "actions/deploy-pages@" in uses
+    assert "actions/checkout@v7" in uses
+    assert "actions/setup-python@v7" in uses
+    assert "actions/configure-pages@v6" in uses
+    assert "actions/upload-pages-artifact@v5" in uses
+    assert "actions/deploy-pages@v5" in uses
     assert re.search(r"path:\s*site/_build/html\s*$", text, re.MULTILINE)
 
 
@@ -88,7 +89,7 @@ def test_deploy_job_has_pages_and_idtoken_permissions_and_environment():
     assert re.search(r"^\s*pages:\s*write\s*$", deploy_text, re.MULTILINE)
     assert re.search(r"^\s*id-token:\s*write\s*$", deploy_text, re.MULTILINE)
     assert re.search(r"^\s*name:\s*github-pages\s*$", deploy_text, re.MULTILINE)
-    assert "actions/configure-pages@" in deploy_text
+    assert "actions/configure-pages@v6" in deploy_text
 
 
 def test_ci_runs_on_pull_request_and_main():
